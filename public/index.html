@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>艾草加熱枕｜限時團購</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f9f9f9;
+      padding: 20px;
+      text-align: center;
+    }
+    header {
+      background-color: #6b8e23;
+      color: white;
+      padding: 20px;
+      margin-bottom: 30px;
+      position: relative;
+    }
+    img {
+      width: 300px;
+      border-radius: 10px;
+    }
+    button {
+      margin-top: 20px;
+      padding: 15px 30px;
+      font-size: 1.1rem;
+      background-color: #5a2a00;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    .cart-button {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      font-size: 1.5rem;
+      text-decoration: none;
+      color: white;
+      background: #333;
+      padding: 8px 12px;
+      border-radius: 5px;
+    }
+    .cart-badge {
+      position: absolute;
+      top: 15px;
+      right: 15px;
+      background-color: red;
+      color: white;
+      border-radius: 50%;
+      padding: 2px 7px;
+      font-size: 0.8rem;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>限時團購：艾草熱敷枕只要 NT$139</h1>
+    <a href="cart.html" class="cart-button">🛒</a>
+    <div class="cart-badge" id="cart-count">0</div>
+  </header>
+
+  <img src="https://via.placeholder.com/300x200.png?text=%E8%89%BE%E8%8D%89%E7%86%B1%E6%95%B7%E6%9E%95" alt="商品圖" />
+  <p>原價 NT$980，我們團購只要 NT$139！限量供應🔥</p>
+
+  <button onclick="addToCart()">🛒 加入購物車</button>
+
+ <script>
+  function updateCartCount() {
+    const cart = JSON.parse(localStorage.getItem('cart')) || [];
+    const totalCount = cart.reduce((sum, item) => sum + (item.quantity || 1), 0);
+    document.getElementById('cart-count').innerText = totalCount;
+  }
+
+  function addToCart() {
+    const item = {
+      name: '艾草熱敷枕',
+      price: 139
+    };
+
+    const cart = JSON.parse(localStorage.getItem('cart')) || [];
+    const existing = cart.find(p => p.name === item.name);
+    if (existing) {
+      existing.quantity = (existing.quantity || 1) + 1;
+    } else {
+      item.quantity = 1;
+      cart.push(item);
+    }
+
+    localStorage.setItem('cart', JSON.stringify(cart));
+    alert('✅ 已加入購物車');
+    updateCartCount();
+  }
+
+  // 使用者返回此頁時也重新更新購物車數量
+  window.addEventListener('pageshow', () => {
+    updateCartCount();
+  });
+
+  updateCartCount();
+</script>
+</body>
+</html>

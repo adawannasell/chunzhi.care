@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>購物車</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f2f2f2;
+      padding: 30px;
+      text-align: center;
+    }
+    h1 {
+      color: #6b8e23;
+    }
+    table {
+      margin: 0 auto;
+      border-collapse: collapse;
+      width: 80%;
+      background: white;
+    }
+    th, td {
+      border: 1px solid #ccc;
+      padding: 12px;
+    }
+    button {
+      padding: 10px 20px;
+      margin: 15px 5px;
+      font-size: 1rem;
+      background-color: #6b8e23;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    .actions {
+      margin-top: 20px;
+    }
+    .qty-btn {
+      padding: 4px 10px;
+      font-size: 1rem;
+      margin: 0 5px;
+      background-color: #ccc;
+      color: black;
+    }
+    .delete-btn {
+      background-color: #cc3333;
+    }
+  </style>
+</head>
+<body>
+  <h1>🛒 購物車</h1>
+  <table>
+    <thead>
+      <tr>
+        <th>商品名稱</th>
+        <th>單價</th>
+        <th>數量</th>
+        <th>小計</th>
+        <th>操作</th>
+      </tr>
+    </thead>
+    <tbody id="cart-body"></tbody>
+  </table>
+  <h2 id="total">總金額：NT$0</h2>
+  <div class="actions">
+    <button id="clear-cart" style="display: none;">🧹 清空購物車</button>
+    <a id="checkout-btn" href="checkout.html" style="display: none;">
+      <button>✅ 前往結帳</button>
+    </a>
+  </div>
+
+  <script>
+    const cartBody = document.getElementById('cart-body');
+    const totalElem = document.getElementById('total');
+    const clearCartBtn = document.getElementById('clear-cart');
+    const checkoutBtn = document.getElementById('checkout-btn');
+
+    function renderCart() {
+      const cart = JSON.parse(localStorage.getItem('cart')) || [];
+
+      if (cart.length === 0) {
+        cartBody.innerHTML = '<tr><td colspan="5">購物車是空的</td></tr>';
+        totalElem.textContent = '總金額：NT$0';
+        checkoutBtn.style.display = 'none';
+        clearCartBtn.style.display = 'none';
+        return;
+      }
+
+      let total = 0;
+      cartBody.innerHTML = '';
+      cart.forEach((item, index) => {
+        const qty = item.quantity || 1;
+        const subtotal = item.price * qty;
+        total += subtotal;
+        cartBody.innerHTML += `
+          <tr>
+            <td>${item.name}</td>
+            <td>NT$${item.price}</td>
+            <td>
+              <button class="qty-btn" onclick="changeQty(${index}, -1)">-</button>
+              ${qty}
+              <button class="qty-btn" onclick="changeQty(${index}, 1)">+</button>
+            </td>
+            <td>NT$${subtotal}</td>
+            <td>
+              <button class="delete-btn" onclick="removeItem(${index})">刪除</button>
+            </td>
+          </tr>
+        `;
+      });
+
+      totalElem.textContent = `總金額：NT$${total}`;
+      checkoutBtn.style.display = 'inline-block';
+      clearCartBtn.style.display = 'inline-block';
+    }
+
+    function changeQty(index, delta) {
+      const cart = JSON.parse(localStorage.getItem('cart')) || [];
+      const item = cart[index];
+      item.quantity = (item.quantity || 1) + delta;
+      if (item.quantity <= 0) {
+        cart.splice(index, 1);
+      }
+      localStorage.setItem('cart', JSON.stringify(cart));
+      renderCart();
+    }
+
+    function removeItem(index) {
+      const cart = JSON.parse(localStorage.getItem('cart')) || [];
+      cart.splice(index, 1);
+      localStorage.setItem('cart', JSON.stringify(cart));
+      renderCart();
+    }
+
+    clearCartBtn.addEventListener('click', () => {
+      localStorage.removeItem('cart');
+      renderCart();
+    });
+
+    renderCart();
+  </script>
+</body>
+</html>

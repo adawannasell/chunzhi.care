@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>下單頁面</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      max-width: 600px;
+      margin: auto;
+    }
+    h1 {
+      color: #333;
+    }
+    input, textarea, button {
+      width: 100%;
+      padding: 10px;
+      margin-top: 10px;
+      font-size: 1rem;
+    }
+    button {
+      background-color: #5a2a00;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <h1>請填寫您的資料</h1>
+  <form action="/order" method="POST">
+    <label>姓名</label>
+    <input type="text" name="name" required />
+
+    <label>電話</label>
+    <input type="text" name="phone" required />
+
+    <label>地址</label>
+    <textarea name="address" required></textarea>
+
+    <label>備註</label>
+    <textarea name="note"></textarea>
+
+    <button type="submit">✅ 送出訂單</button>
+  </form>
+</body>
+</html>
