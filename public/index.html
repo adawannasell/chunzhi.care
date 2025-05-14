@@ -23,10 +23,9 @@
       border-radius: 10px;
     }
     button {
-      margin-top: 20px;
+      margin-top: 10px;
       padding: 15px 30px;
       font-size: 1.1rem;
-      background-color: #5a2a00;
       color: white;
       border: none;
       border-radius: 5px;
@@ -53,6 +52,15 @@
       padding: 2px 7px;
       font-size: 0.8rem;
     }
+    .login-buttons {
+      margin: 25px 0;
+    }
+    .facebook-btn {
+      background-color: #4267B2;
+    }
+    .line-btn {
+      background-color: #00C300;
+    }
   </style>
 </head>
 <body>
@@ -65,41 +73,52 @@
   <img src="https://via.placeholder.com/300x200.png?text=%E8%89%BE%E8%8D%89%E7%86%B1%E6%95%B7%E6%9E%95" alt="商品圖" />
   <p>原價 NT$980，我們團購只要 NT$139！限量供應🔥</p>
 
+  <!-- 登入按鈕 -->
+  <div class="login-buttons">
+    <p><strong>登入以查看訂單紀錄：</strong></p>
+    <a href="/auth/facebook">
+      <button class="facebook-btn">🔵 使用 Facebook 登入</button>
+    </a>
+    <br /><br />
+    <a href="/auth/line">
+      <button class="line-btn">🟢 使用 LINE 登入</button>
+    </a>
+  </div>
+
   <button onclick="addToCart()">🛒 加入購物車</button>
 
- <script>
-  function updateCartCount() {
-    const cart = JSON.parse(localStorage.getItem('cart')) || [];
-    const totalCount = cart.reduce((sum, item) => sum + (item.quantity || 1), 0);
-    document.getElementById('cart-count').innerText = totalCount;
-  }
-
-  function addToCart() {
-    const item = {
-      name: '艾草熱敷枕',
-      price: 139
-    };
-
-    const cart = JSON.parse(localStorage.getItem('cart')) || [];
-    const existing = cart.find(p => p.name === item.name);
-    if (existing) {
-      existing.quantity = (existing.quantity || 1) + 1;
-    } else {
-      item.quantity = 1;
-      cart.push(item);
+  <script>
+    function updateCartCount() {
+      const cart = JSON.parse(localStorage.getItem('cart')) || [];
+      const totalCount = cart.reduce((sum, item) => sum + (item.quantity || 1), 0);
+      document.getElementById('cart-count').innerText = totalCount;
     }
 
-    localStorage.setItem('cart', JSON.stringify(cart));
-    alert('✅ 已加入購物車');
-    updateCartCount();
-  }
+    function addToCart() {
+      const item = {
+        name: '艾草熱敷枕',
+        price: 139
+      };
 
-  // 使用者返回此頁時也重新更新購物車數量
-  window.addEventListener('pageshow', () => {
-    updateCartCount();
-  });
+      const cart = JSON.parse(localStorage.getItem('cart')) || [];
+      const existing = cart.find(p => p.name === item.name);
+      if (existing) {
+        existing.quantity = (existing.quantity || 1) + 1;
+      } else {
+        item.quantity = 1;
+        cart.push(item);
+      }
 
-  updateCartCount();
-</script>
+      localStorage.setItem('cart', JSON.stringify(cart));
+      alert('✅ 已加入購物車');
+      updateCartCount();
+    }
+
+    window.addEventListener('pageshow', () => {
+      updateCartCount();
+    });
+
+    updateCartCount();
+  </script>
 </body>
 </html>
