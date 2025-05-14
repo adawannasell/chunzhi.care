@@ -1,4 +1,3 @@
-// 原始邏輯 + Facebook 與 LINE 登入整合
 const express = require('express');
 const path = require('path');
 const bodyParser = require('body-parser');
@@ -12,7 +11,7 @@ const dotenv = require('dotenv');
 dotenv.config();
 
 const app = express();
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 
 // === Middleware 設定 ===
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -38,7 +37,13 @@ passport.use(new FacebookStrategy({
   callbackURL: process.env.FACEBOOK_CALLBACK_URL,
   profileFields: ['id', 'displayName', 'photos', 'email']
 }, (accessToken, refreshToken, profile, done) => {
-  return done(null, profile);
+  try {
+    console.log("✅ Facebook 登入成功:", profile);
+    return done(null, profile);
+  } catch (err) {
+    console.error("❌ Facebook 登入 callback 錯誤:", err);
+    return done(err);
+  }
 }));
 
 // === LINE Strategy ===
@@ -48,7 +53,13 @@ passport.use(new LineStrategy({
   callbackURL: process.env.LINE_CALLBACK_URL,
   scope: ['profile', 'openid', 'email'],
 }, (accessToken, refreshToken, params, profile, done) => {
-  return done(null, profile);
+  try {
+    console.log("✅ LINE 登入成功:", profile);
+    return done(null, profile);
+  } catch (err) {
+    console.error("❌ LINE 登入 callback 錯誤:", err);
+    return done(err);
+  }
 }));
 
 const ordersFile = path.join(__dirname, 'orders.json');
@@ -87,10 +98,12 @@ app.get('/logout', (req, res) => {
   });
 });
 
+// === 使用者個人頁 ===
 app.get('/profile', (req, res) => {
   if (!req.isAuthenticated()) return res.redirect('/');
+  const name = req.user?.displayName || '使用者';
   res.send(`
-    <h2>歡迎，${req.user.displayName}</h2>
+    <h2>歡迎，${name}</h2>
     <pre>${JSON.stringify(req.user, null, 2)}</pre>
     <a href="/logout">登出</a>
   `);
