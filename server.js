@@ -1,4 +1,4 @@
-// server.js（整合 PostgreSQL + OAuth 登入 + 修正 session 問題）
+// server.js（整合 PostgreSQL + Facebook / LINE 登入 + 用戶資訊）
 const express = require('express');
 const path = require('path');
 const bodyParser = require('body-parser');
@@ -20,7 +20,6 @@ const PORT = process.env.PORT || 3000;
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.use(express.static('public'));
-
 app.use(session({
   secret: process.env.SESSION_SECRET || 'default-secret',
   resave: false,
@@ -29,9 +28,9 @@ app.use(session({
 app.use(passport.initialize());
 app.use(passport.session());
 
-// Session 序列化
+// Session 序列化與還原
 passport.serializeUser((user, done) => {
-  done(null, user.id); // 儲存 provider_id
+  done(null, user.provider_id || user.id);
 });
 
 passport.deserializeUser(async (id, done) => {
@@ -44,7 +43,7 @@ passport.deserializeUser(async (id, done) => {
   }
 });
 
-// Facebook 策略
+// Facebook 登入策略
 passport.use(new FacebookStrategy({
   clientID: process.env.FACEBOOK_CLIENT_ID,
   clientSecret: process.env.FACEBOOK_CLIENT_SECRET,
@@ -61,13 +60,14 @@ passport.use(new FacebookStrategy({
       profile.emails?.[0]?.value || null,
       profile.photos?.[0]?.value || null
     ]);
-    done(null, { id: profile.id });
+    const result = await pool.query('SELECT * FROM users WHERE provider_id = $1', [profile.id]);
+    done(null, result.rows[0]);
   } catch (err) {
     done(err);
   }
 }));
 
-// LINE 策略
+// LINE 登入策略
 passport.use(new LineStrategy({
   channelID: process.env.LINE_CHANNEL_ID,
   channelSecret: process.env.LINE_CHANNEL_SECRET,
@@ -84,13 +84,14 @@ passport.use(new LineStrategy({
       null,
       profile.pictureUrl || null
     ]);
-    done(null, { id: profile.id });
+    const result = await pool.query('SELECT * FROM users WHERE provider_id = $1', [profile.id]);
+    done(null, result.rows[0]);
   } catch (err) {
     done(err);
   }
 }));
 
-// API：下單（JSON 儲存）
+// 下單 API（JSON 儲存）
 const ordersFile = path.join(__dirname, 'orders.json');
 app.post('/order', (req, res) => {
   const newOrder = req.body;
@@ -108,7 +109,7 @@ app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-// 回傳登入者資訊
+// 取得登入者資訊
 app.get('/me', (req, res) => {
   if (!req.isAuthenticated()) return res.json({});
   const { display_name, photo_url } = req.user;
