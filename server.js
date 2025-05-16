@@ -7,7 +7,7 @@ const passport = require('passport');
 const FacebookStrategy = require('passport-facebook').Strategy;
 const LineStrategy = require('passport-line-auth').Strategy;
 const dotenv = require('dotenv');
-const { pool, initDB } = require('./database');
+const pool = require('./database'); // <== 引入 PostgreSQL Pool
 
 dotenv.config();
 
@@ -18,17 +18,14 @@ const PORT = process.env.PORT || 3000;
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.use(express.static('public'));
-
 app.use(session({
   secret: process.env.SESSION_SECRET || 'your-default-secret',
   resave: false,
   saveUninitialized: false
 }));
-
 app.use(passport.initialize());
 app.use(passport.session());
 
-// Session 序列化
 passport.serializeUser((user, done) => done(null, user));
 passport.deserializeUser((user, done) => done(null, user));
 
@@ -39,13 +36,25 @@ passport.use(new FacebookStrategy({
   callbackURL: process.env.FACEBOOK_CALLBACK_URL,
   profileFields: ['id', 'displayName', 'photos', 'email']
 }, async (accessToken, refreshToken, profile, done) => {
-  console.log("✅ Facebook 登入成功:", profile?.displayName);
   try {
-    await upsertUser('facebook', profile);
+    console.log("✅ Facebook 登入成功:", profile?.displayName);
+    const user = profile;
+    await pool.query(`
+      INSERT INTO users (provider, provider_id, display_name, email, photo_url)
+      VALUES ($1, $2, $3, $4, $5)
+      ON CONFLICT (provider_id) DO NOTHING
+    `, [
+      'facebook',
+      user.id,
+      user.displayName,
+      user.emails?.[0]?.value || null,
+      user.photos?.[0]?.value || null
+    ]);
+    return done(null, user);
   } catch (err) {
-    console.error("❌ Facebook 使用者寫入失敗:", err);
+    console.error('❌ Facebook 寫入資料庫錯誤:', err);
+    return done(err);
   }
-  return done(null, profile);
 }));
 
 // LINE Strategy
@@ -55,39 +64,29 @@ passport.use(new LineStrategy({
   callbackURL: process.env.LINE_CALLBACK_URL,
   scope: ['profile', 'openid', 'email'],
 }, async (accessToken, refreshToken, params, profile, done) => {
-  console.log("✅ LINE 登入成功:", profile?.displayName);
   try {
-    await upsertUser('line', profile);
+    console.log("✅ LINE 登入成功:", profile?.displayName);
+    const user = profile;
+    await pool.query(`
+      INSERT INTO users (provider, provider_id, display_name, email, photo_url)
+      VALUES ($1, $2, $3, $4, $5)
+      ON CONFLICT (provider_id) DO NOTHING
+    `, [
+      'line',
+      user.id,
+      user.displayName,
+      null,
+      user.pictureUrl || null
+    ]);
+    return done(null, user);
   } catch (err) {
-    console.error("❌ LINE 使用者寫入失敗:", err);
+    console.error('❌ LINE 寫入資料庫錯誤:', err);
+    return done(err);
   }
-  return done(null, profile);
 }));
 
-// 資料表建立
-initDB();
-
-// 寫入資料到 users 表
-async function upsertUser(provider, profile) {
-  const { id: provider_id, displayName, photos, emails } = profile;
-  const email = emails?.[0]?.value || null;
-  const photo_url = photos?.[0]?.value || null;
-
-  const sql = `
-    INSERT INTO users (provider, provider_id, display_name, email, photo_url)
-    VALUES ($1, $2, $3, $4, $5)
-    ON CONFLICT (provider_id) DO UPDATE
-    SET display_name = EXCLUDED.display_name,
-        email = EXCLUDED.email,
-        photo_url = EXCLUDED.photo_url;
-  `;
-
-  await pool.query(sql, [provider, provider_id, displayName, email, photo_url]);
-}
-
+// 🛍️ 訂單寫入 JSON
 const ordersFile = path.join(__dirname, 'orders.json');
-
-// 訂單 API
 app.post('/order', (req, res) => {
   const newOrder = req.body;
   let orders = [];
@@ -104,21 +103,21 @@ app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-// 回傳登入者資料
+// 回傳登入者資訊
 app.get('/me', (req, res) => {
   if (!req.isAuthenticated()) return res.json({});
   const { displayName, photos } = req.user;
   res.json({ name: displayName, avatar: photos?.[0]?.value });
 });
 
-// Facebook 登入
+// Facebook 登入流程
 app.get('/auth/facebook', passport.authenticate('facebook'));
 app.get('/auth/facebook/callback',
   passport.authenticate('facebook', { failureRedirect: '/' }),
   (req, res) => res.redirect('/')
 );
 
-// LINE 登入
+// LINE 登入流程
 app.get('/auth/line', passport.authenticate('line'));
 app.get('/auth/line/callback',
   passport.authenticate('line', { failureRedirect: '/' }),
@@ -133,7 +132,7 @@ app.get('/logout', (req, res, next) => {
   });
 });
 
-// 後台
+// 簡易後台
 app.get('/admin', (req, res) => {
   const password = req.query.p;
   if (password !== 'qwer4567') {
@@ -174,7 +173,6 @@ app.use((err, req, res, next) => {
   res.status(500).send('🚨 伺服器發生錯誤，請稍後再試');
 });
 
-// 啟動伺服器
 app.listen(PORT, () => {
   console.log(`🚀 伺服器已啟動：http://localhost:${PORT}`);
 });
