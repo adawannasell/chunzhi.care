@@ -75,7 +75,7 @@
   </header>
 
   <!-- 登入者資訊 -->
-  <div id="user-info">載入中...</div>
+  <div id="user-info">🔄 讀取使用者資訊中...</div>
 
   <!-- 商品資訊 -->
   <img src="https://via.placeholder.com/300x200.png?text=%E8%89%BE%E8%8D%89%E7%86%B1%E6%95%B7%E6%9E%95" alt="商品圖" />
@@ -122,32 +122,36 @@
       updateCartCount();
     }
 
+    // 取得登入者資訊
+    function fetchUserInfo() {
+      fetch('/me')
+        .then(res => {
+          if (!res.ok) {
+            throw new Error(`伺服器錯誤：${res.status}`);
+          }
+          return res.json();
+        })
+        .then(user => {
+          if (user && user.name) {
+            document.getElementById('user-info').innerHTML =
+              `👤 歡迎，${user.name}　<a href="/logout">登出</a>`;
+          } else {
+            document.getElementById('user-info').innerText = '尚未登入';
+          }
+        })
+        .catch(err => {
+          console.error('❌ 讀取使用者資訊失敗：', err);
+          document.getElementById('user-info').innerText = '🚫 無法取得使用者資訊';
+        });
+    }
+
     window.addEventListener('pageshow', () => {
       updateCartCount();
+      fetchUserInfo(); // 🔁 同步登入資訊
     });
 
     updateCartCount();
-
-    // ✅ 改良版：取得登入者資訊
-    fetch('/me')
-      .then(res => {
-        if (!res.ok) {
-          throw new Error(`HTTP ${res.status}`);
-        }
-        return res.json();
-      })
-      .then(user => {
-        if (user && user.name) {
-          document.getElementById('user-info').innerHTML =
-            `👤 歡迎，${user.name}　<a href="/logout">登出</a>`;
-        } else {
-          document.getElementById('user-info').innerText = '未登入';
-        }
-      })
-      .catch(err => {
-        console.error('❌ 讀取使用者資訊失敗：', err);
-        document.getElementById('user-info').innerText = '🚫 無法取得使用者資訊';
-      });
+    fetchUserInfo(); // 第一次載入頁面也執行
   </script>
 </body>
 </html>
