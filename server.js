@@ -2,7 +2,7 @@ const express = require('express');
 const path = require('path');
 const bodyParser = require('body-parser');
 const fs = require('fs');
-const session = require('express-session');
+const cookieSession = require('cookie-session');
 const passport = require('passport');
 const FacebookStrategy = require('passport-facebook').Strategy;
 const LineStrategy = require('passport-line-auth').Strategy;
@@ -19,11 +19,13 @@ const PORT = process.env.PORT || 3000;
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.use(express.static('public'));
-app.use(session({
-  secret: process.env.SESSION_SECRET || 'default-secret',
-  resave: false,
-  saveUninitialized: false,
+
+app.use(cookieSession({
+  name: 'session',
+  keys: [process.env.SESSION_SECRET || 'default-secret'],
+  maxAge: 24 * 60 * 60 * 1000 // 1 天
 }));
+
 app.use(passport.initialize());
 app.use(passport.session());
 
