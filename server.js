@@ -7,10 +7,10 @@ const passport = require('passport');
 const FacebookStrategy = require('passport-facebook').Strategy;
 const LineStrategy = require('passport-line-auth').Strategy;
 const dotenv = require('dotenv');
-const { pool, initDB } = require('./database'); // ✅ 正確引入物件與函式
+const { pool, initDB } = require('./database');
 
 dotenv.config();
-initDB(); // ✅ 建立 users 資料表（如尚未存在）
+initDB();
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -19,10 +19,15 @@ const PORT = process.env.PORT || 3000;
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.use(express.static('public'));
+app.set('trust proxy', 1); // 信任 proxy
 app.use(session({
   secret: process.env.SESSION_SECRET || 'your-default-secret',
   resave: false,
-  saveUninitialized: false
+  saveUninitialized: false,
+  proxy: true,
+  cookie: {
+    secure: false
+  }
 }));
 app.use(passport.initialize());
 app.use(passport.session());
@@ -30,7 +35,6 @@ app.use(passport.session());
 passport.serializeUser((user, done) => done(null, user));
 passport.deserializeUser((user, done) => done(null, user));
 
-// Facebook Strategy
 passport.use(new FacebookStrategy({
   clientID: process.env.FACEBOOK_CLIENT_ID,
   clientSecret: process.env.FACEBOOK_CLIENT_SECRET,
@@ -58,7 +62,6 @@ passport.use(new FacebookStrategy({
   }
 }));
 
-// LINE Strategy
 passport.use(new LineStrategy({
   channelID: process.env.LINE_CHANNEL_ID,
   channelSecret: process.env.LINE_CHANNEL_SECRET,
@@ -86,7 +89,6 @@ passport.use(new LineStrategy({
   }
 }));
 
-// 🛍️ 訂單寫入 JSON
 const ordersFile = path.join(__dirname, 'orders.json');
 app.post('/order', (req, res) => {
   const newOrder = req.body;
@@ -99,33 +101,29 @@ app.post('/order', (req, res) => {
   res.send('✅ 訂單已送出，感謝您的購買！');
 });
 
-// 首頁
 app.get('/', (req, res) => {
+  console.log('🔍 session:', req.session);
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-// 回傳登入者資訊
 app.get('/me', (req, res) => {
   if (!req.isAuthenticated()) return res.json({});
   const { displayName, photos } = req.user;
   res.json({ name: displayName, avatar: photos?.[0]?.value });
 });
 
-// Facebook 登入流程
 app.get('/auth/facebook', passport.authenticate('facebook'));
 app.get('/auth/facebook/callback',
   passport.authenticate('facebook', { failureRedirect: '/' }),
   (req, res) => res.redirect('/')
 );
 
-// LINE 登入流程
 app.get('/auth/line', passport.authenticate('line'));
 app.get('/auth/line/callback',
   passport.authenticate('line', { failureRedirect: '/' }),
   (req, res) => res.redirect('/')
 );
 
-// 登出
 app.get('/logout', (req, res, next) => {
   req.logout(err => {
     if (err) return next(err);
@@ -133,7 +131,6 @@ app.get('/logout', (req, res, next) => {
   });
 });
 
-// 簡易後台
 app.get('/admin', (req, res) => {
   const password = req.query.p;
   if (password !== 'qwer4567') {
@@ -168,7 +165,6 @@ app.get('/admin', (req, res) => {
   });
 });
 
-// 錯誤處理
 app.use((err, req, res, next) => {
   console.error('❌ 系統錯誤:', err.stack);
   res.status(500).send('🚨 伺服器發生錯誤，請稍後再試');
