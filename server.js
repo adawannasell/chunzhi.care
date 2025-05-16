@@ -7,6 +7,7 @@ const passport = require('passport');
 const FacebookStrategy = require('passport-facebook').Strategy;
 const LineStrategy = require('passport-line-auth').Strategy;
 const dotenv = require('dotenv');
+const { pool, initDB } = require('./database');
 
 dotenv.config();
 
@@ -37,8 +38,13 @@ passport.use(new FacebookStrategy({
   clientSecret: process.env.FACEBOOK_CLIENT_SECRET,
   callbackURL: process.env.FACEBOOK_CALLBACK_URL,
   profileFields: ['id', 'displayName', 'photos', 'email']
-}, (accessToken, refreshToken, profile, done) => {
+}, async (accessToken, refreshToken, profile, done) => {
   console.log("✅ Facebook 登入成功:", profile?.displayName);
+  try {
+    await upsertUser('facebook', profile);
+  } catch (err) {
+    console.error("❌ Facebook 使用者寫入失敗:", err);
+  }
   return done(null, profile);
 }));
 
@@ -48,10 +54,36 @@ passport.use(new LineStrategy({
   channelSecret: process.env.LINE_CHANNEL_SECRET,
   callbackURL: process.env.LINE_CALLBACK_URL,
   scope: ['profile', 'openid', 'email'],
-}, (accessToken, refreshToken, params, profile, done) => {
+}, async (accessToken, refreshToken, params, profile, done) => {
   console.log("✅ LINE 登入成功:", profile?.displayName);
+  try {
+    await upsertUser('line', profile);
+  } catch (err) {
+    console.error("❌ LINE 使用者寫入失敗:", err);
+  }
   return done(null, profile);
 }));
+
+// 資料表建立
+initDB();
+
+// 寫入資料到 users 表
+async function upsertUser(provider, profile) {
+  const { id: provider_id, displayName, photos, emails } = profile;
+  const email = emails?.[0]?.value || null;
+  const photo_url = photos?.[0]?.value || null;
+
+  const sql = `
+    INSERT INTO users (provider, provider_id, display_name, email, photo_url)
+    VALUES ($1, $2, $3, $4, $5)
+    ON CONFLICT (provider_id) DO UPDATE
+    SET display_name = EXCLUDED.display_name,
+        email = EXCLUDED.email,
+        photo_url = EXCLUDED.photo_url;
+  `;
+
+  await pool.query(sql, [provider, provider_id, displayName, email, photo_url]);
+}
 
 const ordersFile = path.join(__dirname, 'orders.json');
 
@@ -72,7 +104,7 @@ app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-// 回傳登入者資料給前端
+// 回傳登入者資料
 app.get('/me', (req, res) => {
   if (!req.isAuthenticated()) return res.json({});
   const { displayName, photos } = req.user;
