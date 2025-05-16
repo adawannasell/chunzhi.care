@@ -84,14 +84,14 @@
         email: form.email.value,
         address: form.address.value,
         note: form.note.value,
-        items: cart,
+        items: cart
       };
 
       try {
         const res = await fetch('/order', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(order),
+          body: JSON.stringify(order)
         });
 
         if (!res.ok) throw new Error(await res.text());

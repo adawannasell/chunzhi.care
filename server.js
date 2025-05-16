@@ -1,8 +1,7 @@
-// server.js（express-session 版本，支援 PostgreSQL + Facebook/LINE 登入 + 用戶資訊 + 資料庫下單）
+// server.js（Express + PostgreSQL + Facebook/LINE 登入 + 訂單寫入）
 const express = require('express');
 const path = require('path');
 const bodyParser = require('body-parser');
-const fs = require('fs');
 const session = require('express-session');
 const passport = require('passport');
 const FacebookStrategy = require('passport-facebook').Strategy;
@@ -28,18 +27,17 @@ app.use(session({
 app.use(passport.initialize());
 app.use(passport.session());
 
-// === Session 序列化與還原 ===
+// === Session 處理 ===
 passport.serializeUser((user, done) => {
   done(null, user.provider_id);
 });
-
 passport.deserializeUser(async (id, done) => {
   try {
     const result = await pool.query('SELECT * FROM users WHERE provider_id = $1', [id]);
     if (result.rows.length === 0) return done(null, false);
-    return done(null, result.rows[0]);
+    done(null, result.rows[0]);
   } catch (err) {
-    return done(err);
+    done(err);
   }
 });
 
@@ -92,12 +90,20 @@ passport.use(new LineStrategy({
 // === 訂單 API：寫入 PostgreSQL ===
 app.post('/order', async (req, res) => {
   const { name, phone, email, address, note, items } = req.body;
-  const user_id = req.user?.provider_id || null;
+  const user_id = req.user?.id || null;
   try {
     await pool.query(`
       INSERT INTO orders (user_id, name, phone, email, address, note, cart_items)
       VALUES ($1, $2, $3, $4, $5, $6, $7)
-    `, [user_id, name, phone, email, address, note, JSON.stringify(items)]);
+    `, [
+      user_id,
+      name,
+      phone,
+      email,
+      address,
+      note || '',
+      JSON.stringify(items)
+    ]);
     res.send('✅ 訂單已送出，感謝您的購買！');
   } catch (err) {
     console.error('❌ 寫入訂單失敗:', err);
@@ -141,7 +147,7 @@ app.get('/logout', (req, res, next) => {
 // === 錯誤處理 ===
 app.use((err, req, res, next) => {
   console.error('❌ 系統錯誤:', err.stack);
-  res.status(500).send('🚨 伺服器發生錯誤，請稍後再試');
+  res.status(500).send('🚨 系統錯誤，請稍後再試');
 });
 
 // === 啟動伺服器 ===
