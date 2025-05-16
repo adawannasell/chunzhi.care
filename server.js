@@ -27,6 +27,7 @@ app.use(session({
 app.use(passport.initialize());
 app.use(passport.session());
 
+// Session 序列化
 passport.serializeUser((user, done) => done(null, user));
 passport.deserializeUser((user, done) => done(null, user));
 
@@ -54,7 +55,7 @@ passport.use(new LineStrategy({
 
 const ordersFile = path.join(__dirname, 'orders.json');
 
-// 下單 API
+// 訂單 API
 app.post('/order', (req, res) => {
   const newOrder = req.body;
   let orders = [];
@@ -71,20 +72,25 @@ app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-// Facebook Login
-app.get('/auth/facebook', passport.authenticate('facebook'));
+// 回傳登入者資料給前端
+app.get('/me', (req, res) => {
+  if (!req.isAuthenticated()) return res.json({});
+  const { displayName, photos } = req.user;
+  res.json({ name: displayName, avatar: photos?.[0]?.value });
+});
 
+// Facebook 登入
+app.get('/auth/facebook', passport.authenticate('facebook'));
 app.get('/auth/facebook/callback',
   passport.authenticate('facebook', { failureRedirect: '/' }),
-  (req, res) => res.redirect('/profile')
+  (req, res) => res.redirect('/')
 );
 
-// LINE Login
+// LINE 登入
 app.get('/auth/line', passport.authenticate('line'));
-
 app.get('/auth/line/callback',
   passport.authenticate('line', { failureRedirect: '/' }),
-  (req, res) => res.redirect('/profile')
+  (req, res) => res.redirect('/')
 );
 
 // 登出
@@ -93,19 +99,6 @@ app.get('/logout', (req, res, next) => {
     if (err) return next(err);
     res.redirect('/');
   });
-});
-
-// 個人頁
-app.get('/profile', (req, res) => {
-  if (!req.isAuthenticated() || !req.user) {
-    return res.redirect('/');
-  }
-  const name = req.user.displayName || '使用者';
-  res.send(`
-    <h2>歡迎，${name}</h2>
-    <pre>${JSON.stringify(req.user, null, 2)}</pre>
-    <a href="/logout">登出</a>
-  `);
 });
 
 // 後台
@@ -143,7 +136,7 @@ app.get('/admin', (req, res) => {
   });
 });
 
-// === 錯誤處理中介層 ===
+// 錯誤處理
 app.use((err, req, res, next) => {
   console.error('❌ 系統錯誤:', err.stack);
   res.status(500).send('🚨 伺服器發生錯誤，請稍後再試');
