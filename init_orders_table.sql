@@ -1,0 +1,11 @@
+
+CREATE TABLE IF NOT EXISTS orders (
+  id SERIAL PRIMARY KEY,
+  name VARCHAR(100) NOT NULL,
+  email VARCHAR(100),
+  phone VARCHAR(50),
+  address TEXT,
+  items JSONB NOT NULL,
+  status VARCHAR(20) DEFAULT '未出貨',
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);

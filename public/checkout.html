@@ -50,9 +50,10 @@
     <p id="total"></p>
   </div>
 
-  <form action="/order" method="POST">
+  <form id="checkout-form">
     <input type="text" name="name" placeholder="您的名字" required />
     <input type="text" name="phone" placeholder="電話號碼" required />
+    <input type="email" name="email" placeholder="電子信箱" required />
     <textarea name="address" placeholder="收件地址" required></textarea>
     <textarea name="note" placeholder="備註（選填）"></textarea>
     <button type="submit">✅ 確認送出</button>
@@ -60,15 +61,48 @@
 
   <script>
     const cart = JSON.parse(localStorage.getItem('cart')) || [];
+    const itemsEl = document.getElementById('items');
+    const totalEl = document.getElementById('total');
     let total = 0;
 
-    const itemsHTML = cart.map(item => {
-      total += item.price;
-      return `<p>${item.name} - NT$${item.price}</p>`;
+    itemsEl.innerHTML = cart.map(item => {
+      const quantity = item.quantity || 1;
+      const subtotal = item.price * quantity;
+      total += subtotal;
+      return `<p>${item.name} x ${quantity} - NT$${subtotal}</p>`;
     }).join('');
 
-    document.getElementById('items').innerHTML = itemsHTML;
-    document.getElementById('total').textContent = `總金額：NT$${total}`;
+    totalEl.textContent = `總金額：NT$${total}`;
+
+    document.getElementById('checkout-form').addEventListener('submit', async e => {
+      e.preventDefault();
+      const form = e.target;
+
+      const order = {
+        name: form.name.value,
+        phone: form.phone.value,
+        email: form.email.value,
+        address: form.address.value,
+        note: form.note.value,
+        items: cart,
+      };
+
+      try {
+        const res = await fetch('/order', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(order),
+        });
+
+        if (!res.ok) throw new Error(await res.text());
+
+        alert('✅ 訂單送出成功！');
+        localStorage.removeItem('cart');
+        window.location.href = '/';
+      } catch (err) {
+        alert('❌ 訂單送出失敗：' + err.message);
+      }
+    });
   </script>
 </body>
 </html>

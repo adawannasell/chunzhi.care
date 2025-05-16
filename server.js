@@ -1,4 +1,4 @@
-// server.js（express-session 版本，支援 PostgreSQL + Facebook/LINE 登入 + 用戶資訊）
+// server.js（express-session 版本，支援 PostgreSQL + Facebook/LINE 登入 + 用戶資訊 + 資料庫下單）
 const express = require('express');
 const path = require('path');
 const bodyParser = require('body-parser');
@@ -30,7 +30,7 @@ app.use(passport.session());
 
 // === Session 序列化與還原 ===
 passport.serializeUser((user, done) => {
-  done(null, user.provider_id); // 存 provider_id 到 session
+  done(null, user.provider_id);
 });
 
 passport.deserializeUser(async (id, done) => {
@@ -89,17 +89,20 @@ passport.use(new LineStrategy({
   }
 }));
 
-// === 訂單儲存 JSON ===
-const ordersFile = path.join(__dirname, 'orders.json');
-app.post('/order', (req, res) => {
-  const newOrder = req.body;
-  let orders = [];
-  if (fs.existsSync(ordersFile)) {
-    orders = JSON.parse(fs.readFileSync(ordersFile));
+// === 訂單 API：寫入 PostgreSQL ===
+app.post('/order', async (req, res) => {
+  const { name, phone, email, address, note, items } = req.body;
+  const user_id = req.user?.provider_id || null;
+  try {
+    await pool.query(`
+      INSERT INTO orders (user_id, name, phone, email, address, note, cart_items)
+      VALUES ($1, $2, $3, $4, $5, $6, $7)
+    `, [user_id, name, phone, email, address, note, JSON.stringify(items)]);
+    res.send('✅ 訂單已送出，感謝您的購買！');
+  } catch (err) {
+    console.error('❌ 寫入訂單失敗:', err);
+    res.status(500).send('🚨 寫入訂單失敗，請稍後再試');
   }
-  orders.push({ ...newOrder, createdAt: new Date().toISOString() });
-  fs.writeFileSync(ordersFile, JSON.stringify(orders, null, 2));
-  res.send('✅ 訂單已送出，感謝您的購買！');
 });
 
 // === 首頁 ===
@@ -132,38 +135,6 @@ app.get('/logout', (req, res, next) => {
   req.logout(err => {
     if (err) return next(err);
     res.redirect('/');
-  });
-});
-
-// === 管理後台 ===
-app.get('/admin', (req, res) => {
-  const password = req.query.p;
-  if (password !== 'qwer4567') {
-    return res.send(`
-      <form method="get">
-        <p>請輸入密碼才能查看後台</p>
-        <input type="password" name="p" />
-        <button type="submit">登入</button>
-      </form>
-    `);
-  }
-
-  fs.readFile(ordersFile, 'utf-8', (err, data) => {
-    if (err) return res.status(500).send('讀取訂單失敗');
-    let orders = [];
-    try { orders = JSON.parse(data); }
-    catch { return res.send('<h2>目前沒有任何訂單</h2>'); }
-
-    const html = `
-      <html><head><meta charset="UTF-8" /><title>訂單後台</title>
-      <style>table { border-collapse: collapse; width: 100%; }
-      th, td { border: 1px solid #999; padding: 10px; text-align: left; }</style></head>
-      <body><h1>📋 所有訂單 (${orders.length} 筆)</h1><table>
-      <tr><th>姓名</th><th>電話</th><th>地址</th><th>下單時間</th></tr>
-      ${orders.map(o => `<tr><td>${o.name}</td><td>${o.phone}</td><td>${o.address}</td><td>${new Date(o.createdAt).toLocaleString()}</td></tr>`).join('')}
-      </table></body></html>
-    `;
-    res.send(html);
   });
 });
 
