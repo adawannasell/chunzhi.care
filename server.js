@@ -2,7 +2,7 @@ const express = require('express');
 const path = require('path');
 const bodyParser = require('body-parser');
 const fs = require('fs');
-const cookieSession = require('cookie-session');
+const session = require('express-session');
 const passport = require('passport');
 const FacebookStrategy = require('passport-facebook').Strategy;
 const LineStrategy = require('passport-line-auth').Strategy;
@@ -20,31 +20,24 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.use(express.static('public'));
 
-app.use(cookieSession({
-  name: 'session',
-  keys: [process.env.SESSION_SECRET || 'default-secret'],
-  maxAge: 24 * 60 * 60 * 1000 // 1 天
+app.use(session({
+  secret: process.env.SESSION_SECRET || 'default-secret',
+  resave: false,
+  saveUninitialized: false,
 }));
 
 app.use(passport.initialize());
 app.use(passport.session());
 
-// Session 序列化與還原
+// ✅ Session 序列化與還原（直接存整個 user）
 passport.serializeUser((user, done) => {
-  console.log('📦 serializeUser 存入 session:', user.provider_id || user.id);
-  done(null, user.provider_id || user.id);
+  console.log('📦 serializeUser 存入 session:', user.display_name || user.id);
+  done(null, user);
 });
 
-passport.deserializeUser(async (id, done) => {
-  try {
-    const result = await pool.query('SELECT * FROM users WHERE provider_id = $1', [id]);
-    if (result.rows.length === 0) return done(null, false);
-    console.log('🧠 deserializeUser 還原使用者:', result.rows[0].display_name);
-    return done(null, result.rows[0]);
-  } catch (err) {
-    console.error('❌ deserializeUser 發生錯誤:', err);
-    return done(err);
-  }
+passport.deserializeUser((user, done) => {
+  console.log('🧠 deserializeUser 還原使用者:', user.display_name || user.id);
+  done(null, user);
 });
 
 // Facebook 登入策略
@@ -65,8 +58,13 @@ passport.use(new FacebookStrategy({
       profile.emails?.[0]?.value || null,
       profile.photos?.[0]?.value || null
     ]);
-    const result = await pool.query('SELECT * FROM users WHERE provider_id = $1', [profile.id]);
-    return done(null, result.rows[0]);
+    return done(null, {
+      provider: 'facebook',
+      provider_id: profile.id,
+      display_name: profile.displayName,
+      email: profile.emails?.[0]?.value || null,
+      photo_url: profile.photos?.[0]?.value || null
+    });
   } catch (err) {
     console.error('❌ Facebook 寫入資料庫錯誤:', err);
     return done(err);
@@ -91,15 +89,20 @@ passport.use(new LineStrategy({
       null,
       profile.pictureUrl || null
     ]);
-    const result = await pool.query('SELECT * FROM users WHERE provider_id = $1', [profile.id]);
-    return done(null, result.rows[0]);
+    return done(null, {
+      provider: 'line',
+      provider_id: profile.id,
+      display_name: profile.displayName,
+      email: null,
+      photo_url: profile.pictureUrl || null
+    });
   } catch (err) {
     console.error('❌ LINE 寫入資料庫錯誤:', err);
     return done(err);
   }
 }));
 
-// 下單 API（JSON 儲存）
+// API：下單（JSON 儲存）
 const ordersFile = path.join(__dirname, 'orders.json');
 app.post('/order', (req, res) => {
   const newOrder = req.body;
@@ -117,8 +120,10 @@ app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-// 取得登入者資訊
+// ✅ 回傳登入者資訊（/me）
 app.get('/me', (req, res) => {
+  console.log('📥 觸發 /me，是否登入：', req.isAuthenticated());
+  console.log('👤 req.user:', req.user);
   if (!req.isAuthenticated()) return res.json({});
   const { display_name, photo_url } = req.user;
   res.json({ name: display_name, avatar: photo_url });
