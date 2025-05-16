@@ -1,3 +1,4 @@
+// server.js（整合 PostgreSQL + OAuth 登入 + 修正 session 問題）
 const express = require('express');
 const path = require('path');
 const bodyParser = require('body-parser');
@@ -19,22 +20,31 @@ const PORT = process.env.PORT || 3000;
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.use(express.static('public'));
-app.set('trust proxy', 1); // 信任 proxy
+
 app.use(session({
-  secret: process.env.SESSION_SECRET || 'your-default-secret',
+  secret: process.env.SESSION_SECRET || 'default-secret',
   resave: false,
   saveUninitialized: false,
-  proxy: true,
-  cookie: {
-    secure: false
-  }
 }));
 app.use(passport.initialize());
 app.use(passport.session());
 
-passport.serializeUser((user, done) => done(null, user));
-passport.deserializeUser((user, done) => done(null, user));
+// Session 序列化
+passport.serializeUser((user, done) => {
+  done(null, user.id); // 儲存 provider_id
+});
 
+passport.deserializeUser(async (id, done) => {
+  try {
+    const result = await pool.query('SELECT * FROM users WHERE provider_id = $1', [id]);
+    if (result.rows.length === 0) return done(null, false);
+    return done(null, result.rows[0]);
+  } catch (err) {
+    return done(err);
+  }
+});
+
+// Facebook 策略
 passport.use(new FacebookStrategy({
   clientID: process.env.FACEBOOK_CLIENT_ID,
   clientSecret: process.env.FACEBOOK_CLIENT_SECRET,
@@ -42,53 +52,45 @@ passport.use(new FacebookStrategy({
   profileFields: ['id', 'displayName', 'photos', 'email']
 }, async (accessToken, refreshToken, profile, done) => {
   try {
-    console.log("✅ Facebook 登入成功:", profile?.displayName);
-    const user = profile;
     await pool.query(`
       INSERT INTO users (provider, provider_id, display_name, email, photo_url)
       VALUES ($1, $2, $3, $4, $5)
       ON CONFLICT (provider_id) DO NOTHING
     `, [
-      'facebook',
-      user.id,
-      user.displayName,
-      user.emails?.[0]?.value || null,
-      user.photos?.[0]?.value || null
+      'facebook', profile.id, profile.displayName,
+      profile.emails?.[0]?.value || null,
+      profile.photos?.[0]?.value || null
     ]);
-    return done(null, user);
+    done(null, { id: profile.id });
   } catch (err) {
-    console.error('❌ Facebook 寫入資料庫錯誤:', err);
-    return done(err);
+    done(err);
   }
 }));
 
+// LINE 策略
 passport.use(new LineStrategy({
   channelID: process.env.LINE_CHANNEL_ID,
   channelSecret: process.env.LINE_CHANNEL_SECRET,
   callbackURL: process.env.LINE_CALLBACK_URL,
-  scope: ['profile', 'openid', 'email'],
+  scope: ['profile', 'openid', 'email']
 }, async (accessToken, refreshToken, params, profile, done) => {
   try {
-    console.log("✅ LINE 登入成功:", profile?.displayName);
-    const user = profile;
     await pool.query(`
       INSERT INTO users (provider, provider_id, display_name, email, photo_url)
       VALUES ($1, $2, $3, $4, $5)
       ON CONFLICT (provider_id) DO NOTHING
     `, [
-      'line',
-      user.id,
-      user.displayName,
+      'line', profile.id, profile.displayName,
       null,
-      user.pictureUrl || null
+      profile.pictureUrl || null
     ]);
-    return done(null, user);
+    done(null, { id: profile.id });
   } catch (err) {
-    console.error('❌ LINE 寫入資料庫錯誤:', err);
-    return done(err);
+    done(err);
   }
 }));
 
+// API：下單（JSON 儲存）
 const ordersFile = path.join(__dirname, 'orders.json');
 app.post('/order', (req, res) => {
   const newOrder = req.body;
@@ -101,17 +103,19 @@ app.post('/order', (req, res) => {
   res.send('✅ 訂單已送出，感謝您的購買！');
 });
 
+// 首頁
 app.get('/', (req, res) => {
-  console.log('🔍 session:', req.session);
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
+// 回傳登入者資訊
 app.get('/me', (req, res) => {
   if (!req.isAuthenticated()) return res.json({});
-  const { displayName, photos } = req.user;
-  res.json({ name: displayName, avatar: photos?.[0]?.value });
+  const { display_name, photo_url } = req.user;
+  res.json({ name: display_name, avatar: photo_url });
 });
 
+// 登入流程
 app.get('/auth/facebook', passport.authenticate('facebook'));
 app.get('/auth/facebook/callback',
   passport.authenticate('facebook', { failureRedirect: '/' }),
@@ -124,6 +128,7 @@ app.get('/auth/line/callback',
   (req, res) => res.redirect('/')
 );
 
+// 登出
 app.get('/logout', (req, res, next) => {
   req.logout(err => {
     if (err) return next(err);
@@ -131,6 +136,7 @@ app.get('/logout', (req, res, next) => {
   });
 });
 
+// 管理後台
 app.get('/admin', (req, res) => {
   const password = req.query.p;
   if (password !== 'qwer4567') {
@@ -146,11 +152,8 @@ app.get('/admin', (req, res) => {
   fs.readFile(ordersFile, 'utf-8', (err, data) => {
     if (err) return res.status(500).send('讀取訂單失敗');
     let orders = [];
-    try {
-      orders = JSON.parse(data);
-    } catch {
-      return res.send('<h2>目前沒有任何訂單</h2>');
-    }
+    try { orders = JSON.parse(data); }
+    catch { return res.send('<h2>目前沒有任何訂單</h2>'); }
 
     const html = `
       <html><head><meta charset="UTF-8" /><title>訂單後台</title>
@@ -165,6 +168,7 @@ app.get('/admin', (req, res) => {
   });
 });
 
+// 錯誤處理
 app.use((err, req, res, next) => {
   console.error('❌ 系統錯誤:', err.stack);
   res.status(500).send('🚨 伺服器發生錯誤，請稍後再試');
