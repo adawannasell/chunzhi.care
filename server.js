@@ -1,4 +1,4 @@
-// server.js（Express + PostgreSQL + Facebook/LINE 登入 + 訂單寫入）
+// server.js（Express + PostgreSQL + Facebook/LINE 登入 + 訂單寫入 + 後台訂單查詢）
 const express = require('express');
 const path = require('path');
 const bodyParser = require('body-parser');
@@ -108,6 +108,56 @@ app.post('/order', async (req, res) => {
   } catch (err) {
     console.error('❌ 寫入訂單失敗:', err);
     res.status(500).send('🚨 寫入訂單失敗，請稍後再試');
+  }
+});
+
+// === 管理後台：查詢所有訂單（需輸入密碼）===
+app.get('/admin', async (req, res) => {
+  const password = req.query.p;
+  if (password !== 'qwer4567') {
+    return res.send(`
+      <form method="get">
+        <p>請輸入密碼才能查看後台</p>
+        <input type="password" name="p" />
+        <button type="submit">登入</button>
+      </form>
+    `);
+  }
+
+  try {
+    const result = await pool.query('SELECT * FROM orders ORDER BY created_at DESC');
+    const orders = result.rows;
+
+    const html = `
+      <html><head><meta charset="UTF-8" /><title>訂單後台</title>
+      <style>
+        table { border-collapse: collapse; width: 100%; }
+        th, td { border: 1px solid #999; padding: 8px; text-align: left; }
+        pre { white-space: pre-wrap; word-break: break-word; }
+      </style></head>
+      <body>
+        <h1>📦 所有訂單（${orders.length} 筆）</h1>
+        <table>
+          <tr><th>姓名</th><th>電話</th><th>Email</th><th>地址</th><th>備註</th><th>狀態</th><th>購物明細</th><th>時間</th></tr>
+          ${orders.map(o => `
+            <tr>
+              <td>${o.name}</td>
+              <td>${o.phone}</td>
+              <td>${o.email}</td>
+              <td>${o.address}</td>
+              <td>${o.note || ''}</td>
+              <td>${o.status}</td>
+              <td><pre>${JSON.stringify(o.cart_items, null, 2)}</pre></td>
+              <td>${new Date(o.created_at).toLocaleString()}</td>
+            </tr>
+          `).join('')}
+        </table>
+      </body></html>
+    `;
+    res.send(html);
+  } catch (err) {
+    console.error('❌ 查詢訂單錯誤:', err);
+    res.status(500).send('🚨 查詢訂單錯誤');
   }
 });
 
