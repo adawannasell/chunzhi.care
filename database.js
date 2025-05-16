@@ -2,8 +2,6 @@
 const { Pool } = require('pg');
 const dotenv = require('dotenv');
 dotenv.config();
-const { pool, initDB } = require('./database'); // 加上這行
-initDB(); // 初始化 users 資料表（如尚未建立）
 
 const pool = new Pool({
   connectionString: process.env.PG_URL,
