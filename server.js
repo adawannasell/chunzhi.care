@@ -7,10 +7,10 @@ const passport = require('passport');
 const FacebookStrategy = require('passport-facebook').Strategy;
 const LineStrategy = require('passport-line-auth').Strategy;
 const dotenv = require('dotenv');
-const { pool, initDB } = require('./database'); // ✅ 修正這行
+const { pool, initDB } = require('./database'); // ✅ 正確引入物件與函式
 
 dotenv.config();
-initDB(); // ✅ 初始化資料表
+initDB(); // ✅ 建立 users 資料表（如尚未存在）
 
 const app = express();
 const PORT = process.env.PORT || 3000;
