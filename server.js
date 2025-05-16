@@ -1,4 +1,4 @@
-// server.js（正式後端做法：session 儲存 provider_id → DB 撈使用者）
+// server.js（express-session 版本，支援 PostgreSQL + Facebook/LINE 登入 + 用戶資訊）
 const express = require('express');
 const path = require('path');
 const bodyParser = require('body-parser');
@@ -16,7 +16,7 @@ initDB();
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Middleware
+// === Middleware ===
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.use(express.static('public'));
@@ -28,24 +28,22 @@ app.use(session({
 app.use(passport.initialize());
 app.use(passport.session());
 
-// session 只存 provider_id
+// === Session 序列化與還原 ===
 passport.serializeUser((user, done) => {
-  console.log('📦 serializeUser:', user.provider_id);
-  done(null, user.provider_id);
+  done(null, user.provider_id); // 存 provider_id 到 session
 });
 
 passport.deserializeUser(async (id, done) => {
   try {
     const result = await pool.query('SELECT * FROM users WHERE provider_id = $1', [id]);
     if (result.rows.length === 0) return done(null, false);
-    console.log('🧠 deserializeUser:', result.rows[0].display_name);
-    done(null, result.rows[0]);
+    return done(null, result.rows[0]);
   } catch (err) {
-    console.error('❌ deserializeUser error:', err);
-    done(err);
+    return done(err);
   }
 });
 
+// === Facebook 登入策略 ===
 passport.use(new FacebookStrategy({
   clientID: process.env.FACEBOOK_CLIENT_ID,
   clientSecret: process.env.FACEBOOK_CLIENT_SECRET,
@@ -62,12 +60,13 @@ passport.use(new FacebookStrategy({
       profile.emails?.[0]?.value || null,
       profile.photos?.[0]?.value || null
     ]);
-    return done(null, { provider_id: profile.id });
+    done(null, { provider_id: profile.id });
   } catch (err) {
-    return done(err);
+    done(err);
   }
 }));
 
+// === LINE 登入策略 ===
 passport.use(new LineStrategy({
   channelID: process.env.LINE_CHANNEL_ID,
   channelSecret: process.env.LINE_CHANNEL_SECRET,
@@ -84,12 +83,13 @@ passport.use(new LineStrategy({
       null,
       profile.pictureUrl || null
     ]);
-    return done(null, { provider_id: profile.id });
+    done(null, { provider_id: profile.id });
   } catch (err) {
-    return done(err);
+    done(err);
   }
 }));
 
+// === 訂單儲存 JSON ===
 const ordersFile = path.join(__dirname, 'orders.json');
 app.post('/order', (req, res) => {
   const newOrder = req.body;
@@ -102,17 +102,19 @@ app.post('/order', (req, res) => {
   res.send('✅ 訂單已送出，感謝您的購買！');
 });
 
+// === 首頁 ===
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
+// === 回傳登入者資訊 ===
 app.get('/me', (req, res) => {
-  console.log('📥 /me req.user:', req.user);
   if (!req.isAuthenticated()) return res.json({});
   const { display_name, photo_url } = req.user;
   res.json({ name: display_name, avatar: photo_url });
 });
 
+// === 登入流程 ===
 app.get('/auth/facebook', passport.authenticate('facebook'));
 app.get('/auth/facebook/callback',
   passport.authenticate('facebook', { failureRedirect: '/' }),
@@ -125,6 +127,7 @@ app.get('/auth/line/callback',
   (req, res) => res.redirect('/')
 );
 
+// === 登出 ===
 app.get('/logout', (req, res, next) => {
   req.logout(err => {
     if (err) return next(err);
@@ -132,15 +135,19 @@ app.get('/logout', (req, res, next) => {
   });
 });
 
+// === 管理後台 ===
 app.get('/admin', (req, res) => {
   const password = req.query.p;
   if (password !== 'qwer4567') {
-    return res.send(`<form method="get">
-      <p>請輸入密碼才能查看後台</p>
-      <input type="password" name="p" />
-      <button type="submit">登入</button>
-    </form>`);
+    return res.send(`
+      <form method="get">
+        <p>請輸入密碼才能查看後台</p>
+        <input type="password" name="p" />
+        <button type="submit">登入</button>
+      </form>
+    `);
   }
+
   fs.readFile(ordersFile, 'utf-8', (err, data) => {
     if (err) return res.status(500).send('讀取訂單失敗');
     let orders = [];
@@ -154,16 +161,19 @@ app.get('/admin', (req, res) => {
       <body><h1>📋 所有訂單 (${orders.length} 筆)</h1><table>
       <tr><th>姓名</th><th>電話</th><th>地址</th><th>下單時間</th></tr>
       ${orders.map(o => `<tr><td>${o.name}</td><td>${o.phone}</td><td>${o.address}</td><td>${new Date(o.createdAt).toLocaleString()}</td></tr>`).join('')}
-      </table></body></html>`;
+      </table></body></html>
+    `;
     res.send(html);
   });
 });
 
+// === 錯誤處理 ===
 app.use((err, req, res, next) => {
   console.error('❌ 系統錯誤:', err.stack);
   res.status(500).send('🚨 伺服器發生錯誤，請稍後再試');
 });
 
+// === 啟動伺服器 ===
 app.listen(PORT, () => {
-  console.log(`🚀 Server running at http://localhost:${PORT}`);
+  console.log(`🚀 伺服器已啟動：http://localhost:${PORT}`);
 });
