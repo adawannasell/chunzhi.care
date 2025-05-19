@@ -1,4 +1,4 @@
-// server.js（Express + PostgreSQL + Facebook/LINE 登入 + 訂單寫入 + 後台訂單查詢 + 狀態更新）
+// server.js（Express + PostgreSQL + Facebook/LINE 登入 + 訂單寫入 + 後台訂單查詢 + 狀態更新 + 自動寄信）
 const express = require('express');
 const path = require('path');
 const bodyParser = require('body-parser');
@@ -8,6 +8,7 @@ const FacebookStrategy = require('passport-facebook').Strategy;
 const LineStrategy = require('passport-line-auth').Strategy;
 const dotenv = require('dotenv');
 const { pool, initDB } = require('./database');
+const { Resend } = require('resend'); // ✅ 已移到最上方
 
 dotenv.config();
 initDB();
@@ -87,10 +88,11 @@ passport.use(new LineStrategy({
   }
 }));
 
-// === 訂單 API：寫入 PostgreSQL ===
+// === 訂單 API：寫入 PostgreSQL 並自動寄送 Email ===
 app.post('/order', async (req, res) => {
   const { name, phone, email, address, note, items } = req.body;
   const user_id = req.user?.id || null;
+
   try {
     await pool.query(`
       INSERT INTO orders (user_id, name, phone, email, address, note, cart_items)
@@ -98,14 +100,32 @@ app.post('/order', async (req, res) => {
     `, [
       user_id, name, phone, email, address, note || '', JSON.stringify(items)
     ]);
-    res.send('✅ 訂單已送出，感謝您的購買！');
+
+    const summary = items.map(i => `${i.name} x${i.qty}`).join('<br>');
+    const resend = new Resend(process.env.RESEND_API_KEY);
+
+    await resend.emails.send({
+      from: 'onboarding@resend.dev',
+      to: email,
+      subject: '感謝您的訂購',
+      html: `
+        <h2>親愛的 ${name}，您好：</h2>
+        <p>我們已收到您的訂單，以下是您訂購的商品：</p>
+        <p>${summary}</p>
+        <p>我們將盡快為您安排出貨，感謝您的支持！</p>
+        <br>
+        <p>— 愛妲生活</p>
+      `
+    });
+
+    res.send('✅ 訂單已送出，感謝您的購買！Email 已寄出。');
   } catch (err) {
-    console.error('❌ 寫入訂單失敗:', err);
-    res.status(500).send('🚨 寫入訂單失敗，請稍後再試');
+    console.error('❌ 訂單處理失敗:', err);
+    res.status(500).send('🚨 訂單處理失敗，請稍後再試');
   }
 });
 
-// === 後台訂單查詢與搜尋/狀態更新 ===
+// === 後台訂單查詢與狀態切換 ===
 app.get('/admin', async (req, res) => {
   const password = req.query.p;
   if (password !== 'qwer4567') {
@@ -117,6 +137,7 @@ app.get('/admin', async (req, res) => {
       </form>
     `);
   }
+
   try {
     const result = await pool.query('SELECT * FROM orders ORDER BY created_at DESC');
     const orders = result.rows;
@@ -175,7 +196,7 @@ app.get('/admin', async (req, res) => {
   }
 });
 
-// ✅ 狀態更新 API
+// ✅ 狀態切換 API
 app.post('/admin/update', async (req, res) => {
   const { id, status } = req.body;
   try {
@@ -187,19 +208,17 @@ app.post('/admin/update', async (req, res) => {
   }
 });
 
-// === 首頁 ===
+// === 首頁與登入流程 ===
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-// === 回傳登入者資訊 ===
 app.get('/me', (req, res) => {
   if (!req.isAuthenticated()) return res.json({});
   const { display_name, photo_url } = req.user;
   res.json({ name: display_name, avatar: photo_url });
 });
 
-// === 登入流程 ===
 app.get('/auth/facebook', passport.authenticate('facebook'));
 app.get('/auth/facebook/callback',
   passport.authenticate('facebook', { failureRedirect: '/' }),
@@ -212,7 +231,6 @@ app.get('/auth/line/callback',
   (req, res) => res.redirect('/')
 );
 
-// === 登出 ===
 app.get('/logout', (req, res, next) => {
   req.logout(err => {
     if (err) return next(err);
@@ -225,6 +243,10 @@ app.use((err, req, res, next) => {
   console.error('❌ 系統錯誤:', err.stack);
   res.status(500).send('🚨 系統錯誤，請稍後再試');
 });
+
+// === 額外路由 ===
+const emailRoutes = require('./routes/email');
+app.use('/api', emailRoutes);
 
 // === 啟動伺服器 ===
 app.listen(PORT, () => {
