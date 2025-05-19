@@ -1,4 +1,4 @@
-// server.js（Express + PostgreSQL + Facebook/LINE 登入 + 訂單寫入 + 後台訂單查詢 + 狀態更新 + 自動寄信）
+// server.js（Express + PostgreSQL + Facebook/LINE 登入 + 訂單寫入 + 後台訂單查詢 + 狀態更新 + 自動寄信 + thankyou 導向）
 const express = require('express');
 const path = require('path');
 const bodyParser = require('body-parser');
@@ -9,6 +9,7 @@ const LineStrategy = require('passport-line-auth').Strategy;
 const dotenv = require('dotenv');
 const { pool, initDB } = require('./database');
 const { Resend } = require('resend');
+const emailRoutes = require('./routes/email');
 
 dotenv.config();
 initDB();
@@ -88,7 +89,7 @@ passport.use(new LineStrategy({
   }
 }));
 
-// === 訂單 API：寫入資料庫＋寄送 Email ===
+// === 訂單 API：寫入資料庫＋寄送 Email 並導向前端 ===
 app.post('/order', async (req, res) => {
   const { name, phone, email, address, note, items } = req.body;
   const user_id = req.user?.id || null;
@@ -100,26 +101,29 @@ app.post('/order', async (req, res) => {
     `, [
       user_id, name, phone, email, address, note || '', JSON.stringify(items)
     ]);
-    console.log('✅ 訂單寫入成功');
 
     const summary = items.map(i => `${i.name} x${i.qty}`).join('<br>');
     const resend = new Resend(process.env.RESEND_API_KEY);
 
-    const result = await resend.emails.send({
-      from: 'onboarding@resend.dev',
-      to: email,
-      subject: '感謝您的訂購',
-      html: `
-        <h2>親愛的 ${name}，您好：</h2>
-        <p>我們已收到您的訂單，以下是您訂購的商品：</p>
-        <p>${summary}</p>
-        <p>我們將盡快為您安排出貨，感謝您的支持！</p>
-        <br><p>— 愛妲生活</p>
-      `
-    });
+    try {
+      await resend.emails.send({
+        from: 'onboarding@resend.dev',
+        to: email,
+        subject: '感謝您的訂購',
+        html: `
+          <h2>親愛的 ${name}，您好：</h2>
+          <p>我們已收到您的訂單，以下是您訂購的商品：</p>
+          <p>${summary}</p>
+          <p>我們將盡快為您安排出貨，感謝您的支持！</p>
+          <br><p>— 愛妲生活</p>
+        `
+      });
+      console.log('✅ 寄信成功');
+    } catch (err) {
+      console.error('❌ 寄信失敗:', err);
+    }
 
-    console.log('✅ 寄信成功：', result);
-    res.send('✅ 訂單已送出，Email 已寄出');
+    res.redirect('/thankyou.html');
   } catch (err) {
     console.error('❌ 訂單或寄信處理失敗:', err);
     res.status(500).send('🚨 系統錯誤，請稍後再試');
@@ -246,7 +250,6 @@ app.use((err, req, res, next) => {
 });
 
 // === 額外路由 ===
-const emailRoutes = require('./routes/email');
 app.use('/api', emailRoutes);
 
 // === 啟動伺服器 ===
