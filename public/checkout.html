@@ -96,9 +96,8 @@
 
         if (!res.ok) throw new Error(await res.text());
 
-        alert('✅ 訂單送出成功！');
-        localStorage.removeItem('cart');
-        window.location.href = '/';
+       localStorage.removeItem('cart');
+window.location.href = '/thankyou.html';
       } catch (err) {
         alert('❌ 訂單送出失敗：' + err.message);
       }
