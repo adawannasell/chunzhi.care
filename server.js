@@ -104,19 +104,25 @@ app.post('/order', async (req, res) => {
     const summary = items.map(i => `${i.name} x${i.qty}`).join('<br>');
     const resend = new Resend(process.env.RESEND_API_KEY);
 
-    await resend.emails.send({
-      from: 'onboarding@resend.dev',
-      to: email,
-      subject: '感謝您的訂購',
-      html: `
-        <h2>親愛的 ${name}，您好：</h2>
-        <p>我們已收到您的訂單，以下是您訂購的商品：</p>
-        <p>${summary}</p>
-        <p>我們將盡快為您安排出貨，感謝您的支持！</p>
-        <br>
-        <p>— 愛妲生活</p>
-      `
-    });
+
+    try {
+  await resend.emails.send({
+    from: 'onboarding@resend.dev',
+    to: email,
+    subject: '感謝您的訂購',
+    html: `
+      <h2>親愛的 ${name}，您好：</h2>
+      <p>我們已收到您的訂單，以下是您訂購的商品：</p>
+      <p>${summary}</p>
+      <p>我們將盡快為您安排出貨，感謝您的支持！</p>
+      <br>
+      <p>— 愛妲生活</p>
+    `
+  });
+  console.log('✅ 寄信成功');
+} catch (err) {
+  console.error('❌ 寄信失敗：', err);
+}
 
     res.send('✅ 訂單已送出，感謝您的購買！Email 已寄出。');
   } catch (err) {
