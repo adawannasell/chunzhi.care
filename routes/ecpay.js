@@ -18,8 +18,8 @@ router.post('/create-payment', (req, res) => {
     Amt: total,
     ItemDesc: '購物金流測試',
     Email: email,
-    ReturnURL: 'https://你的網域/api/ecpay/callback',
-    ClientBackURL: 'https://你的網域/thankyou.html'
+    ReturnURL: 'https://chunzhi-care.onrender.com/api/ecpay/callback',
+    ClientBackURL: 'https://chunzhi-care.onrender.com/thankyou.html'
   };
 
   const html = create_mpg_aes_encrypt(data);
