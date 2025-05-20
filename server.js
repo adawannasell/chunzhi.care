@@ -1,4 +1,4 @@
-// server.js（Express + PostgreSQL + Facebook/LINE 登入 + 訂單寫入 + 後台訂單查詢 + 狀態更新 + 自動寄信 + thankyou 導向）
+// server.js（Express + PostgreSQL + Facebook/LINE 登入 + 訂單寫入 + 後台訂單查詢 + 狀態更新 + 自動寄信 + thankyou 導向 + 綠界金流串接）
 const express = require('express');
 const path = require('path');
 const bodyParser = require('body-parser');
@@ -10,6 +10,7 @@ const dotenv = require('dotenv');
 const { pool, initDB } = require('./database');
 const { Resend } = require('resend');
 const emailRoutes = require('./routes/email');
+const ecpayRoutes = require('./routes/ecpay');
 
 dotenv.config();
 initDB();
@@ -89,7 +90,11 @@ passport.use(new LineStrategy({
   }
 }));
 
-// === 訂單 API：寫入資料庫＋寄送 Email 並導向前端 ===
+// === API Routes ===
+app.use('/api/email', emailRoutes);
+app.use('/api/ecpay', ecpayRoutes);
+
+// === 訂單頁面提交 ===
 app.post('/order', async (req, res) => {
   const { name, phone, email, address, note, items } = req.body;
   const user_id = req.user?.id || null;
@@ -98,9 +103,7 @@ app.post('/order', async (req, res) => {
     await pool.query(`
       INSERT INTO orders (user_id, name, phone, email, address, note, cart_items)
       VALUES ($1, $2, $3, $4, $5, $6, $7)
-    `, [
-      user_id, name, phone, email, address, note || '', JSON.stringify(items)
-    ]);
+    `, [user_id, name, phone, email, address, note || '', JSON.stringify(items)]);
 
     const summary = items.map(i => `${i.name} x${i.qty}`).join('<br>');
     const resend = new Resend(process.env.RESEND_API_KEY);
@@ -130,17 +133,11 @@ app.post('/order', async (req, res) => {
   }
 });
 
-// === 後台訂單查詢 ===
+// === 後台訂單查詢與狀態更新 ===
 app.get('/admin', async (req, res) => {
   const password = req.query.p;
   if (password !== 'qwer4567') {
-    return res.send(`
-      <form method="get">
-        <p>請輸入密碼才能查看後台</p>
-        <input type="password" name="p" />
-        <button type="submit">登入</button>
-      </form>
-    `);
+    return res.send(`<form method="get"><p>請輸入密碼才能查看後台</p><input type="password" name="p" /><button type="submit">登入</button></form>`);
   }
 
   try {
@@ -148,51 +145,17 @@ app.get('/admin', async (req, res) => {
     const orders = result.rows;
 
     const html = `
-    <html><head><meta charset="UTF-8" /><title>訂單後台</title>
-    <style>
-      body { font-family: sans-serif; padding: 40px; background: #f6f6f6; }
-      table { border-collapse: collapse; width: 100%; background: white; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-      th, td { border: 1px solid #ccc; padding: 8px; text-align: left; vertical-align: top; }
-      input[type="search"] { padding: 10px; width: 300px; margin-bottom: 20px; font-size: 1rem; }
-      button { background: #6b8e23; color: white; border: none; padding: 5px 10px; cursor: pointer; border-radius: 4px; }
-    </style>
-    <script>
-      function filterOrders() {
-        const keyword = document.getElementById('search').value.toLowerCase();
-        document.querySelectorAll('tbody tr').forEach(row => {
-          const text = row.innerText.toLowerCase();
-          row.style.display = text.includes(keyword) ? '' : 'none';
-        });
-      }
-      async function updateStatus(id, current) {
-        const newStatus = current === '未出貨' ? '已出貨' : '未出貨';
-        const res = await fetch('/admin/update', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ id, status: newStatus })
-        });
-        if (res.ok) location.reload();
-        else alert('更新失敗');
-      }
-    </script></head>
-    <body>
-      <h1>📦 訂單後台（${orders.length} 筆）</h1>
-      <input type="search" id="search" oninput="filterOrders()" placeholder="搜尋姓名、電話、Email...">
-      <table><thead><tr><th>姓名</th><th>電話</th><th>Email</th><th>地址</th><th>備註</th><th>狀態</th><th>商品</th><th>時間</th></tr></thead>
-      <tbody>
-      ${orders.map(o => `
-        <tr>
-          <td>${o.name}</td>
-          <td>${o.phone}</td>
-          <td>${o.email}</td>
-          <td>${o.address}</td>
-          <td>${o.note || ''}</td>
-          <td><button onclick="updateStatus(${o.id}, '${o.status}')">${o.status}</button></td>
-          <td><pre>${JSON.stringify(o.cart_items, null, 2)}</pre></td>
-          <td>${new Date(o.created_at).toLocaleString()}</td>
-        </tr>`).join('')}
-      </tbody></table>
-    </body></html>`;
+      <html><head><meta charset="UTF-8" /><title>訂單後台</title>
+      <style>body { font-family: sans-serif; padding: 40px; background: #f6f6f6; } table { border-collapse: collapse; width: 100%; background: white; box-shadow: 0 2px 4px rgba(0,0,0,0.1); } th, td { border: 1px solid #ccc; padding: 8px; text-align: left; vertical-align: top; } input[type="search"] { padding: 10px; width: 300px; margin-bottom: 20px; font-size: 1rem; } button { background: #6b8e23; color: white; border: none; padding: 5px 10px; cursor: pointer; border-radius: 4px; }</style>
+      <script>function filterOrders() { const keyword = document.getElementById('search').value.toLowerCase(); document.querySelectorAll('tbody tr').forEach(row => { const text = row.innerText.toLowerCase(); row.style.display = text.includes(keyword) ? '' : 'none'; }); } async function updateStatus(id, current) { const newStatus = current === '未出貨' ? '已出貨' : '未出貨'; const res = await fetch('/admin/update', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id, status: newStatus }) }); if (res.ok) location.reload(); else alert('更新失敗'); }</script></head>
+      <body>
+        <h1>📦 訂單後台（${orders.length} 筆）</h1>
+        <input type="search" id="search" oninput="filterOrders()" placeholder="搜尋姓名、電話、Email...">
+        <table><thead><tr><th>姓名</th><th>電話</th><th>Email</th><th>地址</th><th>備註</th><th>狀態</th><th>商品</th><th>時間</th></tr></thead>
+        <tbody>
+        ${orders.map(o => `<tr><td>${o.name}</td><td>${o.phone}</td><td>${o.email}</td><td>${o.address}</td><td>${o.note || ''}</td><td><button onclick="updateStatus(${o.id}, '${o.status}')">${o.status}</button></td><td><pre>${JSON.stringify(o.cart_items, null, 2)}</pre></td><td>${new Date(o.created_at).toLocaleString()}</td></tr>`).join('')}
+        </tbody></table>
+      </body></html>`;
 
     res.send(html);
   } catch (err) {
@@ -201,7 +164,6 @@ app.get('/admin', async (req, res) => {
   }
 });
 
-// ✅ 狀態更新 API
 app.post('/admin/update', async (req, res) => {
   const { id, status } = req.body;
   try {
@@ -248,9 +210,6 @@ app.use((err, req, res, next) => {
   console.error('❌ 系統錯誤:', err.stack);
   res.status(500).send('🚨 系統錯誤，請稍後再試');
 });
-
-// === 額外路由 ===
-app.use('/api', emailRoutes);
 
 // === 啟動伺服器 ===
 app.listen(PORT, () => {
