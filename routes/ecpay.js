@@ -16,6 +16,7 @@ router.post('/create-payment', (req, res) => {
     LangType: 'zh-tw',
     MerchantOrderNo: 'NO' + Date.now(),
     Amt: total,
+    PaymentType: 'aio', // ✅ 一般付款方式：aio 為必要參數！
     ItemDesc: '購物金流測試',
     Email: email,
     ReturnURL: 'https://chunzhi-care.onrender.com/api/ecpay/callback',
