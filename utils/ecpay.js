@@ -1,29 +1,38 @@
-// routes/ecpay.js
-const express = require('express');
-const router = express.Router();
-const { create_mpg_aes_encrypt } = require('../utils/ecpay.js');
-const dotenv = require('dotenv');
-dotenv.config();
+const crypto = require('crypto');
+const qs = require('querystring');
 
-router.post('/create-payment', (req, res) => {
-  const { name, email, total } = req.body;
+const config = {
+  HashKey: process.env.ECPAY_HASH_KEY,
+  HashIV: process.env.ECPAY_HASH_IV,
+  MerchantID: process.env.ECPAY_MERCHANT_ID
+};
 
-  const data = {
-    MerchantID: process.env.ECPAY_MERCHANT_ID,
-    RespondType: 'JSON',
-    TimeStamp: Math.floor(Date.now() / 1000),
-    Version: '2.0',
-    LangType: 'zh-tw',
-    MerchantOrderNo: 'NO' + Date.now(),
-    Amt: total,
-    ItemDesc: '購物金流測試',
-    Email: email,
-    ReturnURL: 'https://你的網域/api/ecpay/callback',
-    ClientBackURL: 'https://你的網域/thankyou.html'
-  };
+// AES 加密
+function aesEncrypt(data, key, iv) {
+  const cipher = crypto.createCipheriv('aes-256-cbc', key, iv);
+  let encrypted = cipher.update(data, 'utf8', 'hex');
+  encrypted += cipher.final('hex');
+  return encrypted;
+}
 
-  const html = create_mpg_aes_encrypt(data);
-  res.send(html); // 直接輸出付款頁面 HTML 表單
-});
+// 產出完整 HTML 表單
+function create_mpg_aes_encrypt(data) {
+  const tradeInfoStr = qs.stringify(data);
+  const encryptedTradeInfo = aesEncrypt(tradeInfoStr, config.HashKey, config.HashIV).toLowerCase();
+  const shaSource = `HashKey=${config.HashKey}&${encryptedTradeInfo}&HashIV=${config.HashIV}`;
+  const tradeSha = crypto.createHash('sha256').update(shaSource).digest('hex').toUpperCase();
 
-module.exports = router;
+  return `
+    <form id="ecpay-form" method="post" action="https://payment-stage.ecpay.com.tw/Cashier/AioCheckOut/V5" style="display: none;">
+      <input type="hidden" name="MerchantID" value="${config.MerchantID}" />
+      <input type="hidden" name="TradeInfo" value="${encryptedTradeInfo}" />
+      <input type="hidden" name="TradeSha" value="${tradeSha}" />
+      <input type="hidden" name="Version" value="${data.Version}" />
+    </form>
+    <script>document.getElementById('ecpay-form').submit();</script>
+  `;
+}
+
+module.exports = {
+  create_mpg_aes_encrypt
+};

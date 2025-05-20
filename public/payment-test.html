@@ -1,0 +1,44 @@
+
+<!-- public/payment-test.html -->
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <title>金流測試頁</title>
+  <style>
+    body { font-family: sans-serif; padding: 40px; background: #f5f5f5; }
+    h1 { color: #6b8e23; }
+    button {
+      background: #6b8e23;
+      color: white;
+      font-size: 1.2rem;
+      border: none;
+      padding: 12px 24px;
+      cursor: pointer;
+      border-radius: 6px;
+    }
+  </style>
+</head>
+<body>
+  <h1>💰 綠界金流測試頁</h1>
+  <p>點擊以下按鈕，模擬送出一筆付款請求：</p>
+  <button onclick="pay()">送出測試訂單</button>
+
+  <script>
+    async function pay() {
+      const res = await fetch('/api/ecpay/create-payment', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: '測試用戶',
+          email: 'test@example.com',
+          total: 100
+        })
+      });
+      const html = await res.text();
+      const win = window.open('', '_blank');
+      win.document.write(html);
+    }
+  </script>
+</body>
+</html>
