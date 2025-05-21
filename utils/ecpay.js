@@ -1,5 +1,4 @@
 const crypto = require('crypto');
-const qs = require('querystring');
 
 const config = {
   HashKey: process.env.ECPAY_HASH_KEY,
@@ -7,7 +6,13 @@ const config = {
   MerchantID: process.env.ECPAY_MERCHANT_ID
 };
 
-// AES-128-CBC 加密（✅ 符合綠界要求）
+// 🔧 手動 URL encode（避免 querystring 自動處理大小寫或符號）
+function rawEncode(obj) {
+  return Object.entries(obj)
+    .map(([k, v]) => `${k}=${v}`)
+    .join('&');
+}
+
 function aesEncrypt(data, key, iv) {
   const cipher = crypto.createCipheriv('aes-128-cbc', key, iv);
   cipher.setAutoPadding(true);
@@ -16,15 +21,13 @@ function aesEncrypt(data, key, iv) {
   return encrypted;
 }
 
-// SHA256 加密產生 TradeSha
 function sha256(encryptedTradeInfo, key, iv) {
   const plainText = `HashKey=${key}&${encryptedTradeInfo}&HashIV=${iv}`;
   return crypto.createHash('sha256').update(plainText).digest('hex').toUpperCase();
 }
 
-// 產出綠界付款表單
 function create_mpg_aes_encrypt(data) {
-  const tradeInfoStr = qs.stringify(data);
+  const tradeInfoStr = rawEncode(data);
   const encryptedTradeInfo = aesEncrypt(tradeInfoStr, config.HashKey, config.HashIV).toLowerCase();
   const tradeSha = sha256(encryptedTradeInfo, config.HashKey, config.HashIV);
 
