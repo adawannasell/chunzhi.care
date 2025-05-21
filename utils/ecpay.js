@@ -1,17 +1,12 @@
+// utils/ecpay.js
 const crypto = require('crypto');
+const qs = require('querystring');
 
 const config = {
   HashKey: process.env.ECPAY_HASH_KEY,
   HashIV: process.env.ECPAY_HASH_IV,
   MerchantID: process.env.ECPAY_MERCHANT_ID
 };
-
-// 🔧 手動 URL encode（避免 querystring 自動處理大小寫或符號）
-function rawEncode(obj) {
-  return Object.entries(obj)
-    .map(([k, v]) => `${k}=${v}`)
-    .join('&');
-}
 
 function aesEncrypt(data, key, iv) {
   const cipher = crypto.createCipheriv('aes-128-cbc', key, iv);
@@ -27,7 +22,7 @@ function sha256(encryptedTradeInfo, key, iv) {
 }
 
 function create_mpg_aes_encrypt(data) {
-  const tradeInfoStr = rawEncode(data);
+  const tradeInfoStr = qs.stringify(data); // ✅ 用 querystring 保證參數排序與 URL encoding
   const encryptedTradeInfo = aesEncrypt(tradeInfoStr, config.HashKey, config.HashIV).toLowerCase();
   const tradeSha = sha256(encryptedTradeInfo, config.HashKey, config.HashIV);
 
