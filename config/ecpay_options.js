@@ -1,9 +1,9 @@
 module.exports = {
-  MerchantID: process.env.ECPAY_MERCHANT_ID,
+  OperationMode: 'Test',           // 'Test' or 'Production'
+  MercProfile: 'Stage_Account',    // ✅ 官方 SDK 必填（你現在就是缺這個）
+  IsProjectContractor: 'N',
   HashKey: process.env.ECPAY_HASH_KEY,
   HashIV: process.env.ECPAY_HASH_IV,
-  OperationMode: 'Test',            // ✅ 必填：Test 或 Production
-  IgnorePayment: [],                // ✅ 必填：可以是空陣列
-  IsProjectContractor: false,       // ✅ 必填：專案協力廠商 false 為預設
-  EncryptType: 1                    // ✅ 必填：1 表 AES
+  MerchantID: process.env.ECPAY_MERCHANT_ID,
+  EncryptType: 1
 };
