@@ -1,9 +1,9 @@
+// utils/ecpay.js
 const ECPayPayment = require('ecpay_aio_nodejs');
-const options = require('../config/ecpay_options');
 
 function createPaymentHtml(data) {
-  const ecpayClient = new ECPayPayment(options);
-  return ecpayClient.payment_client.aio_check_out_all(data, options);
+  const ecpayClient = new ECPayPayment(); // ❌ 不用傳 options
+  return ecpayClient.payment_client.aio_check_out_all(data);
 }
 
 module.exports = { createPaymentHtml };

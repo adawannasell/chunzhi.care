@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Conf>
+  <OperatingMode>Test</OperatingMode> <!-- Test 或 Production -->
+  <MercProfile>Stage_Account</MercProfile> <!-- 對應下方設定 -->
+  <IsProjectContractor>N</IsProjectContractor>
+
+  <MerchantInfo>
+    <MInfo name="Stage_Account">
+      <MerchantID>2000132</MerchantID>
+      <HashKey>5294y06JbISpM5x9</HashKey>
+      <HashIV>v77hoKGq4kWxNNIS</HashIV>
+    </MInfo>
+  </MerchantInfo>
+
+  <IgnorePayment>
+    <!-- 你要排除的支付方式（通常留空） -->
+  </IgnorePayment>
+</Conf>
