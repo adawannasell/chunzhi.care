@@ -1,9 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Conf>
-  <OperatingMode>Test</OperatingMode> <!-- Test 或 Production -->
-  <MercProfile>Stage_Account</MercProfile> <!-- 對應下方設定 -->
+  <!-- 環境設定：Test 或 Production -->
+  <OperatingMode>Test</OperatingMode>
+
+  <!-- 使用哪一組商店設定（對應下方 MInfo 的 name） -->
+  <MercProfile>Stage_Account</MercProfile>
+
+  <!-- 是否為專案平台商（通常填 N） -->
   <IsProjectContractor>N</IsProjectContractor>
 
+  <!-- 商店帳號與金鑰設定 -->
   <MerchantInfo>
     <MInfo name="Stage_Account">
       <MerchantID>2000132</MerchantID>
@@ -12,7 +18,6 @@
     </MInfo>
   </MerchantInfo>
 
-  <IgnorePayment>
-    <!-- 你要排除的支付方式（通常留空） -->
-  </IgnorePayment>
+  <!-- 要排除的付款方式（用 # 隔開），空白代表不排除任何 -->
+  <IgnorePayment></IgnorePayment>
 </Conf>
