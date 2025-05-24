@@ -19,6 +19,8 @@ const initDB = async () => {
       display_name VARCHAR(255),
       email VARCHAR(255),
       photo_url TEXT,
+      address TEXT, -- ✅ 加入收件地址欄位
+      source VARCHAR(50), -- ✅ 登入來源，用來顯示是 Facebook 或 LINE
       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     );
   `;

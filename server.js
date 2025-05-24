@@ -1,4 +1,3 @@
-// server.js（Express + PostgreSQL + Facebook/LINE 登入 + 訂單寫入 + 後台訂單查詢 + 狀態更新 + 自動寄信 + thankyou 導向）
 const express = require('express');
 const path = require('path');
 const bodyParser = require('body-parser');
@@ -10,7 +9,7 @@ const dotenv = require('dotenv');
 const { pool, initDB } = require('./database');
 const { Resend } = require('resend');
 const emailRoutes = require('./routes/email');
-// const ecpayRoutes = require('./routes/ecpay'); // 暫時移除金流串接
+// const ecpayRoutes = require('./routes/ecpay'); // 暫時移除金流
 
 dotenv.config();
 initDB();
@@ -18,7 +17,7 @@ initDB();
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// === Middleware ===
+// Middleware
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.use(express.static('public'));
@@ -30,7 +29,7 @@ app.use(session({
 app.use(passport.initialize());
 app.use(passport.session());
 
-// === Session 處理 ===
+// Session
 passport.serializeUser((user, done) => {
   done(null, user.provider_id);
 });
@@ -44,7 +43,7 @@ passport.deserializeUser(async (id, done) => {
   }
 });
 
-// === Facebook 登入策略 ===
+// Facebook 登入策略
 passport.use(new FacebookStrategy({
   clientID: process.env.FACEBOOK_CLIENT_ID,
   clientSecret: process.env.FACEBOOK_CLIENT_SECRET,
@@ -53,13 +52,14 @@ passport.use(new FacebookStrategy({
 }, async (accessToken, refreshToken, profile, done) => {
   try {
     await pool.query(`
-      INSERT INTO users (provider, provider_id, display_name, email, photo_url)
-      VALUES ($1, $2, $3, $4, $5)
+      INSERT INTO users (provider, provider_id, display_name, email, photo_url, source)
+      VALUES ($1, $2, $3, $4, $5, $6)
       ON CONFLICT (provider_id) DO NOTHING
     `, [
       'facebook', profile.id, profile.displayName,
       profile.emails?.[0]?.value || null,
-      profile.photos?.[0]?.value || null
+      profile.photos?.[0]?.value || null,
+      'facebook'
     ]);
     done(null, { provider_id: profile.id });
   } catch (err) {
@@ -67,7 +67,7 @@ passport.use(new FacebookStrategy({
   }
 }));
 
-// === LINE 登入策略 ===
+// LINE 登入策略
 passport.use(new LineStrategy({
   channelID: process.env.LINE_CHANNEL_ID,
   channelSecret: process.env.LINE_CHANNEL_SECRET,
@@ -76,13 +76,14 @@ passport.use(new LineStrategy({
 }, async (accessToken, refreshToken, params, profile, done) => {
   try {
     await pool.query(`
-      INSERT INTO users (provider, provider_id, display_name, email, photo_url)
-      VALUES ($1, $2, $3, $4, $5)
+      INSERT INTO users (provider, provider_id, display_name, email, photo_url, source)
+      VALUES ($1, $2, $3, $4, $5, $6)
       ON CONFLICT (provider_id) DO NOTHING
     `, [
       'line', profile.id, profile.displayName,
       null,
-      profile.pictureUrl || null
+      profile.pictureUrl || null,
+      'line'
     ]);
     done(null, { provider_id: profile.id });
   } catch (err) {
@@ -90,11 +91,10 @@ passport.use(new LineStrategy({
   }
 }));
 
-// === API Routes ===
+// Routes
 app.use('/api/email', emailRoutes);
-// app.use('/api/ecpay', ecpayRoutes); // 暫時移除金流串接
+// app.use('/api/ecpay', ecpayRoutes); // 暫時移除金流
 
-// === 訂單頁面提交 ===
 app.post('/order', async (req, res) => {
   const { name, phone, email, address, note, items } = req.body;
   const user_id = req.user?.id || null;
@@ -108,23 +108,18 @@ app.post('/order', async (req, res) => {
     const summary = items.map(i => `${i.name} x${i.qty}`).join('<br>');
     const resend = new Resend(process.env.RESEND_API_KEY);
 
-    try {
-      await resend.emails.send({
-        from: 'onboarding@resend.dev',
-        to: email,
-        subject: '感謝您的訂購',
-        html: `
-          <h2>親愛的 ${name}，您好：</h2>
-          <p>我們已收到您的訂單，以下是您訂購的商品：</p>
-          <p>${summary}</p>
-          <p>我們將盡快為您安排出貨，感謝您的支持！</p>
-          <br><p>— 愛妲生活</p>
-        `
-      });
-      console.log('✅ 寄信成功');
-    } catch (err) {
-      console.error('❌ 寄信失敗:', err);
-    }
+    await resend.emails.send({
+      from: 'onboarding@resend.dev',
+      to: email,
+      subject: '感謝您的訂購',
+      html: `
+        <h2>親愛的 ${name}，您好：</h2>
+        <p>我們已收到您的訂單，以下是您訂購的商品：</p>
+        <p>${summary}</p>
+        <p>我們將盡快為您安排出貨，感謝您的支持！</p>
+        <br><p>— 愛妲生活</p>
+      `
+    });
 
     res.redirect('/thankyou.html');
   } catch (err) {
@@ -133,7 +128,7 @@ app.post('/order', async (req, res) => {
   }
 });
 
-// === 後台訂單查詢與狀態更新 ===
+// 後台訂單管理
 app.get('/admin', async (req, res) => {
   const password = req.query.p;
   if (password !== 'qwer4567') {
@@ -175,17 +170,25 @@ app.post('/admin/update', async (req, res) => {
   }
 });
 
-// === 首頁與登入流程 ===
+// 首頁
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
+// me API
 app.get('/me', (req, res) => {
   if (!req.isAuthenticated()) return res.json({});
-  const { display_name, photo_url } = req.user;
-  res.json({ name: display_name, avatar: photo_url });
+  const { display_name, photo_url, email, address, provider } = req.user;
+  res.json({
+    name: display_name,
+    avatar: photo_url,
+    email,
+    address,
+    source: provider
+  });
 });
 
+// 登入流程
 app.get('/auth/facebook', passport.authenticate('facebook'));
 app.get('/auth/facebook/callback',
   passport.authenticate('facebook', { failureRedirect: '/' }),
@@ -198,6 +201,7 @@ app.get('/auth/line/callback',
   (req, res) => res.redirect('/')
 );
 
+// 登出
 app.get('/logout', (req, res, next) => {
   req.logout(err => {
     if (err) return next(err);
@@ -205,13 +209,12 @@ app.get('/logout', (req, res, next) => {
   });
 });
 
-// === 錯誤處理 ===
+// 錯誤處理
 app.use((err, req, res, next) => {
   console.error('❌ 系統錯誤:', err.stack);
   res.status(500).send('🚨 系統錯誤，請稍後再試');
 });
 
-// === 啟動伺服器 ===
 app.listen(PORT, () => {
   console.log(`🚀 伺服器已啟動：http://localhost:${PORT}`);
 });

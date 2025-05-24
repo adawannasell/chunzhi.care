@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>會員中心 | 春枝 Chun-Zhi</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC&display=swap" rel="stylesheet" />
   <style>
     body {
       font-family: 'Noto Serif TC', serif;
@@ -42,8 +42,12 @@
 
       <div class="pt-4 border-t">
         <h2 class="font-bold mb-2">登入綁定</h2>
-        <p>LINE 帳號：<span id="line-name">尚未綁定</span></p>
-        <p>Facebook 帳號：<span id="fb-name">尚未綁定</span></p>
+        <p>
+          LINE 帳號：<span id="line-status">載入中...</span>
+        </p>
+        <p>
+          Facebook 帳號：<span id="fb-status">載入中...</span>
+        </p>
       </div>
     </main>
   </div>
@@ -57,19 +61,25 @@
     fetch('/me')
       .then(res => res.json())
       .then(data => {
-        if (!data.name) {
-          window.location.href = '/login.html';
+        if (!data.name) return window.location.href = '/login.html';
+
+        document.getElementById('name').textContent = data.name || '未提供';
+        document.getElementById('email').textContent = data.email || '未提供';
+        document.getElementById('address').textContent = data.address || '尚未設定';
+
+        // 登入來源顯示
+        if (data.source === 'line') {
+          document.getElementById('line-status').textContent = '已綁定';
+          document.getElementById('fb-status').innerHTML = '尚未綁定 <a href="/auth/facebook" class="ml-2 text-green-700 hover:underline">立即綁定</a>';
+        } else if (data.source === 'facebook') {
+          document.getElementById('fb-status').textContent = '已綁定';
+          document.getElementById('line-status').innerHTML = '尚未綁定 <a href="/auth/line" class="ml-2 text-green-700 hover:underline">立即綁定</a>';
         } else {
-          document.getElementById('name').textContent = data.name || '未提供';
-          document.getElementById('email').textContent = data.email || '未提供';
-          document.getElementById('address').textContent = data.address || '尚未設定';
-          document.getElementById('line-name').textContent = data.lineName || '尚未綁定';
-          document.getElementById('fb-name').textContent = data.fbName || '尚未綁定';
+          document.getElementById('fb-status').innerHTML = '尚未綁定 <a href="/auth/facebook" class="ml-2 text-green-700 hover:underline">立即綁定</a>';
+          document.getElementById('line-status').innerHTML = '尚未綁定 <a href="/auth/line" class="ml-2 text-green-700 hover:underline">立即綁定</a>';
         }
       })
-      .catch(() => {
-        window.location.href = '/login.html';
-      });
+      .catch(() => window.location.href = '/login.html');
 
     document.getElementById('edit-name').onclick = () => {
       const newName = prompt('請輸入新的會員名稱：');
