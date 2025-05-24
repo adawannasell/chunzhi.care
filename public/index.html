@@ -1,3 +1,10 @@
+這是你想要的改寫版：
+登入後右上角會顯示「歡迎，顧客名稱」，否則顯示「登入 / 註冊」，完全符合你整體文青簡約風格 ✅
+
+⸻
+
+✅ 完整可取代版本 index.html
+
 <!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
@@ -27,7 +34,7 @@
         </div>
         <!-- 右側會員與購物車 -->
         <div class="flex items-center space-x-4">
-          <a href="/login.html" class="text-gray-700 hover:text-green-700 text-sm">登入 / 註冊</a>
+          <span id="member-area" class="text-gray-700 text-sm">載入中...</span>
           <a href="/cart.html" class="relative text-gray-700 hover:text-green-700">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13l-1.3 5.3a1 1 0 001 .7h12.6M7 13l1.3-5.3M17 17a2 2 0 100 4 2 2 0 000-4zm-10 0a2 2 0 100 4 2 2 0 000-4z" />
@@ -82,5 +89,28 @@
     <p>聯絡信箱：support@chunzhi.com</p>
     <p>Instagram：@chunzhi_care</p>
   </footer>
+
+  <!-- 動態登入狀態 -->
+  <script>
+    fetch('/me')
+      .then(res => res.json())
+      .then(user => {
+        const el = document.getElementById('member-area');
+        if (user.name) {
+          el.textContent = `歡迎，${user.name}`;
+        } else {
+          el.innerHTML = `<a href="/login.html" class="hover:text-green-700">登入 / 註冊</a>`;
+        }
+      })
+      .catch(() => {
+        document.getElementById('member-area').innerHTML =
+          `<a href="/login.html" class="hover:text-green-700">登入 / 註冊</a>`;
+      });
+  </script>
 </body>
 </html>
+
+
+⸻
+
+需要我幫你 push 一下更新或整合其他頁面風格也可以說唷 ✅
