@@ -9,7 +9,6 @@ const dotenv = require('dotenv');
 const { pool, initDB } = require('./database');
 const { Resend } = require('resend');
 const emailRoutes = require('./routes/email');
-// const ecpayRoutes = require('./routes/ecpay'); // 暫時移除金流
 
 dotenv.config();
 initDB();
@@ -17,7 +16,6 @@ initDB();
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Middleware
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.use(express.static('public'));
@@ -29,7 +27,6 @@ app.use(session({
 app.use(passport.initialize());
 app.use(passport.session());
 
-// Session
 passport.serializeUser((user, done) => {
   done(null, user.provider_id);
 });
@@ -43,7 +40,6 @@ passport.deserializeUser(async (id, done) => {
   }
 });
 
-// Facebook 登入策略
 passport.use(new FacebookStrategy({
   clientID: process.env.FACEBOOK_CLIENT_ID,
   clientSecret: process.env.FACEBOOK_CLIENT_SECRET,
@@ -67,7 +63,6 @@ passport.use(new FacebookStrategy({
   }
 }));
 
-// LINE 登入策略
 passport.use(new LineStrategy({
   channelID: process.env.LINE_CHANNEL_ID,
   channelSecret: process.env.LINE_CHANNEL_SECRET,
@@ -91,9 +86,7 @@ passport.use(new LineStrategy({
   }
 }));
 
-// Routes
 app.use('/api/email', emailRoutes);
-// app.use('/api/ecpay', ecpayRoutes); // 暫時移除金流
 
 app.post('/order', async (req, res) => {
   const { name, phone, email, address, note, items } = req.body;
@@ -128,7 +121,17 @@ app.post('/order', async (req, res) => {
   }
 });
 
-// 後台訂單管理
+app.get('/api/orders', async (req, res) => {
+  if (!req.isAuthenticated()) return res.status(401).json({ error: '未登入' });
+  try {
+    const result = await pool.query('SELECT * FROM orders WHERE user_id = $1 ORDER BY created_at DESC', [req.user.id]);
+    res.json(result.rows);
+  } catch (err) {
+    console.error('❌ 讀取個人訂單失敗:', err);
+    res.status(500).send('🚨 無法取得訂單');
+  }
+});
+
 app.get('/admin', async (req, res) => {
   const password = req.query.p;
   if (password !== 'qwer4567') {
@@ -170,12 +173,10 @@ app.post('/admin/update', async (req, res) => {
   }
 });
 
-// 首頁
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-// me API
 app.get('/me', (req, res) => {
   if (!req.isAuthenticated()) return res.json({});
   const { display_name, photo_url, email, address, provider } = req.user;
@@ -188,7 +189,6 @@ app.get('/me', (req, res) => {
   });
 });
 
-// 登入流程
 app.get('/auth/facebook', passport.authenticate('facebook'));
 app.get('/auth/facebook/callback',
   passport.authenticate('facebook', { failureRedirect: '/' }),
@@ -201,7 +201,6 @@ app.get('/auth/line/callback',
   (req, res) => res.redirect('/')
 );
 
-// 登出
 app.get('/logout', (req, res, next) => {
   req.logout(err => {
     if (err) return next(err);
@@ -209,7 +208,6 @@ app.get('/logout', (req, res, next) => {
   });
 });
 
-// 錯誤處理
 app.use((err, req, res, next) => {
   console.error('❌ 系統錯誤:', err.stack);
   res.status(500).send('🚨 系統錯誤，請稍後再試');
