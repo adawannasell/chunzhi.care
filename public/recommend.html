@@ -49,8 +49,8 @@
     <label for="birthdate">出生日期（西元）：</label>
     <input type="date" id="birthdate" name="birthdate" required max="2099-12-31" />
 
-    <label for="birthtime">出生時間（可不填，24小時制，格式如 13:30 或 23:00）：</label>
-    <input type="time" id="birthtime" name="birthtime" />
+    <label for="birthhour">出生時間（可不填，僅輸入小時，0–23）：</label>
+    <input type="number" id="birthhour" name="birthhour" min="0" max="23" placeholder="例如：13（下午1點）" />
 
     <button type="submit">🔮 獲得推薦</button>
   </form>
@@ -62,7 +62,7 @@
       e.preventDefault();
 
       const dateStr = document.getElementById('birthdate').value;
-      const timeStr = document.getElementById('birthtime').value;
+      const hourStr = document.getElementById('birthhour').value;
 
       if (!dateStr) {
         alert("請輸入生日");
@@ -70,7 +70,7 @@
       }
 
       const [year, month, day] = dateStr.split('-').map(Number);
-      const hour = timeStr ? Number(timeStr.split(':')[0]) : null;
+      const hour = hourStr !== '' ? Number(hourStr) : null;
 
       const res = await fetch('/api/recommend', {
         method: 'POST',
