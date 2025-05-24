@@ -10,6 +10,18 @@
     body {
       font-family: 'Noto Serif TC', serif;
     }
+    .fb-color {
+      background-color: #dbeafe; /* 淡藍 */
+    }
+    .fb-color:hover {
+      background-color: #bfdbfe; /* 淺一階 */
+    }
+    .line-color {
+      background-color: #dcfce7; /* 淡綠 */
+    }
+    .line-color:hover {
+      background-color: #bbf7d0;
+    }
   </style>
 </head>
 <body class="bg-[#fdfaf5] min-h-screen flex flex-col items-center justify-center px-4">
@@ -17,12 +29,12 @@
     <h1 class="text-2xl font-semibold mb-6">會員登入</h1>
 
     <a href="/auth/facebook"
-       class="block w-full mb-4 py-2 border border-gray-300 text-gray-700 rounded hover:bg-green-50 transition">
+       class="block w-full mb-4 py-2 text-gray-700 border border-gray-300 rounded transition fb-color">
       使用 Facebook 登入
     </a>
 
     <a href="/auth/line"
-       class="block w-full py-2 border border-gray-300 text-gray-700 rounded hover:bg-green-50 transition">
+       class="block w-full py-2 text-gray-700 border border-gray-300 rounded transition line-color">
       使用 LINE 登入
     </a>
 
