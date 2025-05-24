@@ -26,11 +26,7 @@
         </div>
         <div class="flex items-center space-x-4">
           <a id="member-area" href="/login.html" class="text-gray-700 hover:text-green-700 text-sm">登入 / 註冊</a>
-          <a href="/cart.html" class="relative text-gray-700 hover:text-green-700">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13l-1.3 5.3a1 1 0 001 .7h12.6M7 13l1.3-5.3M17 17a2 2 0 100 4 2 2 0 000-4zm-10 0a2 2 0 100 4 2 2 0 000-4z" />
-            </svg>
-          </a>
+          <a href="/cart.html" class="relative text-gray-700 hover:text-green-700">🛒</a>
         </div>
       </div>
     </div>
@@ -43,24 +39,11 @@
     <p class="text-lg mt-2">Embrace the Essence of Nature</p>
   </section>
 
-  <!-- 一頁式產品介紹圖 -->
+  <!-- 一頁式商品展示區 -->
   <section id="products" class="py-16 px-4 flex flex-col gap-10 max-w-3xl mx-auto">
     <img src="/shampoo-1.jpg" alt="商品圖片1" class="w-full rounded-xl shadow">
     <img src="/pp2.jpeg" alt="商品圖片2" class="w-full rounded-xl shadow">
     <img src="/shampoo-1.jpg" alt="商品圖片3" class="w-full rounded-xl shadow">
-  </section>
-
-  <!-- 商品卡片區 -->
-  <section class="py-16 px-4 max-w-6xl mx-auto">
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-      <div class="bg-white rounded-xl shadow p-6 text-center">
-        <img src="/shampoo-1.jpg" alt="原味洗髮餅" class="w-full h-48 object-cover rounded mb-4">
-        <h3 class="text-lg font-semibold">原味洗髮餅</h3>
-        <p class="text-sm text-gray-600 my-2">溫和無香，適合所有髮質</p>
-        <p class="text-green-700 font-bold">NT$220</p>
-        <button onclick="addToCart({ name: '原味洗髮餅', price: 220 })" class="mt-4 px-6 py-2 bg-green-700 text-white rounded-full hover:bg-green-800 transition">加入購物車</button>
-      </div>
-    </div>
   </section>
 
   <!-- 品牌介紹 -->
@@ -71,13 +54,36 @@
     </p>
   </section>
 
-  <!-- 顧客評論 -->
+  <!-- 顧客好評 -->
   <section id="review" class="py-16 px-6 text-center">
     <h3 class="text-xl font-bold mb-4">顧客好評</h3>
     <blockquote class="italic max-w-md mx-auto">
       “用了春枝的洗髮餅之後，頭皮真的不癢了，而且洗完非常清爽，超喜歡～”<br />
       <span class="text-sm font-light mt-2 block">—— 王小明</span>
     </blockquote>
+  </section>
+
+  <!-- 熱銷組合 -->
+  <section class="bg-white py-16 px-6">
+    <div class="text-center mb-10">
+      <h2 class="text-2xl font-bold">熱銷組合</h2>
+    </div>
+    <div class="max-w-6xl mx-auto grid gap-8 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+      <div class="bg-[#fdfaf5] p-4 rounded-xl shadow">
+        <img src="/shampoo-1.jpg" alt="商品1" class="w-full rounded mb-4">
+        <h3 class="text-lg font-semibold">[2件組] 原味洗髮餅</h3>
+        <p class="text-sm text-gray-500 mt-1">原價 NT$ 398</p>
+        <p class="text-green-700 font-bold text-lg">NT$ 299</p>
+        <button onclick="addToCart('原味洗髮餅', 299)" class="mt-4 w-full py-2 bg-green-700 text-white rounded hover:bg-green-800">加入購物車</button>
+      </div>
+      <div class="bg-[#fdfaf5] p-4 rounded-xl shadow">
+        <img src="/pp2.jpeg" alt="商品2" class="w-full rounded mb-4">
+        <h3 class="text-lg font-semibold">[4件組] 洗髮餅組合優惠</h3>
+        <p class="text-sm text-gray-500 mt-1">原價 NT$ 796</p>
+        <p class="text-green-700 font-bold text-lg">NT$ 560</p>
+        <button onclick="addToCart('洗髮餅組合', 560)" class="mt-4 w-full py-2 bg-green-700 text-white rounded hover:bg-green-800">加入購物車</button>
+      </div>
+    </div>
   </section>
 
   <!-- Footer -->
@@ -87,42 +93,45 @@
     <p>Instagram：@chunzhi_care</p>
   </footer>
 
-  <!-- 動態登入與購物車邏輯 -->
   <script>
     let currentUser = null;
 
+    // 登入狀態確認
     fetch('/me')
       .then(res => res.json())
       .then(user => {
-        currentUser = user.name ? user : null;
         const el = document.getElementById('member-area');
-        if (currentUser) {
+        if (user.name) {
           el.textContent = `歡迎，${user.name}`;
           el.href = '/me.html';
+          currentUser = user;
         } else {
           el.textContent = '登入 / 註冊';
           el.href = '/login.html';
         }
       })
       .catch(() => {
-        currentUser = null;
+        const el = document.getElementById('member-area');
+        el.textContent = '登入 / 註冊';
+        el.href = '/login.html';
       });
 
-    function addToCart(item) {
+    function addToCart(name, price) {
       if (!currentUser) {
-        alert('請先登入才能加入購物車！');
+        alert("請先登入才能加入購物車！");
         window.location.href = '/login.html';
         return;
       }
+
       const cart = JSON.parse(localStorage.getItem('cart')) || [];
-      const existing = cart.find(i => i.name === item.name);
+      const existing = cart.find(item => item.name === name);
       if (existing) {
         existing.quantity += 1;
       } else {
-        cart.push({ ...item, quantity: 1 });
+        cart.push({ name, price, quantity: 1 });
       }
       localStorage.setItem('cart', JSON.stringify(cart));
-      alert('已加入購物車');
+      alert(`${name} 已加入購物車！`);
     }
   </script>
 </body>
