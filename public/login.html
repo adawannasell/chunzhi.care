@@ -1,17 +1,37 @@
-<!-- public/login.html -->
 <!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>登入 | 春枝 Chun-Zhi</title>
+  <title>會員登入 | 春枝 Chun-Zhi</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Noto Serif TC', serif;
+    }
+  </style>
 </head>
-<body class="bg-[#fdfaf5] text-center py-24">
-  <h1 class="text-2xl font-bold mb-6">會員登入</h1>
-  <div class="flex flex-col items-center space-y-4">
-    <a href="/auth/facebook" class="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700">使用 Facebook 登入</a>
-    <a href="/auth/line" class="bg-green-500 text-white px-6 py-2 rounded hover:bg-green-600">使用 LINE 登入</a>
+<body class="bg-[#fdfaf5] min-h-screen flex flex-col items-center justify-center px-4">
+  <div class="w-full max-w-sm bg-white rounded-xl shadow p-8 text-center">
+    <h1 class="text-2xl font-semibold mb-6">👤 會員登入</h1>
+
+    <a href="/auth/facebook" class="block w-full mb-4 py-2 text-white bg-blue-600 hover:bg-blue-700 rounded transition">
+      Facebook 登入
+    </a>
+
+    <a href="/auth/line" class="block w-full py-2 text-white bg-green-500 hover:bg-green-600 rounded transition">
+      LINE 登入
+    </a>
+
+    <p class="mt-6 text-sm text-gray-600">
+      尚未註冊？<a href="#" class="text-green-700 hover:underline">會員註冊</a>
+    </p>
   </div>
+
+  <footer class="text-xs text-gray-500 mt-8 text-center">
+    <p>© 2025 春枝 CHUN-ZHI</p>
+    <p>support@chunzhi.com｜@chunzhi_care</p>
+  </footer>
 </body>
 </html>
