@@ -26,7 +26,7 @@ ${bazi.hasHour ? `時柱：${bazi.hour}` : '⚠️ 客戶未提供出生時辰�
 `;
 
     const response = await openai.chat.completions.create({
-      model: 'gpt-4',
+      model: process.env.OPENAI_MODEL || 'gpt-4-1106-preview',
       messages: [
         { role: 'system', content: '你是一位結合命理與香氛設計的洗髮餅推薦師。' },
         { role: 'user', content: prompt }
