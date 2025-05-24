@@ -1,0 +1,44 @@
+<!-- views/recommend.html -->
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <title>八字洗髮餅推薦</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+</head>
+<body style="font-family: sans-serif; max-width: 600px; margin: 3rem auto;">
+  <h1>輸入你的生日</h1>
+  <form id="form">
+    <label>出生年月日：</label><br/>
+    <input type="number" id="year" placeholder="1995" required />
+    <input type="number" id="month" placeholder="5" required />
+    <input type="number" id="day" placeholder="21" required /><br/><br/>
+
+    <label>出生小時（可不填）：</label><br/>
+    <input type="number" id="hour" placeholder="例如 23" min="0" max="23" /><br/><br/>
+
+    <button type="submit">獲得推薦</button>
+  </form>
+
+  <hr/>
+  <div id="result"></div>
+
+  <script>
+    document.getElementById('form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const year = document.getElementById('year').value;
+      const month = document.getElementById('month').value;
+      const day = document.getElementById('day').value;
+      const hour = document.getElementById('hour').value;
+
+      const res = await fetch('/api/recommend', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ year, month, day, hour: hour === '' ? null : Number(hour) })
+      });
+      const data = await res.json();
+      document.getElementById('result').innerText = data.recommendation || data.error;
+    });
+  </script>
+</body>
+</html>

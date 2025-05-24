@@ -8,7 +8,10 @@ const LineStrategy = require('passport-line-auth').Strategy;
 const dotenv = require('dotenv');
 const { pool, initDB } = require('./database');
 const { Resend } = require('resend');
+
+// ⬇️ 路由模組
 const emailRoutes = require('./routes/email');
+const recommendRoute = require('./routes/recommend');
 
 dotenv.config();
 initDB();
@@ -16,6 +19,7 @@ initDB();
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// ⬇️ Middleware
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.use(express.static('public'));
@@ -27,6 +31,11 @@ app.use(session({
 app.use(passport.initialize());
 app.use(passport.session());
 
+// ⬇️ 路由掛載（順序要正確）
+app.use('/api/email', emailRoutes);
+app.use('/api', recommendRoute); // ✅ GPT 八字推薦功能 API
+
+// ⬇️ Facebook 登入
 passport.serializeUser((user, done) => {
   done(null, user.provider_id);
 });
@@ -63,6 +72,7 @@ passport.use(new FacebookStrategy({
   }
 }));
 
+// ⬇️ LINE 登入
 passport.use(new LineStrategy({
   channelID: process.env.LINE_CHANNEL_ID,
   channelSecret: process.env.LINE_CHANNEL_SECRET,
@@ -86,8 +96,7 @@ passport.use(new LineStrategy({
   }
 }));
 
-app.use('/api/email', emailRoutes);
-
+// ⬇️ 處理訂單提交 + 寄信
 app.post('/order', async (req, res) => {
   const { name, phone, email, address, note, items } = req.body;
   const user_id = req.user?.id || null;
@@ -121,6 +130,7 @@ app.post('/order', async (req, res) => {
   }
 });
 
+// ⬇️ 個人訂單查詢
 app.get('/api/orders', async (req, res) => {
   if (!req.isAuthenticated()) return res.status(401).json({ error: '未登入' });
   try {
@@ -132,6 +142,7 @@ app.get('/api/orders', async (req, res) => {
   }
 });
 
+// ⬇️ 簡易後台
 app.get('/admin', async (req, res) => {
   const password = req.query.p;
   if (password !== 'qwer4567') {
@@ -173,6 +184,7 @@ app.post('/admin/update', async (req, res) => {
   }
 });
 
+// ⬇️ 一般頁面與登入登出
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
@@ -208,11 +220,13 @@ app.get('/logout', (req, res, next) => {
   });
 });
 
+// ⬇️ 錯誤處理
 app.use((err, req, res, next) => {
   console.error('❌ 系統錯誤:', err.stack);
   res.status(500).send('🚨 系統錯誤，請稍後再試');
 });
 
+// ✅ 伺服器啟動
 app.listen(PORT, () => {
   console.log(`🚀 伺服器已啟動：http://localhost:${PORT}`);
 });
