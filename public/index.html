@@ -26,7 +26,12 @@
         </div>
         <div class="flex items-center space-x-4">
           <a id="member-area" href="/login.html" class="text-gray-700 hover:text-green-700 text-sm">登入 / 註冊</a>
-          <a href="/cart.html" class="relative text-gray-700 hover:text-green-700">🛒</a>
+          <a href="/cart.html" class="relative text-gray-700 hover:text-green-700">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13l-1.3 5.3a1 1 0 001 .7h12.6M7 13l1.3-5.3M17 17a2 2 0 100 4 2 2 0 000-4zm-10 0a2 2 0 100 4 2 2 0 000-4z" />
+            </svg>
+          </a>
         </div>
       </div>
     </div>
@@ -96,7 +101,6 @@
   <script>
     let currentUser = null;
 
-    // 登入狀態確認
     fetch('/me')
       .then(res => res.json())
       .then(user => {
