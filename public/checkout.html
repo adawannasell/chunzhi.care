@@ -3,61 +3,54 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>結帳頁面</title>
+  <title>結帳 | 春枝 Chun-Zhi</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC&display=swap" rel="stylesheet">
   <style>
     body {
-      font-family: Arial, sans-serif;
-      padding: 40px;
-      background-color: #f5f5f5;
-    }
-    h1 {
-      color: #6b8e23;
-    }
-    .cart-summary {
-      margin-bottom: 30px;
-      background: white;
-      padding: 20px;
-      border-radius: 8px;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    }
-    form {
-      background: white;
-      padding: 20px;
-      border-radius: 8px;
-      max-width: 400px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-    }
-    input, textarea, button {
-      width: 100%;
-      margin-top: 12px;
-      padding: 10px;
-      font-size: 1rem;
-    }
-    button {
-      background-color: #6b8e23;
-      color: white;
-      border: none;
-      margin-top: 20px;
+      font-family: 'Noto Serif TC', serif;
     }
   </style>
 </head>
-<body>
-  <h1>🧾 結帳頁面</h1>
+<body class="bg-[#fdfaf5] text-[#1a1a1a] px-4 py-12">
+  <div class="max-w-2xl mx-auto bg-white rounded-xl shadow-md p-6">
+    <h1 class="text-2xl font-bold text-center mb-6">結帳</h1>
 
-  <div class="cart-summary" id="cart-list">
-    <h2>🛒 購物清單</h2>
-    <div id="items"></div>
-    <p id="total"></p>
+    <!-- 購物清單 -->
+    <div class="mb-6 border border-gray-200 rounded p-4 bg-[#fdfaf5]">
+      <h2 class="text-lg font-semibold mb-3">🛒 購物清單</h2>
+      <div id="items" class="text-sm leading-relaxed text-gray-800 space-y-1"></div>
+      <p id="total" class="text-right font-semibold mt-4 text-green-700"></p>
+    </div>
+
+    <!-- 結帳表單 -->
+    <form id="checkout-form" class="space-y-4">
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <input type="text" name="name" placeholder="收件人姓名" required class="border border-gray-300 rounded px-3 py-2" />
+        <input type="text" name="phone" placeholder="聯絡電話" required class="border border-gray-300 rounded px-3 py-2" />
+        <input type="email" name="email" placeholder="電子信箱" required class="border border-gray-300 rounded px-3 py-2 sm:col-span-2" />
+        <input type="text" name="address" placeholder="完整地址" required class="border border-gray-300 rounded px-3 py-2 sm:col-span-2" />
+        <textarea name="note" placeholder="備註（選填）" rows="2" class="border border-gray-300 rounded px-3 py-2 sm:col-span-2"></textarea>
+      </div>
+
+      <button type="submit" class="w-full bg-green-700 hover:bg-green-800 text-white py-3 rounded font-semibold transition">✅ 確認送出</button>
+    </form>
   </div>
 
-  <form id="checkout-form">
-    <input type="text" name="name" placeholder="您的名字" required />
-    <input type="text" name="phone" placeholder="電話號碼" required />
-    <input type="email" name="email" placeholder="電子信箱" required />
-    <textarea name="address" placeholder="收件地址" required></textarea>
-    <textarea name="note" placeholder="備註（選填）"></textarea>
-    <button type="submit">✅ 確認送出</button>
-  </form>
+  <!-- 客服諮詢按鈕 -->
+  <div class="max-w-xl mx-auto text-center mt-16">
+    <h2 class="text-base font-semibold mb-4">如有任何問題</h2>
+    <div class="space-y-4">
+      <a href="https://lin.ee/FS1G2gAC" target="_blank"
+        class="block w-full rounded-md bg-green-100 text-green-800 font-medium py-3 hover:bg-green-200 transition">
+        洽詢 LINE 客服
+      </a>
+      <a href="https://m.me/61555204626935" target="_blank"
+        class="block w-full rounded-md bg-blue-100 text-blue-800 font-medium py-3 hover:bg-blue-200 transition">
+        洽詢 Facebook 客服
+      </a>
+    </div>
+  </div>
 
   <script>
     const cart = JSON.parse(localStorage.getItem('cart')) || [];
@@ -69,7 +62,7 @@
       const quantity = item.quantity || 1;
       const subtotal = item.price * quantity;
       total += subtotal;
-      return `<p>${item.name} x ${quantity} - NT$${subtotal}</p>`;
+      return `<div>${item.name} x ${quantity} <span class="float-right">NT$${subtotal}</span></div>`;
     }).join('');
 
     totalEl.textContent = `總金額：NT$${total}`;
@@ -79,11 +72,11 @@
       const form = e.target;
 
       const order = {
-        name: form.name.value,
-        phone: form.phone.value,
-        email: form.email.value,
-        address: form.address.value,
-        note: form.note.value,
+        name: form.name.value.trim(),
+        phone: form.phone.value.trim(),
+        email: form.email.value.trim(),
+        address: form.address.value.trim(),
+        note: form.note.value.trim(),
         items: cart
       };
 
@@ -96,8 +89,8 @@
 
         if (!res.ok) throw new Error(await res.text());
 
-       localStorage.removeItem('cart');
-window.location.href = '/thankyou.html';
+        localStorage.removeItem('cart');
+        window.location.href = '/thankyou.html';
       } catch (err) {
         alert('❌ 訂單送出失敗：' + err.message);
       }
