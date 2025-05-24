@@ -7,6 +7,7 @@
     "express": "^5.1.0",
     "express-session": "^1.18.1",
     "lunar-javascript": "^1.7.3",
+    "openai": "^4.103.0",
     "passport": "^0.7.0",
     "passport-facebook": "^3.0.0",
     "passport-line-auth": "^0.2.9",
