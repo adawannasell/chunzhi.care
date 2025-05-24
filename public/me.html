@@ -3,43 +3,49 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>會員資料 | 春枝 Chun-Zhi</title>
+  <title>會員中心 | 春枝 Chun-Zhi</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC&display=swap" rel="stylesheet">
   <style>
     body {
       font-family: 'Noto Serif TC', serif;
     }
   </style>
 </head>
-<body class="bg-[#fdfaf5] text-[#1a1a1a] min-h-screen flex flex-col items-center justify-center px-4 py-12">
+<body class="bg-[#fdfaf5] text-[#1a1a1a] min-h-screen flex flex-col items-center px-4 py-10">
 
-  <div class="w-full max-w-2xl bg-white p-8 rounded-xl shadow">
-    <h1 class="text-2xl font-bold mb-6 text-center">會員中心</h1>
+  <div class="w-full max-w-5xl bg-white rounded-xl shadow p-8 flex flex-col md:flex-row gap-8">
+    
+    <!-- 側邊選單 -->
+    <aside class="w-full md:w-1/4 space-y-4 text-sm">
+      <a href="/me.html" class="block hover:text-green-700">會員中心</a>
+      <a href="/orders.html" class="block hover:text-green-700">我的訂單</a>
+      <a href="/logout" class="block hover:text-green-700">登出</a>
+    </aside>
 
-    <div id="user-info" class="text-gray-700 space-y-4 border-b pb-6">
-      <p><span class="font-semibold">👤 姓名：</span><span id="name">載入中...</span></p>
-      <p><span class="font-semibold">📧 Email：</span><span id="email">載入中...</span></p>
-    </div>
-
-    <div class="grid grid-cols-2 gap-6 mt-6 text-sm">
-      <a href="/orders.html" class="border rounded-lg p-4 text-center hover:bg-green-50 transition">📦 我的訂單</a>
-      <a href="/logout" class="border rounded-lg p-4 text-center hover:bg-green-50 transition">🚪 登出</a>
-    </div>
-
-    <div class="mt-6 border-t pt-6">
-      <h2 class="text-sm font-semibold mb-2">登入綁定</h2>
-      <div class="flex flex-col gap-2 text-xs text-left">
-        <div class="flex justify-between items-center">
-          <span>LINE 帳號</span>
-          <button class="text-green-700 hover:underline">重新綁定</button>
+    <!-- 會員資料 -->
+    <main class="w-full md:w-3/4 space-y-6 text-sm">
+      <h1 class="text-xl font-bold mb-2">會員中心</h1>
+      <div class="space-y-4">
+        <div>
+          <p><span class="font-semibold">姓名：</span><span id="name">載入中...</span></p>
+          <button id="edit-name" class="mt-1 text-green-700 hover:underline text-xs">更新會員名稱</button>
         </div>
-        <div class="flex justify-between items-center">
-          <span>Facebook 帳號</span>
-          <button class="text-green-700 hover:underline">取消綁定</button>
+        <div>
+          <p><span class="font-semibold">Email：</span><span id="email">載入中...</span></p>
+        </div>
+        <div>
+          <p><span class="font-semibold">收件地址：</span><span id="address">尚未設定</span></p>
+          <button id="edit-address" class="mt-1 text-green-700 hover:underline text-xs">更新收件地址</button>
         </div>
       </div>
-    </div>
+
+      <div class="pt-4 border-t">
+        <h2 class="font-bold mb-2">登入綁定</h2>
+        <p>LINE 帳號：<span id="line-name">尚未綁定</span></p>
+        <p>Facebook 帳號：<span id="fb-name">尚未綁定</span></p>
+      </div>
+    </main>
   </div>
 
   <footer class="text-xs text-gray-500 mt-8 text-center">
@@ -56,11 +62,36 @@
         } else {
           document.getElementById('name').textContent = data.name || '未提供';
           document.getElementById('email').textContent = data.email || '未提供';
+          document.getElementById('address').textContent = data.address || '尚未設定';
+          document.getElementById('line-name').textContent = data.lineName || '尚未綁定';
+          document.getElementById('fb-name').textContent = data.fbName || '尚未綁定';
         }
       })
       .catch(() => {
         window.location.href = '/login.html';
       });
+
+    document.getElementById('edit-name').onclick = () => {
+      const newName = prompt('請輸入新的會員名稱：');
+      if (newName) {
+        fetch('/update-profile', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({ name: newName })
+        }).then(() => location.reload());
+      }
+    };
+
+    document.getElementById('edit-address').onclick = () => {
+      const newAddr = prompt('請輸入新的收件地址：');
+      if (newAddr) {
+        fetch('/update-address', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({ address: newAddr })
+        }).then(() => location.reload());
+      }
+    };
   </script>
 </body>
 </html>
