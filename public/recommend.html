@@ -1,41 +1,83 @@
-<!-- views/recommend.html -->
 <!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
   <meta charset="UTF-8" />
   <title>八字洗髮餅推薦</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    body {
+      font-family: sans-serif;
+      max-width: 600px;
+      margin: 3rem auto;
+      padding: 1rem;
+      line-height: 1.6;
+    }
+    label {
+      font-weight: bold;
+      display: block;
+      margin-top: 1rem;
+    }
+    input {
+      margin-top: 0.5rem;
+      margin-bottom: 1rem;
+      padding: 0.5rem;
+      font-size: 1rem;
+      width: 100%;
+      box-sizing: border-box;
+    }
+    button {
+      padding: 0.75rem 1.5rem;
+      font-size: 1rem;
+      background-color: black;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #333;
+    }
+    #result {
+      margin-top: 2rem;
+      white-space: pre-wrap;
+    }
+  </style>
 </head>
-<body style="font-family: sans-serif; max-width: 600px; margin: 3rem auto;">
-  <h1>輸入你的生日</h1>
-  <form id="form">
-    <label>出生年月日：</label><br/>
-    <input type="number" id="year" placeholder="1995" required />
-    <input type="number" id="month" placeholder="5" required />
-    <input type="number" id="day" placeholder="21" required /><br/><br/>
+<body>
+  <h1>八字洗髮餅推薦</h1>
+  <form id="recommend-form">
+    <label for="birthdate">出生日期（西元）：</label>
+    <input type="date" id="birthdate" name="birthdate" required max="2099-12-31" />
 
-    <label>出生小時（可不填）：</label><br/>
-    <input type="number" id="hour" placeholder="例如 23" min="0" max="23" /><br/><br/>
+    <label for="birthtime">出生時間（可不填，24小時制）：</label>
+    <input type="time" id="birthtime" name="birthtime" step="3600" />
 
-    <button type="submit">獲得推薦</button>
+    <button type="submit">🔮 獲得推薦</button>
   </form>
 
-  <hr/>
   <div id="result"></div>
 
   <script>
-    document.getElementById('form').addEventListener('submit', async (e) => {
+    document.getElementById('recommend-form').addEventListener('submit', async (e) => {
       e.preventDefault();
-      const year = document.getElementById('year').value;
-      const month = document.getElementById('month').value;
-      const day = document.getElementById('day').value;
-      const hour = document.getElementById('hour').value;
+
+      const dateStr = document.getElementById('birthdate').value; // yyyy-mm-dd
+      const timeStr = document.getElementById('birthtime').value; // HH:mm or empty
+
+      if (!dateStr) {
+        alert("請輸入生日");
+        return;
+      }
+
+      const [year, month, day] = dateStr.split('-').map(Number);
+      const hour = timeStr ? Number(timeStr.split(':')[0]) : null;
 
       const res = await fetch('/api/recommend', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ year, month, day, hour: hour === '' ? null : Number(hour) })
+        body: JSON.stringify({ year, month, day, hour })
       });
+
       const data = await res.json();
       document.getElementById('result').innerText = data.recommendation || data.error;
     });
