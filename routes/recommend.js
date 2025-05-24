@@ -18,11 +18,7 @@ router.post('/recommend', async (req, res) => {
 日柱：${bazi.day}
 ${bazi.hasHour ? `時柱：${bazi.hour}` : '⚠️ 客戶未提供出生時辰，此為三柱分析'}
 
-請根據這個命格特質推薦：
-1. 頭皮性格與氣質描述（40字內）
-2. 洗髮餅的建議功效
-3. 推薦的配方（中藥、精油、顏色）
-4. 療癒系洗髮餅商品文案（80字內）
+請根據這個八字命格特質推薦一款十天干裡其中一款洗髮餅，並且簡單說明此命主性格（40字內）
 `;
 
     const response = await openai.chat.completions.create({
