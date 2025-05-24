@@ -49,8 +49,8 @@
     <label for="birthdate">出生日期（西元）：</label>
     <input type="date" id="birthdate" name="birthdate" required max="2099-12-31" />
 
-    <label for="birthtime">出生時間（可不填，24小時制）：</label>
-    <input type="time" id="birthtime" name="birthtime" step="3600" />
+    <label for="birthtime">出生時間（可不填，24小時制，格式如 13:30 或 23:00）：</label>
+    <input type="time" id="birthtime" name="birthtime" />
 
     <button type="submit">🔮 獲得推薦</button>
   </form>
@@ -61,8 +61,8 @@
     document.getElementById('recommend-form').addEventListener('submit', async (e) => {
       e.preventDefault();
 
-      const dateStr = document.getElementById('birthdate').value; // yyyy-mm-dd
-      const timeStr = document.getElementById('birthtime').value; // HH:mm or empty
+      const dateStr = document.getElementById('birthdate').value;
+      const timeStr = document.getElementById('birthtime').value;
 
       if (!dateStr) {
         alert("請輸入生日");
