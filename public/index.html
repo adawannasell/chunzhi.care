@@ -3,155 +3,53 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>艾草加熱枕｜限時團購</title>
+  <title>春枝 Chun-Zhi | Handmade Shampoo Bar</title>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC&display=swap" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com"></script>
   <style>
     body {
-      font-family: Arial, sans-serif;
-      background: #f9f9f9;
-      padding: 20px;
-      text-align: center;
-    }
-    header {
-      background-color: #6b8e23;
-      color: white;
-      padding: 20px;
-      margin-bottom: 30px;
-      position: relative;
-    }
-    img {
-      width: 300px;
-      border-radius: 10px;
-    }
-    button {
-      margin-top: 10px;
-      padding: 15px 30px;
-      font-size: 1.1rem;
-      color: white;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-    }
-    .cart-button {
-      position: absolute;
-      top: 20px;
-      right: 20px;
-      font-size: 1.5rem;
-      text-decoration: none;
-      color: white;
-      background: #333;
-      padding: 8px 12px;
-      border-radius: 5px;
-    }
-    .cart-badge {
-      position: absolute;
-      top: 15px;
-      right: 15px;
-      background-color: red;
-      color: white;
-      border-radius: 50%;
-      padding: 2px 7px;
-      font-size: 0.8rem;
-    }
-    .login-buttons {
-      margin: 25px 0;
-    }
-    .facebook-btn {
-      background-color: #4267B2;
-    }
-    .line-btn {
-      background-color: #00C300;
-    }
-    #user-info {
-      margin-top: 20px;
-      font-weight: bold;
+      font-family: 'Noto Serif TC', serif;
     }
   </style>
 </head>
-<body>
-  <header>
-    <h1>限時團購：艾草熱敷枕只要 NT$139</h1>
-    <a href="cart.html" class="cart-button">🛒</a>
-    <div class="cart-badge" id="cart-count">0</div>
-  </header>
+<body class="bg-[#fdfaf5] text-[#1a1a1a]">
+  <!-- Banner -->
+  <section class="text-center py-16 bg-[url('https://images.unsplash.com/photo-1557682250-33bd709cbe85?auto=format&fit=crop&w=1600&q=80')] bg-cover bg-center">
+    <img src="/public/logo.png" alt="春枝 Logo" class="mx-auto mb-4 w-16 h-16">
+    <h1 class="text-4xl font-bold tracking-wide">CHUN-ZHI</h1>
+    <p class="text-lg mt-2">Embrace the Essence of Nature</p>
+  </section>
 
-  <!-- 登入者資訊 -->
-  <div id="user-info">🔄 讀取使用者資訊中...</div>
+  <!-- Best Seller Product -->
+  <section class="flex flex-col items-center text-center py-16 px-4">
+    <img src="/public/shampoo-1.jpg" alt="手工洗髮餅" class="w-48 h-48 rounded-full shadow mb-4">
+    <h2 class="text-2xl font-semibold">手工洗髮餅</h2>
+    <p class="text-sm mt-2">天然、溫和、無香精</p>
+    <button class="mt-6 px-6 py-2 bg-green-700 text-white rounded-full hover:bg-green-800 transition">加入購物車</button>
+  </section>
 
-  <!-- 商品資訊 -->
-  <img src="https://via.placeholder.com/300x200.png?text=%E8%89%BE%E8%8D%89%E7%86%B1%E6%95%B7%E6%9E%95" alt="商品圖" />
-  <p>原價 NT$980，我們團購只要 NT$139！限量供應🔥</p>
+  <!-- Brand Intro -->
+  <section class="py-16 bg-[#f6f4ec] text-center px-6">
+    <h3 class="text-xl font-bold mb-4">品牌介紹</h3>
+    <p class="max-w-xl mx-auto text-sm leading-loose">
+      春枝 CHUN-ZHI 相信植物的力量與手作的溫度，採用天然萃取與在地素材製成每一顆洗髮餅，給你來自土地的柔和呵護。
+    </p>
+  </section>
 
-  <!-- 登入按鈕 -->
-  <div class="login-buttons">
-    <p><strong>登入以查看訂單紀錄：</strong></p>
-    <a href="/auth/facebook">
-      <button class="facebook-btn">🔵 使用 Facebook 登入</button>
-    </a>
-    <br /><br />
-    <a href="/auth/line">
-      <button class="line-btn">🟢 使用 LINE 登入</button>
-    </a>
-  </div>
+  <!-- Review -->
+  <section class="py-16 px-6 text-center">
+    <h3 class="text-xl font-bold mb-4">顧客好評</h3>
+    <blockquote class="italic max-w-md mx-auto">
+      “用了春枝的洗髮餅之後，頭皮真的不癢了，而且洗完非常清爽，超喜歡～”<br />
+      <span class="text-sm font-light mt-2 block">—— 王小明</span>
+    </blockquote>
+  </section>
 
-  <button onclick="addToCart()">🛒 加入購物車</button>
-
-  <script>
-    function updateCartCount() {
-      const cart = JSON.parse(localStorage.getItem('cart')) || [];
-      const totalCount = cart.reduce((sum, item) => sum + (item.quantity || 1), 0);
-      document.getElementById('cart-count').innerText = totalCount;
-    }
-
-    function addToCart() {
-      const item = {
-        name: '艾草熱敷枕',
-        price: 139
-      };
-
-      const cart = JSON.parse(localStorage.getItem('cart')) || [];
-      const existing = cart.find(p => p.name === item.name);
-      if (existing) {
-        existing.quantity = (existing.quantity || 1) + 1;
-      } else {
-        item.quantity = 1;
-        cart.push(item);
-      }
-
-      localStorage.setItem('cart', JSON.stringify(cart));
-      alert('✅ 已加入購物車');
-      updateCartCount();
-    }
-
-    // 取得登入者資訊
-    function fetchUserInfo() {
-      fetch('/me')
-        .then(res => {
-          if (!res.ok) {
-            throw new Error(`伺服器錯誤：${res.status}`);
-          }
-          return res.json();
-        })
-        .then(user => {
-          if (user && user.name) {
-            document.getElementById('user-info').innerHTML =
-              `👤 歡迎，${user.name}　<a href="/logout">登出</a>`;
-          } else {
-            document.getElementById('user-info').innerText = '尚未登入';
-          }
-        })
-        .catch(err => {
-          console.error('❌ 讀取使用者資訊失敗：', err);
-          document.getElementById('user-info').innerText = '🚫 無法取得使用者資訊';
-        });
-    }
-
-    window.addEventListener('pageshow', () => {
-      updateCartCount();
-      fetchUserInfo(); // 🔁 同步登入資訊
-    });
-
-    updateCartCount();
-    fetchUserInfo(); // 第一次載入頁面也執行
-  </script>
+  <!-- Footer -->
+  <footer class="bg-[#e6e1d5] py-10 text-center text-sm text-gray-700">
+    <p>© 2025 春枝 CHUN-ZHI 手作洗髮餅</p>
+    <p>聯絡信箱：support@chunzhi.com</p>
+    <p>Instagram：@chunzhi_care</p>
+  </footer>
 </body>
 </html>
