@@ -1,4 +1,4 @@
-// server.js（Express + PostgreSQL + Facebook/LINE 登入 + 訂單寫入 + 後台訂單查詢 + 狀態更新 + 自動寄信 + thankyou 導向 + 綠界金流串接）
+// server.js（Express + PostgreSQL + Facebook/LINE 登入 + 訂單寫入 + 後台訂單查詢 + 狀態更新 + 自動寄信 + thankyou 導向）
 const express = require('express');
 const path = require('path');
 const bodyParser = require('body-parser');
@@ -10,7 +10,7 @@ const dotenv = require('dotenv');
 const { pool, initDB } = require('./database');
 const { Resend } = require('resend');
 const emailRoutes = require('./routes/email');
-const ecpayRoutes = require('./routes/ecpay');
+// const ecpayRoutes = require('./routes/ecpay'); // 暫時移除金流串接
 
 dotenv.config();
 initDB();
@@ -92,7 +92,7 @@ passport.use(new LineStrategy({
 
 // === API Routes ===
 app.use('/api/email', emailRoutes);
-app.use('/api/ecpay', ecpayRoutes);
+// app.use('/api/ecpay', ecpayRoutes); // 暫時移除金流串接
 
 // === 訂單頁面提交 ===
 app.post('/order', async (req, res) => {
