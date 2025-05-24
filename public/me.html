@@ -12,17 +12,34 @@
     }
   </style>
 </head>
-<body class="bg-[#fdfaf5] text-[#1a1a1a] min-h-screen flex flex-col items-center justify-center px-4">
+<body class="bg-[#fdfaf5] text-[#1a1a1a] min-h-screen flex flex-col items-center justify-center px-4 py-12">
 
-  <div class="w-full max-w-md bg-white p-8 rounded-xl shadow text-center">
-    <h1 class="text-2xl font-bold mb-6">會員中心</h1>
+  <div class="w-full max-w-2xl bg-white p-8 rounded-xl shadow">
+    <h1 class="text-2xl font-bold mb-6 text-center">會員中心</h1>
 
-    <div id="user-info" class="text-gray-700 space-y-2">
-      <p><span class="font-semibold">姓名：</span><span id="name">載入中...</span></p>
-      <p><span class="font-semibold">Email：</span><span id="email">載入中...</span></p>
+    <div id="user-info" class="text-gray-700 space-y-4 border-b pb-6">
+      <p><span class="font-semibold">👤 姓名：</span><span id="name">載入中...</span></p>
+      <p><span class="font-semibold">📧 Email：</span><span id="email">載入中...</span></p>
     </div>
 
-    <a href="/logout" class="inline-block mt-6 text-sm text-green-700 hover:underline">登出</a>
+    <div class="grid grid-cols-2 gap-6 mt-6 text-sm">
+      <a href="/orders.html" class="border rounded-lg p-4 text-center hover:bg-green-50 transition">📦 我的訂單</a>
+      <a href="/logout" class="border rounded-lg p-4 text-center hover:bg-green-50 transition">🚪 登出</a>
+    </div>
+
+    <div class="mt-6 border-t pt-6">
+      <h2 class="text-sm font-semibold mb-2">登入綁定</h2>
+      <div class="flex flex-col gap-2 text-xs text-left">
+        <div class="flex justify-between items-center">
+          <span>LINE 帳號</span>
+          <button class="text-green-700 hover:underline">重新綁定</button>
+        </div>
+        <div class="flex justify-between items-center">
+          <span>Facebook 帳號</span>
+          <button class="text-green-700 hover:underline">取消綁定</button>
+        </div>
+      </div>
+    </div>
   </div>
 
   <footer class="text-xs text-gray-500 mt-8 text-center">
