@@ -100,33 +100,81 @@
   </footer>
 
   <!-- 懸浮按鈕：聯絡客服（展開）、立即結帳、回頂部 -->
-  <div x-data="{ showTop: false, openContact: false }" x-init="window.addEventListener('scroll', () => { showTop = window.scrollY > 200 })" class="fixed bottom-4 right-4 z-50 space-y-2 flex flex-col items-end">
+<div x-data="{ showTop: false, openContact: false }" x-init="window.addEventListener('scroll', () => { showTop = window.scrollY > 200 })" class="fixed bottom-4 right-4 z-50 space-y-2 flex flex-col items-end">
 
-    <!-- 聯絡客服主按鈕 -->
-    <button @click="openContact = !openContact" class="px-4 py-2 bg-[#7c3aed] text-white rounded-full shadow hover:bg-[#6b21a8] text-sm">
-      <template x-if="!openContact">
-        <span>聯絡客服</span>
-      </template>
-      <template x-if="openContact">
-        <span>關閉客服</span>
-      </template>
-    </button>
+  <!-- 聯絡客服主按鈕 -->
+  <button @click="openContact = !openContact" class="px-4 py-2 bg-[#7c3aed] text-white rounded-full shadow hover:bg-[#6b21a8] text-sm">
+    <template x-if="!openContact">
+      <span>聯絡客服</span>
+    </template>
+    <template x-if="openContact">
+      <span>關閉客服</span>
+    </template>
+  </button>
 
-    <!-- 聯絡客服展開內容 -->
-    <div x-show="openContact" x-transition class="flex flex-col items-end space-y-2">
-      <a href="https://line.me/ti/p/你的LINEID" target="_blank" class="px-4 py-2 bg-[#4d7c0f] text-white rounded-full shadow hover:bg-[#3f6212] text-sm">LINE</a>
-      <a href="https://m.me/你的MessengerID" target="_blank" class="px-4 py-2 bg-[#3b5998] text-white rounded-full shadow hover:bg-[#2d4373] text-sm">Facebook</a>
-      <a href="mailto:you@example.com" class="px-4 py-2 bg-[#6b4c3b] text-white rounded-full shadow hover:bg-[#4e352a] text-sm">信箱</a>
-    </div>
-
-    <!-- 立即結帳 -->
-    <a href="/checkout" class="px-4 py-2 bg-[#a16244] text-white rounded-full shadow hover:bg-[#854c35] text-sm">立即結帳</a>
-
-    <!-- 回頂部 -->
-    <button x-show="showTop" x-transition @click="window.scrollTo({ top: 0, behavior: 'smooth' })" class="px-4 py-2 bg-[#f6f4ec] text-[#1a1a1a] rounded-full shadow hover:bg-[#e6e1d5] text-sm">↑ 回頂部</button>
+  <!-- 聯絡客服展開內容 -->
+  <div x-show="openContact" x-transition class="flex flex-col items-end space-y-2">
+    <a href="https://line.me/ti/p/你的LINEID" target="_blank" class="px-4 py-2 bg-[#4d7c0f] text-white rounded-full shadow hover:bg-[#3f6212] text-sm">LINE</a>
+    <a href="https://m.me/你的MessengerID" target="_blank" class="px-4 py-2 bg-[#3b5998] text-white rounded-full shadow hover:bg-[#2d4373] text-sm">Facebook</a>
+    <a href="mailto:you@example.com" class="px-4 py-2 bg-[#6b4c3b] text-white rounded-full shadow hover:bg-[#4e352a] text-sm">信箱</a>
   </div>
 
-  <script>
+  <!-- 立即結帳（需登入判斷） -->
+  <a href="/checkout.html" onclick="return goToCheckout(event)" class="px-4 py-2 bg-[#a16244] text-white rounded-full shadow hover:bg-[#854c35] text-sm">立即結帳</a>
+
+  <!-- 回頂部 -->
+  <button x-show="showTop" x-transition @click="window.scrollTo({ top: 0, behavior: 'smooth' })" class="px-4 py-2 bg-[#f6f4ec] text-[#1a1a1a] rounded-full shadow hover:bg-[#e6e1d5] text-sm">↑ 回頂部</button>
+</div>
+
+<script>
+  let currentUser = null;
+
+  fetch('/me')
+    .then(res => res.json())
+    .then(user => {
+      const el = document.getElementById('member-area');
+      if (user.name) {
+        el.textContent = `歡迎，${user.name}`;
+        el.href = '/me.html';
+        currentUser = user;
+      } else {
+        el.textContent = '登入 / 註冊';
+        el.href = '/login.html';
+      }
+    })
+    .catch(() => {
+      const el = document.getElementById('member-area');
+      el.textContent = '登入 / 註冊';
+      el.href = '/login.html';
+    });
+
+  function addToCart(name, price) {
+    if (!currentUser) {
+      alert("請先登入才能加入購物車！");
+      window.location.href = '/login.html';
+      return;
+    }
+
+    const cart = JSON.parse(localStorage.getItem('cart')) || [];
+    const existing = cart.find(item => item.name === name);
+    if (existing) {
+      existing.quantity += 1;
+    } else {
+      cart.push({ name, price, quantity: 1 });
+    }
+    localStorage.setItem('cart', JSON.stringify(cart));
+    alert(`${name} 已加入購物車！`);
+  }
+
+  function goToCheckout(e) {
+    if (!currentUser) {
+      alert("請先登入才能進入結帳頁！");
+      window.location.href = "/login.html";
+      return false;
+    }
+    return true;
+  }
+</script>
     let currentUser = null;
 
     fetch('/me')
