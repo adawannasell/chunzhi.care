@@ -18,13 +18,23 @@
   <nav class="bg-white shadow sticky top-0 z-50">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="flex justify-between h-16 items-center">
-        <div class="flex space-x-8 text-sm font-medium">
-          <a href="#" class="text-gray-700 hover:text-green-700">首頁</a>
-          <a href="#about" class="text-gray-700 hover:text-green-700">品牌理念</a>
-          <a href="#products" class="text-gray-700 hover:text-green-700">產品介紹</a>
-          <a href="#review" class="text-gray-700 hover:text-green-700">顧客好評</a>
-          <a href="#contact" class="text-gray-700 hover:text-green-700">聯絡我們</a>
-        </div>
+        <div class="text-xl font-bold">愛妲 Ada</div>
+        <ul class="flex space-x-6" x-data="{ open: false }">
+          <li><a href="#" class="text-gray-700 hover:text-green-700">首頁</a></li>
+          <li class="relative" @mouseenter="open = true" @mouseleave="open = false">
+            <button class="text-gray-700 hover:text-green-700">洗髮餅專區</button>
+            <div x-show="open" class="absolute top-full left-0 mt-2 w-56 bg-white border rounded shadow z-50">
+              <a href="/products/shampoo-intro" class="block px-4 py-2 text-sm hover:bg-gray-100">什麼是洗髮餅？</a>
+              <a href="/products/hair-types" class="block px-4 py-2 text-sm hover:bg-gray-100">依頭皮選配方</a>
+              <a href="/products/eco-benefits" class="block px-4 py-2 text-sm hover:bg-gray-100">環保優勢與包裝</a>
+              <a href="/products/how-to-use" class="block px-4 py-2 text-sm hover:bg-gray-100">使用教學</a>
+              <a href="/products/faq" class="block px-4 py-2 text-sm hover:bg-gray-100">常見問題</a>
+            </div>
+          </li>
+          <li><a href="#about" class="text-gray-700 hover:text-green-700">品牌理念</a></li>
+          <li><a href="#review" class="text-gray-700 hover:text-green-700">顧客好評</a></li>
+          <li><a href="#contact" class="text-gray-700 hover:text-green-700">聯絡我們</a></li>
+        </ul>
         <div class="flex items-center space-x-4">
           <a id="member-area" href="/login.html" class="text-gray-700 hover:text-green-700 text-sm">登入 / 註冊</a>
           <a href="/cart.html" class="relative text-gray-700 hover:text-green-700">
