@@ -172,47 +172,15 @@
       window.location.href = "/login.html";
       return false;
     }
+
+    const cart = JSON.parse(localStorage.getItem('cart')) || [];
+    if (cart.length === 0) {
+      alert("購物車是空的喔，請先加入商品！");
+      return false;
+    }
+
     return true;
   }
 </script>
-    let currentUser = null;
-
-    fetch('/me')
-      .then(res => res.json())
-      .then(user => {
-        const el = document.getElementById('member-area');
-        if (user.name) {
-          el.textContent = `歡迎，${user.name}`;
-          el.href = '/me.html';
-          currentUser = user;
-        } else {
-          el.textContent = '登入 / 註冊';
-          el.href = '/login.html';
-        }
-      })
-      .catch(() => {
-        const el = document.getElementById('member-area');
-        el.textContent = '登入 / 註冊';
-        el.href = '/login.html';
-      });
-
-    function addToCart(name, price) {
-      if (!currentUser) {
-        alert("請先登入才能加入購物車！");
-        window.location.href = '/login.html';
-        return;
-      }
-
-      const cart = JSON.parse(localStorage.getItem('cart')) || [];
-      const existing = cart.find(item => item.name === name);
-      if (existing) {
-        existing.quantity += 1;
-      } else {
-        cart.push({ name, price, quantity: 1 });
-      }
-      localStorage.setItem('cart', JSON.stringify(cart));
-      alert(`${name} 已加入購物車！`);
-    }
-  </script>
 </body>
 </html>
