@@ -6,6 +6,7 @@
   <title>春枝 Chun-Zhi | Handmade Shampoo Bar</title>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC&display=swap" rel="stylesheet" />
   <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/alpinejs" defer></script>
   <style>
     body {
       font-family: 'Noto Serif TC', serif;
@@ -97,6 +98,43 @@
     <p>聯絡信箱：support@chunzhi.com</p>
     <p>Instagram：@chunzhi_care</p>
   </footer>
+
+  <!-- 懸浮客服按鈕群 + 回頂部 -->
+  <div x-data="{ open: false, showTop: false }"
+       x-init="window.addEventListener('scroll', () => { showTop = window.scrollY > 200 })"
+       class="fixed bottom-4 right-4 z-50">
+    <div x-show="open" class="flex flex-col items-end space-y-2 mb-4">
+      <a href="https://line.me/ti/p/你的LINEID" target="_blank"
+         class="flex items-center space-x-2 px-3 py-2 bg-green-500 text-white rounded-full shadow hover:bg-green-600 text-sm">
+        <span>LINE</span>
+      </a>
+      <a href="https://m.me/你的MessengerID" target="_blank"
+         class="flex items-center space-x-2 px-3 py-2 bg-blue-600 text-white rounded-full shadow hover:bg-blue-700 text-sm">
+        <span>Facebook</span>
+      </a>
+      <a href="mailto:you@example.com"
+         class="flex items-center space-x-2 px-3 py-2 bg-gray-700 text-white rounded-full shadow hover:bg-gray-800 text-sm">
+        <span>信箱</span>
+      </a>
+      <a href="tel:+886912345678"
+         class="flex items-center space-x-2 px-3 py-2 bg-orange-500 text-white rounded-full shadow hover:bg-orange-600 text-sm">
+        <span>電話</span>
+      </a>
+      <a href="/checkout"
+         class="flex items-center space-x-2 px-3 py-2 bg-pink-600 text-white rounded-full shadow hover:bg-pink-700 text-sm">
+        <span>立即結帳</span>
+      </a>
+    </div>
+    <button @click="open = !open"
+            class="w-14 h-14 bg-purple-600 text-white rounded-full shadow-lg flex items-center justify-center text-xl hover:bg-purple-700 transition mb-2">
+      <span x-show="!open">+</span>
+      <span x-show="open">×</span>
+    </button>
+    <button x-show="showTop" x-transition @click="window.scrollTo({ top: 0, behavior: 'smooth' })"
+            class="px-4 py-2 bg-gray-300 text-black rounded-full shadow hover:bg-gray-400 text-sm">
+      ↑ 回頂部
+    </button>
+  </div>
 
   <script>
     let currentUser = null;
