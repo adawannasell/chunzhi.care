@@ -1,0 +1,11 @@
+// config/ecpay_options.js
+module.exports = {
+  OperationMode: "Test", // "Test" 或 "Production"
+  MercProfile: {
+    MerchantID: "2000132",
+    HashKey: "5294y06JbISpM5x9",
+    HashIV: "v77hoKGq4kWxNNIS"
+  },
+  IgnorePayment: [],
+  IsProjectContractor: false
+};

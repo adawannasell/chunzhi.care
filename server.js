@@ -12,6 +12,7 @@ const { Resend } = require('resend');
 // ⬇️ 路由模組
 const emailRoutes = require('./routes/email');
 const recommendRoute = require('./routes/recommend');
+const ecpayRoute = require('./routes/ecpay'); // ✅ 加入金流路由
 
 dotenv.config();
 initDB();
@@ -34,6 +35,7 @@ app.use(passport.session());
 // ⬇️ 路由掛載（順序要正確）
 app.use('/api/email', emailRoutes);
 app.use('/api', recommendRoute); // ✅ GPT 八字推薦功能 API
+app.use('/api/ecpay', ecpayRoute); // ✅ 金流付款路由
 
 // ⬇️ Facebook 登入
 passport.serializeUser((user, done) => {
