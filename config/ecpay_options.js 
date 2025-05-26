@@ -1,6 +1,7 @@
 // config/ecpay_options.js
 module.exports = {
-  OperationMode: "Test", // "Test" 或 "Production"
+  // OperationMode 可選 "Test" 或 "Production"
+  OperationMode: "Test",
   MercProfile: {
     MerchantID: "2000132",
     HashKey: "5294y06JbISpM5x9",
