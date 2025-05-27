@@ -8,11 +8,13 @@ const LineStrategy = require('passport-line-auth').Strategy;
 const dotenv = require('dotenv');
 const { pool, initDB } = require('./database');
 const { Resend } = require('resend');
+const ECPay = require('ecpay_aio_nodejs');
+const ecpayOptions = require('./config/ecpay_options.js');
+const ecpayClient = new ECPay(ecpayOptions).payment_client();
 
 // ⬇️ 路由模組
 const emailRoutes = require('./routes/email');
 const recommendRoute = require('./routes/recommend');
-const ecpayRoute = require('./routes/ecpay'); // ✅ 加入金流路由
 
 dotenv.config();
 initDB();
@@ -32,10 +34,9 @@ app.use(session({
 app.use(passport.initialize());
 app.use(passport.session());
 
-// ⬇️ 路由掛載（順序要正確）
+// ⬇️ 路由掛載
 app.use('/api/email', emailRoutes);
-app.use('/api', recommendRoute); // ✅ GPT 八字推薦功能 API
-app.use('/api/ecpay', ecpayRoute); // ✅ 金流付款路由
+app.use('/api', recommendRoute);
 
 // ⬇️ Facebook 登入
 passport.serializeUser((user, done) => {
@@ -50,7 +51,6 @@ passport.deserializeUser(async (id, done) => {
     done(err);
   }
 });
-
 passport.use(new FacebookStrategy({
   clientID: process.env.FACEBOOK_CLIENT_ID,
   clientSecret: process.env.FACEBOOK_CLIENT_SECRET,
@@ -102,7 +102,6 @@ passport.use(new LineStrategy({
 app.post('/order', async (req, res) => {
   const { name, phone, email, address, note, items } = req.body;
   const user_id = req.user?.id || null;
-
   try {
     await pool.query(`
       INSERT INTO orders (user_id, name, phone, email, address, note, cart_items)
@@ -111,7 +110,6 @@ app.post('/order', async (req, res) => {
 
     const summary = items.map(i => `${i.name} x${i.qty}`).join('<br>');
     const resend = new Resend(process.env.RESEND_API_KEY);
-
     await resend.emails.send({
       from: 'onboarding@resend.dev',
       to: email,
@@ -130,6 +128,37 @@ app.post('/order', async (req, res) => {
     console.error('❌ 訂單或寄信處理失敗:', err);
     res.status(500).send('🚨 系統錯誤，請稍後再試');
   }
+});
+
+// ⬇️ 金流付款 API
+app.post('/api/ecpay/create-payment', (req, res) => {
+  const { name, email, total } = req.body;
+  const tradeData = {
+    MerchantTradeNo: 'NO' + Date.now(),
+    MerchantTradeDate: new Date().toISOString().slice(0, 19).replace('T', ' '),
+    PaymentType: 'aio',
+    TotalAmount: total,
+    TradeDesc: '綠界金流測試付款',
+    ItemName: '原味雪Q餅 x1',
+    ReturnURL: 'https://chunzhi-care.onrender.com/api/ecpay/callback',
+    ClientBackURL: 'https://chunzhi-care.onrender.com/thankyou.html',
+    ChoosePayment: 'Credit',
+    NeedExtraPaidInfo: 'N',
+    Email: email,
+    EncryptType: 1
+  };
+  try {
+    const html = ecpayClient.aio_check_out_all(tradeData);
+    res.send(html);
+  } catch (error) {
+    console.error('❌ 金流錯誤：', error);
+    res.status(500).send('金流錯誤，請稍後再試');
+  }
+});
+
+app.post('/api/ecpay/callback', (req, res) => {
+  console.log('📩 綠界回傳資料:', req.body);
+  res.send('1|OK');
 });
 
 // ⬇️ 個人訂單查詢
