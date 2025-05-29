@@ -147,7 +147,7 @@ app.get('/api/orders', async (req, res) => {
 // ⬇️ 簡易後台
 app.get('/admin', async (req, res) => {
   const password = req.query.p;
-  if (password !== 'qwer4567') {
+  if (password !== process.env.ADMIN_PASSWORD) {
     return res.send(`<form method="get"><p>請輸入密碼才能查看後台</p><input type="password" name="p" /><button type="submit">登入</button></form>`);
   }
 
