@@ -5,10 +5,10 @@ const dotenv = require('dotenv');
 
 dotenv.config();
 
-const ecpayClient = new ECPay(options);
+const ecpayClient = new ECPay(options).payment_client;
 
 function createPaymentHtml(data) {
   return ecpayClient.aio_check_out_all(data);
 }
 
-module.exports = { createPaymentHtml };
+module.exports = { ecpayClient, createPaymentHtml };

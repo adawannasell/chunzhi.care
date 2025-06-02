@@ -36,6 +36,7 @@ app.use(passport.session());
 app.use('/api/email', emailRoutes);
 app.use('/api', recommendRoute); // ✅ GPT 八字推薦功能 API
 app.use('/api/ecpay', ecpayRoute); // ✅ 金流付款路由
+app.use('/health', (req, res) => res.send('ok'));
 
 // ⬇️ Facebook 登入
 passport.serializeUser((user, done) => {

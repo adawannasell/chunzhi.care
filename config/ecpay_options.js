@@ -5,6 +5,13 @@ module.exports = {
     HashKey: process.env.ECPAY_HASH_KEY,
     HashIV: process.env.ECPAY_HASH_IV,
   },
-  IgnorePayment: process.env.ECPAY_IGNORE_PAYMENT ? process.env.ECPAY_IGNORE_PAYMENT.split(',') : [],
+  IgnorePayment: [
+    //    "Credit",
+    //    "WebATM",
+    //    "ATM",
+    //    "CVS",
+    //    "BARCODE",
+    //    "AndroidPay"
+  ],
   IsProjectContractor: false,
 };
