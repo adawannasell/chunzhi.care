@@ -1,7 +1,7 @@
 // routes/ecpay.js
 const express = require('express');
 const router = express.Router();
-const { createPaymentHtml } = require('../utils/ecpay');
+const { ecpayClient } = require('../utils/ecpay');
 const dotenv = require('dotenv');
 dotenv.config();
 
@@ -21,12 +21,13 @@ router.post('/create-payment', (req, res) => {
   const base_param = {
     MerchantTradeNo: 'NO' + Date.now(),
     MerchantTradeDate: formatECPayDate(),
-    TotalAmount: total,
+    TotalAmount: String(total),
     TradeDesc: '綠界金流測試付款',
     ItemName: '原味雪Q餅 x1',
     EncryptType: 1,
     ReturnURL: process.env.ECPAY_RETURN_URL,
     ClientBackURL: process.env.ECPAY_CLIENT_BACK_URL,
+    Remark: email,
   };
 
   console.log('新增交易: ', {
@@ -36,7 +37,7 @@ router.post('/create-payment', (req, res) => {
   });
 
   try {
-    const html = createPaymentHtml(base_param);
+    const html = ecpayClient.payment_client.aio_check_out_all(base_param);
     res.send(html);
   } catch (error) {
     console.error('❌ 金流錯誤：', error);
