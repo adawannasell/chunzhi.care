@@ -1,34 +1,37 @@
 // routes/logistics.js
 const express = require('express');
 const router = express.Router();
-const ECPayLogistics = require('ecpay-logistics');
+const ecpay = require('ecpay-logistics'); // ✅ 正確套件匯入
 require('dotenv').config();
 
-const options = {
+const ecpayInstance = ecpay({
   MerchantID: process.env.PAY_MERCHANT_ID,
   HashKey: process.env.PAY_HASH_KEY,
   HashIV: process.env.PAY_HASH_IV,
   ServerReplyURL: process.env.ECPAY_LOGISTICS_REPLY_URL,
   ClientReplyURL: process.env.ECPAY_LOGISTICS_CLIENT_URL,
-  LogisticsSubType: 'UNIMARTC2C', // ✅ 可改為其他：FAMIC2C、HILIFEC2C、OKMARTC2C
-};
+  LogisticsSubType: 'UNIMARTC2C', // ✅ 改為 7-11 交貨便（支援C2C超商寄件）
+});
 
-// ✅ 建立物流訂單
+// ✅ 建立物流訂單（寄件人固定為「春枝」）
 router.post('/create-order', async (req, res) => {
   try {
     const { name, phone, storeID, itemName, total } = req.body;
 
     if (!name || !phone || !storeID || !itemName || !total) {
-      console.log('⚠️ 欄位不完整:', req.body);
+      console.log('❌ 缺少欄位:', req.body);
       return res.status(400).send('❗ 請填寫完整欄位');
     }
 
+    const tradeNo = 'L' + Date.now();
+    const tradeDate = new Date().toISOString().slice(0, 19).replace('T', ' ');
+
     const baseParams = {
-      MerchantTradeNo: 'L' + Date.now(),
-      MerchantTradeDate: new Date().toISOString().slice(0, 19).replace('T', ' '),
+      MerchantTradeNo: tradeNo,
+      MerchantTradeDate: tradeDate,
       LogisticsType: 'CVS',
-      LogisticsSubType: options.LogisticsSubType,
-      GoodsAmount: total,
+      LogisticsSubType: 'UNIMARTC2C',
+      GoodsAmount: parseInt(total),
       CollectionAmount: 0,
       IsCollection: 'N',
       GoodsName: itemName,
@@ -37,22 +40,21 @@ router.post('/create-order', async (req, res) => {
       ReceiverName: name,
       ReceiverPhone: phone,
       ReceiverStoreID: storeID,
-      ServerReplyURL: options.ServerReplyURL,
-      ClientReplyURL: options.ClientReplyURL,
+      ServerReplyURL: process.env.ECPAY_LOGISTICS_REPLY_URL,
+      ClientReplyURL: process.env.ECPAY_LOGISTICS_CLIENT_URL,
     };
 
-    const ecpay = new ECPayLogistics(options);
-    const html = ecpay.create(baseParams);
+    console.log('🚚 建立物流訂單參數:', baseParams);
 
-    console.log('✅ 建立物流訂單成功:', baseParams);
+    const html = ecpayInstance.create(baseParams);
     res.send(html);
   } catch (error) {
     console.error('❌ 建立物流訂單失敗:', error);
-    res.status(500).send('🚨 建立物流訂單失敗');
+    res.status(500).send('🚨 系統錯誤，請稍後再試');
   }
 });
 
-// ✅ 列印物流單據（C2C專用）
+// ✅ 列印物流單據（僅正式帳號使用）
 router.post('/print', async (req, res) => {
   const { AllPayLogisticsID, CVSPaymentNo, CVSValidationNo } = req.body;
 
@@ -61,8 +63,8 @@ router.post('/print', async (req, res) => {
   }
 
   const html = `
-    <form id="printForm" method="POST" action="https://logistics-stage.ecpay.com.tw/Express/PrintUniMartC2COrderInfo">
-      <input type="hidden" name="MerchantID" value="${options.MerchantID}">
+    <form id="printForm" method="POST" action="https://logistics-stage.ecpay.com.tw/Express/PrintTradeDoc">
+      <input type="hidden" name="MerchantID" value="${process.env.PAY_MERCHANT_ID}">
       <input type="hidden" name="AllPayLogisticsID" value="${AllPayLogisticsID}">
       <input type="hidden" name="CVSPaymentNo" value="${CVSPaymentNo}">
       <input type="hidden" name="CVSValidationNo" value="${CVSValidationNo}">
