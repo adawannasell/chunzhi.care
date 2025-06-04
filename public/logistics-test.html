@@ -1,6 +1,8 @@
 <form method="POST" action="/api/logistics/create-order">
-  <input name="name" placeholder="收件人姓名" />
-  <input name="phone" placeholder="手機號碼" />
-  <input name="storeID" placeholder="門市代碼" />
+  <input name="name" placeholder="收件人姓名" required />
+  <input name="phone" placeholder="手機號碼" required />
+  <input name="storeID" placeholder="門市代碼" required />
+  <input name="itemName" placeholder="商品名稱" value="雪Q餅" required />
+  <input name="total" placeholder="金額" value="399" required />
   <button type="submit">送出物流訂單</button>
 </form>
