@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <title>選擇超商門市</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body { font-family: sans-serif; }
+  </style>
+</head>
+<body class="bg-[#fdfaf5] text-[#1a1a1a] px-4 py-12">
+  <div class="max-w-xl mx-auto bg-white shadow rounded p-6">
+    <h1 class="text-xl font-bold mb-4 text-center">🏪 選擇取貨門市</h1>
+    <p class="mb-6 text-sm text-gray-700">請點選下方按鈕開啟綠界地圖，選擇您想取貨的超商門市。</p>
+
+    <button id="open-map" class="w-full bg-green-700 text-white py-3 rounded font-semibold hover:bg-green-800 transition">
+      開啟門市選擇地圖
+    </button>
+
+    <div id="result" class="mt-6 text-sm text-gray-800 space-y-1"></div>
+  </div>
+
+  <script>
+    document.getElementById('open-map').addEventListener('click', () => {
+      const url = `https://logistics-stage.ecpay.com.tw/Express/map` +
+        `?MerchantID=2000132` +  // 測試帳號固定寫死
+        `&LogisticsType=CVS` +
+        `&LogisticsSubType=OKMart` +
+        `&IsCollection=NO` +
+        `&ServerReplyURL=${encodeURIComponent(window.location.origin + '/logistics-map-reply.html')}`;
+
+      window.open(url, 'ecpayMapWindow', 'width=500,height=600');
+    });
+
+    // 接收選完門市的資料
+    window.addEventListener('message', function (e) {
+      if (typeof e.data === 'string' && e.data.includes('CVSStoreID')) {
+        const params = new URLSearchParams(e.data);
+        const storeInfo = {
+          店名: params.get('CVSStoreName'),
+          地址: params.get('CVSAddress'),
+          門市代碼: params.get('CVSStoreID')
+        };
+
+        const output = Object.entries(storeInfo).map(([k, v]) => `<div><strong>${k}：</strong>${v}</div>`).join('');
+        document.getElementById('result').innerHTML = output;
+      }
+    }, false);
+  </script>
+</body>
+</html>
