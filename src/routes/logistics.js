@@ -46,15 +46,9 @@ router.post('/create-order', async (req, res) => {
 
     console.log("🚚 建立物流參數:", base_param);
 
-    const html = logistics.create_server.create(parameters = base_param);
-    if (typeof html === 'string') {
-      res.send(html);
-    } else {
-      html.then(result => res.send(result)).catch(err => {
-        console.error('❌ SDK 建立物流錯誤:', err);
-        res.status(500).send('🚨 建立物流訂單錯誤');
-      });
-    }
+    const result = await logistics.create_client.createOrder(base_param);
+    res.send(result);
+
   } catch (error) {
     console.error('❌ 系統錯誤:', error);
     res.status(500).send('🚨 建立物流訂單失敗');
@@ -75,7 +69,7 @@ router.post('/print', async (req, res) => {
   };
 
   try {
-    const result = await logistics.query_client.printtradedocument(parameters = base_param);
+    const result = await logistics.query_client.printTradeDocument(base_param);
     res.send(result);
   } catch (err) {
     console.error('❌ 列印失敗:', err);
