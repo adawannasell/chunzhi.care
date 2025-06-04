@@ -13,6 +13,8 @@ const { Resend } = require('resend');
 const emailRoutes = require('./routes/email');
 const recommendRoute = require('./routes/recommend');
 const ecpayRoute = require('./routes/ecpay'); // ✅ 加入金流路由
+const logisticsRoute = require('./routes/logistics'); // ✅ 加上這一行
+
 
 dotenv.config();
 initDB();
@@ -37,6 +39,7 @@ app.use('/api/email', emailRoutes);
 app.use('/api', recommendRoute); // ✅ GPT 八字推薦功能 API
 app.use('/api/ecpay', ecpayRoute); // ✅ 金流付款路由
 app.use('/health', (req, res) => res.send('ok'));
+app.use('/api/logistics', logisticsRoute); // ✅ 掛上物流 API 路由
 
 // ⬇️ Facebook 登入
 passport.serializeUser((user, done) => {

@@ -77,25 +77,22 @@
         email: form.email.value.trim(),
         address: form.address.value.trim(),
         note: form.note.value.trim(),
-        items: cart,
-        total, // 總金額
-        itemName: cart.map(item => item.name).join(', ') // 商品名串接
+        items: cart
       };
 
       try {
-        const res = await fetch('/api/ecpay/create-payment', {
+        const res = await fetch('/order', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(order)
         });
 
-        const html = await res.text();
+        if (!res.ok) throw new Error(await res.text());
+
         localStorage.removeItem('cart');
-        document.open();
-        document.write(html);
-        document.close();
+        window.location.href = '/thankyou.html';
       } catch (err) {
-        alert('❌ 金流送出失敗：' + err.message);
+        alert('❌ 訂單送出失敗：' + err.message);
       }
     });
   </script>
