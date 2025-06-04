@@ -13,7 +13,7 @@ const { Resend } = require('resend');
 const emailRoutes = require('./routes/email');
 const recommendRoute = require('./routes/recommend');
 const ecpayRoute = require('./routes/ecpay'); // ✅ 加入金流路由
-const logisticsRoute = require('./routes/logistics'); // ✅ 加上這一行
+const logisticsRoute = require('./routes/logistics'); // ✅ 載入你自己定義的路由
 
 
 dotenv.config();
