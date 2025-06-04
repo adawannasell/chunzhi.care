@@ -40,7 +40,7 @@ router.post('/create-order', async (req, res) => {
       ClientReplyURL: options.ClientReplyURL,
     };
 
-    const create = new ecpay_logistics.CreateCVS(options);
+    const create = ecpay_logistics(options);
     const html = create.create(baseParams);
 
     res.send(html);
