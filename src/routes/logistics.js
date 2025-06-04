@@ -40,7 +40,7 @@ const base_param = {
 	TradeDesc:"",
 	ServerReplyURL:"http://192.168.0.1/ReceiverServerReply", // 物流狀況會通知到此URL
 	ClientReplyURL:"",
-	LogisticsC2CReplyURL:"",
+	LogisticsC2CReplyURL:"https://chunzhi-care.onrender.com/api/logistics/c2c",
 	Remark:"",
 	PlatformID:"",
 	ReceiverStoreID:"991182", // 請帶收件人門市代號(統一):991182  測試商店代號(全家):001779 測試商店代號(萊爾富):2001、F227
