@@ -43,7 +43,7 @@ const base_param = {
 	Remark:"",
 	PlatformID:"",
 	ReceiverStoreID:"991182", // 請帶收件人門市代號(統一):991182  測試商店代號(全家):001779 測試商店代號(萊爾富):2001、F227
-	ReturnStoreID:"
+	ReturnStoreID:""
         
       
     };
