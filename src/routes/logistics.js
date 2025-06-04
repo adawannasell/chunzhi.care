@@ -1,19 +1,20 @@
 // routes/logistics.js
 const express = require('express');
 const router = express.Router();
-const ecpay = require('ecpay-logistics'); // ✅ 正確套件匯入
+const ECPayLogistics = require('ecpay-logistics'); // ✅ SDK 應為 constructor
 require('dotenv').config();
 
-const ecpayInstance = ecpay({
+// ✅ 建立物流 SDK 實例
+const ecpay = new ECPayLogistics({
   MerchantID: process.env.PAY_MERCHANT_ID,
   HashKey: process.env.PAY_HASH_KEY,
   HashIV: process.env.PAY_HASH_IV,
   ServerReplyURL: process.env.ECPAY_LOGISTICS_REPLY_URL,
   ClientReplyURL: process.env.ECPAY_LOGISTICS_CLIENT_URL,
-  LogisticsSubType: 'UNIMARTC2C', // ✅ 改為 7-11 交貨便（支援C2C超商寄件）
+  LogisticsSubType: 'UNIMARTC2C', // ✅ 7-11 C2C 超商寄件
 });
 
-// ✅ 建立物流訂單（寄件人固定為「春枝」）
+// ✅ 建立物流訂單
 router.post('/create-order', async (req, res) => {
   try {
     const { name, phone, storeID, itemName, total } = req.body;
@@ -46,7 +47,7 @@ router.post('/create-order', async (req, res) => {
 
     console.log('🚚 建立物流訂單參數:', baseParams);
 
-    const html = ecpayInstance.create(baseParams);
+    const html = ecpay.create(baseParams); // ✅ 使用實例呼叫 .create()
     res.send(html);
   } catch (error) {
     console.error('❌ 建立物流訂單失敗:', error);
