@@ -34,6 +34,8 @@ router.post('/create-order', async (req, res) => {
       ReceiverCellPhone: phone, // ✅ 必填！否則會報錯
       ReceiverName: name,
       ReceiverEmail: 'test@example.com', // ➕ 新增這行，填真實或測試 email
+      Remark: '', // ✅ 補上這行避免錯誤
+      PlatformID: '', // 若非特約合作商，可留空  
       ReceiverPhone: phone,
       ReceiverStoreID: storeID,
       ServerReplyURL: process.env.ECPAY_LOGISTICS_REPLY_URL,
