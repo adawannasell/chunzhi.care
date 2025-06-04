@@ -20,10 +20,10 @@ router.post('/create-order', async (req, res) => {
       return res.status(400).send('❗ 請填寫完整欄位');
     }
 
-    const base_param = {
+const base_param = {
   MerchantTradeNo:"SDSD4156s1a56d1asd", // 請帶20碼uid, ex: f0a0d7e9fae1bb72bc93, 為aiocheckout時所產生的
 	MerchantTradeDate:"2021/01/27 11:00:45", // 請帶交易時間, ex: 2017/05/17 16:23:45, 為aiocheckout時所產生的
-	LogisticsType:"CVS",
+	ogisticsType:"CVS",
 	LogisticsSubType:"OKMARTC2C",//UNIMART、FAMI、HILIFE、UNIMARTC2C、FAMIC2C、HILIFEC2C、OKMARTC2C
 	GoodsAmount:"200",
 	CollectionAmount:"200",
