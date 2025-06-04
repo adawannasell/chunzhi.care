@@ -31,16 +31,20 @@ router.post('/create-order', async (req, res) => {
       GoodsName: itemName,
       SenderName: '春枝',
       SenderPhone: '0222222222',
-      ReceiverCellPhone: phone, // ✅ 必填！否則會報錯
+      SenderCellPhone: '0912345678', // ✅ 要有
       ReceiverName: name,
+      ReceiverCellPhone: phone, // ✅ 必填！否則會報錯
       ReceiverEmail: 'test@example.com', // ➕ 新增這行，填真實或測試 email
+      ServerReplyURL: 'https://chunzhi-care.onrender.com/api/logistics/reply',
+      ClientReplyURL: 'https://chunzhi-care.onrender.com/thankyou.html',
+      LogisticsC2CReplyURL: 'https://chunzhi-care.onrender.com/api/logistics/c2c', // ✅ 這一行必加！
       Remark: '', // ✅ 補上這行避免錯誤
       PlatformID: '', // 若非特約合作商，可留空  
-      ReceiverPhone: phone,
-      ReceiverStoreID: storeID,
-      ServerReplyURL: process.env.ECPAY_LOGISTICS_REPLY_URL,
-      ClientReplyURL: process.env.ECPAY_LOGISTICS_CLIENT_URL,
-      LogisticsC2CReplyURL: process.env.ECPAY_LOGISTICS_C2C_URL, // ✅ 這一行必加！
+      ReceiverStoreID: '991182',
+      ReturnStoreID: '',
+      
+      
+      
     };
 
     console.log('🚚 建立物流訂單參數:', base_param);
