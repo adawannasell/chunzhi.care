@@ -7,6 +7,15 @@
   <style>
     body { font-family: sans-serif; padding: 40px; background: #f5f5f5; }
     h1 { color: #6b8e23; }
+    label { display: block; margin-top: 12px; font-weight: bold; }
+    input {
+      width: 100%;
+      padding: 10px;
+      margin-top: 4px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      font-size: 1rem;
+    }
     button {
       background: #6b8e23;
       color: white;
@@ -15,31 +24,51 @@
       padding: 12px 24px;
       cursor: pointer;
       border-radius: 6px;
+      margin-top: 20px;
     }
   </style>
 </head>
 <body>
   <h1>💰 綠界金流測試頁</h1>
-  <p>點擊以下按鈕，模擬送出一筆付款請求：</p>
+  <p>請填寫下方資訊，並送出模擬付款請求：</p>
+
+  <label for="name">姓名</label>
+  <input type="text" id="name" placeholder="王小明" />
+
+  <label for="email">Email</label>
+  <input type="email" id="email" placeholder="example@mail.com" />
+
+  <label for="itemName">品項名稱</label>
+  <input type="text" id="itemName" placeholder="測試商品" />
+
+  <label for="total">金額 (NTD)</label>
+  <input type="number" id="total" placeholder="100" min="1" />
+
   <button id="pay-button">送出測試訂單</button>
 
   <script>
     document.getElementById('pay-button').addEventListener('click', async () => {
+      const name = document.getElementById('name').value.trim();
+      const email = document.getElementById('email').value.trim();
+      const total = parseInt(document.getElementById('total').value.trim(), 10);
+      const itemName = document.getElementById('itemName').value.trim();
+
+      if (!name || !email || !total || !itemName) {
+        alert('❗ 請填寫所有欄位');
+        return;
+      }
+
       try {
         const res = await fetch('/api/ecpay/create-payment', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            name: '測試用戶',
-            email: 'test@example.com',
-            total: 100
-          })
+          body: JSON.stringify({ name, email, total, itemName })
         });
 
         const html = await res.text();
-        document.open();         // 清空當前頁面
-        document.write(html);    // 寫入綠界表單
-        document.close();        // 完成
+        document.open();       // 清空頁面
+        document.write(html);  // 寫入綠界回傳的表單
+        document.close();      // 結束寫入
       } catch (err) {
         alert('❌ 發送失敗：' + err.message);
       }

@@ -16,14 +16,14 @@ function formatECPayDate(date = new Date()) {
 }
 
 router.post('/create-payment', (req, res) => {
-  const { name, email, total } = req.body;
+  const { name, email, total, itemName } = req.body;
 
   const base_param = {
     MerchantTradeNo: 'NO' + Date.now(),
     MerchantTradeDate: formatECPayDate(),
     TotalAmount: String(total),
     TradeDesc: '綠界金流測試付款',
-    ItemName: '原味雪Q餅 x1',
+    ItemName: itemName,
     EncryptType: 1,
     ReturnURL: process.env.ECPAY_RETURN_URL,
     ClientBackURL: process.env.ECPAY_CLIENT_BACK_URL,
