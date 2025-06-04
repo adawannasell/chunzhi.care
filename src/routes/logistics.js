@@ -1,7 +1,7 @@
 // routes/logistics.js
 const express = require('express');
 const router = express.Router();
-const ecpay_logistics = require('ecpay-logistics-nodejs');
+const ecpay_logistics = require('ecpay-logistics');
 require('dotenv').config();
 
 const options = {
