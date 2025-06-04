@@ -3,12 +3,10 @@ const router = express.Router();
 const ECPayLogistics = require('ecpay-logistics');
 require('dotenv').config();
 
-// ✅ 建立物流 SDK 實例
-const logistics = new ECPayLogistics({
-  MerchantID: process.env.PAY_MERCHANT_ID,
-  HashKey: process.env.PAY_HASH_KEY,
-  HashIV: process.env.PAY_HASH_IV,
-});
+// ✅ 建立 SDK 個別 client
+const logistics = new ECPayLogistics();
+const createClient = logistics.create_client;
+const queryClient = logistics.query_client;
 
 // ✅ 建立物流訂單（FAMI 全家 B2C 模式）
 router.post('/create-order', async (req, res) => {
@@ -20,11 +18,12 @@ router.post('/create-order', async (req, res) => {
     }
 
     const base_param = {
+      MerchantID: process.env.PAY_MERCHANT_ID,
       MerchantTradeNo: 'L' + Date.now(),
       MerchantTradeDate: new Date().toISOString().slice(0, 19).replace('T', ' '),
       LogisticsType: "CVS",
-      LogisticsSubType: "FAMI", // ✅ 使用全家 B2C
-      GoodsAmount: parseInt(total),
+      LogisticsSubType: "FAMI",
+      GoodsAmount: parseInt(total) || 0,
       CollectionAmount: 0,
       IsCollection: "N",
       GoodsName: itemName,
@@ -46,16 +45,16 @@ router.post('/create-order', async (req, res) => {
 
     console.log("🚚 建立物流參數:", base_param);
 
-    const result = await logistics.create_client.createOrder(base_param);
+    const result = await createClient.createOrder(base_param);
     res.send(result);
 
   } catch (error) {
-    console.error('❌ 系統錯誤:', error);
+    console.error('❌ 建立物流訂單錯誤:', error);
     res.status(500).send('🚨 建立物流訂單失敗');
   }
 });
 
-// ✅ 列印交貨便單據（正式帳號才能列印）
+// ✅ 列印交貨便單據（正式帳號才能使用）
 router.post('/print', async (req, res) => {
   const { AllPayLogisticsID } = req.body;
 
@@ -69,7 +68,7 @@ router.post('/print', async (req, res) => {
   };
 
   try {
-    const result = await logistics.query_client.printTradeDocument(base_param);
+    const result = await queryClient.printTradeDocument(base_param);
     res.send(result);
   } catch (err) {
     console.error('❌ 列印失敗:', err);
