@@ -33,6 +33,7 @@ router.post('/create-order', async (req, res) => {
       SenderPhone: '0222222222',
       ReceiverCellPhone: phone, // ✅ 必填！否則會報錯
       ReceiverName: name,
+      ReceiverEmail: 'test@example.com', // ➕ 新增這行，填真實或測試 email
       ReceiverPhone: phone,
       ReceiverStoreID: storeID,
       ServerReplyURL: process.env.ECPAY_LOGISTICS_REPLY_URL,
