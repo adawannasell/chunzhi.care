@@ -1,18 +1,8 @@
 // routes/logistics.js
 const express = require('express');
 const router = express.Router();
-const ECPayLogistics = require('ecpay-logistics'); // ✅ SDK 應為 constructor
+const ECPayLogistics = require('ecpay-logistics');
 require('dotenv').config();
-
-// ✅ 建立物流 SDK 實例
-const ecpay = new ECPayLogistics({
-  MerchantID: process.env.PAY_MERCHANT_ID,
-  HashKey: process.env.PAY_HASH_KEY,
-  HashIV: process.env.PAY_HASH_IV,
-  ServerReplyURL: process.env.ECPAY_LOGISTICS_REPLY_URL,
-  ClientReplyURL: process.env.ECPAY_LOGISTICS_CLIENT_URL,
-  LogisticsSubType: 'UNIMARTC2C', // ✅ 7-11 C2C 超商寄件
-});
 
 // ✅ 建立物流訂單
 router.post('/create-order', async (req, res) => {
@@ -47,7 +37,17 @@ router.post('/create-order', async (req, res) => {
 
     console.log('🚚 建立物流訂單參數:', baseParams);
 
-    const html = ecpay.create(baseParams); // ✅ 使用實例呼叫 .create()
+    // ✅ 使用 CreateCVS 類別建立物流訂單
+    const create = new ECPayLogistics.CreateCVS({
+      MerchantID: process.env.PAY_MERCHANT_ID,
+      HashKey: process.env.PAY_HASH_KEY,
+      HashIV: process.env.PAY_HASH_IV,
+      ServerReplyURL: process.env.ECPAY_LOGISTICS_REPLY_URL,
+      ClientReplyURL: process.env.ECPAY_LOGISTICS_CLIENT_URL,
+      LogisticsSubType: 'UNIMARTC2C',
+    });
+
+    const html = create.create(baseParams);
     res.send(html);
   } catch (error) {
     console.error('❌ 建立物流訂單失敗:', error);
