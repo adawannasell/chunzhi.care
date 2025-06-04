@@ -23,9 +23,8 @@ router.post('/create-order', async (req, res) => {
 const base_param = {
   MerchantTradeNo:"SDSD4156s1a56d1asd", // 請帶20碼uid, ex: f0a0d7e9fae1bb72bc93, 為aiocheckout時所產生的
 	MerchantTradeDate:"2021/01/27 11:00:45", // 請帶交易時間, ex: 2017/05/17 16:23:45, 為aiocheckout時所產生的
-	ogisticsType:"CVS",
+	LogisticsType:"CVS",
 	LogisticsSubType:"UNIMARTC2C",//UNIMART、FAMI、HILIFE、UNIMARTC2C、FAMIC2C、HILIFEC2C、OKMARTC2C
-  LogisticsType: 'CVS',
 	GoodsAmount:"200",
 	CollectionAmount:"200",
 	IsCollection:"Y",
