@@ -46,7 +46,7 @@ router.post('/create-order', async (req, res) => {
 
     console.log("🚚 建立物流參數:", base_param);
 
-    const html = logistics.create_client.create(parameters = base_param);
+    const html = logistics.create_server.create(parameters = base_param);
     if (typeof html === 'string') {
       res.send(html);
     } else {
