@@ -21,29 +21,30 @@ router.post('/create-order', async (req, res) => {
     }
 
     const base_param = {
-      MerchantTradeNo: 'L' + Date.now(),
-      MerchantTradeDate: new Date().toISOString().slice(0, 19).replace('T', ' '),
-      LogisticsType: 'CVS',
-      LogisticsSubType: 'UNIMARTC2C',
-      GoodsAmount: parseInt(total),
-      CollectionAmount: 0,
-      IsCollection: 'N',
-      GoodsName: itemName,
-      SenderName: '春枝',
-      SenderPhone: '0222222222',
-      SenderCellPhone: '0912345678', // ✅ 要有
-      ReceiverName: name,
-      ReceiverCellPhone: phone, // ✅ 必填！否則會報錯
-      ReceiverEmail: 'test@example.com', // ➕ 新增這行，填真實或測試 email
-      ServerReplyURL: 'https://chunzhi-care.onrender.com/api/logistics/reply',
-      ClientReplyURL: 'https://chunzhi-care.onrender.com/thankyou.html',
-      LogisticsC2CReplyURL: 'https://chunzhi-care.onrender.com/api/logistics/c2c', // ✅ 這一行必加！
-      Remark: '', // ✅ 補上這行避免錯誤
-      PlatformID: '', // 若非特約合作商，可留空  
-      ReceiverStoreID: '991182',
-      ReturnStoreID: '',
-      
-      
+  MerchantTradeNo:"SDSD4156s1a56d1asd", // 請帶20碼uid, ex: f0a0d7e9fae1bb72bc93, 為aiocheckout時所產生的
+	MerchantTradeDate:"2021/01/27 11:00:45", // 請帶交易時間, ex: 2017/05/17 16:23:45, 為aiocheckout時所產生的
+	LogisticsType:"CVS",
+	LogisticsSubType:"OKMARTC2C",//UNIMART、FAMI、HILIFE、UNIMARTC2C、FAMIC2C、HILIFEC2C、OKMARTC2C
+	GoodsAmount:"200",
+	CollectionAmount:"200",
+	IsCollection:"Y",
+	GoodsName:"test",
+	SenderName:"綠界科技",
+	SenderPhone:"29788833",
+	SenderCellPhone:"0912345678",
+	ReceiverName:"綠界科技",
+	ReceiverPhone:"0229768888",
+	ReceiverCellPhone:"0912345678",
+	ReceiverEmail:"tesy@gmail.com",
+	TradeDesc:"",
+	ServerReplyURL:"http://192.168.0.1/ReceiverServerReply", // 物流狀況會通知到此URL
+	ClientReplyURL:"",
+	LogisticsC2CReplyURL:"",
+	Remark:"",
+	PlatformID:"",
+	ReceiverStoreID:"991182", // 請帶收件人門市代號(統一):991182  測試商店代號(全家):001779 測試商店代號(萊爾富):2001、F227
+	ReturnStoreID:"
+        
       
     };
 
