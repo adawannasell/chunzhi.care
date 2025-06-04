@@ -1,7 +1,7 @@
 // routes/logistics.js
 const express = require('express');
 const router = express.Router();
-const ecpay_logistics = require('ecpay-logistics');
+const ECPayLogistics = require('ecpay-logistics');
 require('dotenv').config();
 
 const options = {
@@ -10,15 +10,16 @@ const options = {
   HashIV: process.env.PAY_HASH_IV,
   ServerReplyURL: process.env.ECPAY_LOGISTICS_REPLY_URL,
   ClientReplyURL: process.env.ECPAY_LOGISTICS_CLIENT_URL,
-  LogisticsSubType: 'UNIMARTC2C', // ✅ 改為 7-11 交貨便
+  LogisticsSubType: 'UNIMARTC2C', // ✅ 可改為其他：FAMIC2C、HILIFEC2C、OKMARTC2C
 };
 
-// ✅ 建立物流訂單（寄件人：春枝，收件門市為 storeID）
+// ✅ 建立物流訂單
 router.post('/create-order', async (req, res) => {
   try {
     const { name, phone, storeID, itemName, total } = req.body;
 
     if (!name || !phone || !storeID || !itemName || !total) {
+      console.log('⚠️ 欄位不完整:', req.body);
       return res.status(400).send('❗ 請填寫完整欄位');
     }
 
@@ -40,9 +41,10 @@ router.post('/create-order', async (req, res) => {
       ClientReplyURL: options.ClientReplyURL,
     };
 
-    const create = ecpay_logistics(options);
-    const html = create.create(baseParams);
+    const ecpay = new ECPayLogistics(options);
+    const html = ecpay.create(baseParams);
 
+    console.log('✅ 建立物流訂單成功:', baseParams);
     res.send(html);
   } catch (error) {
     console.error('❌ 建立物流訂單失敗:', error);
@@ -50,7 +52,7 @@ router.post('/create-order', async (req, res) => {
   }
 });
 
-// ✅ 列印物流單據（僅正式帳號使用，測試帳號無法列印）
+// ✅ 列印物流單據（C2C專用）
 router.post('/print', async (req, res) => {
   const { AllPayLogisticsID, CVSPaymentNo, CVSValidationNo } = req.body;
 
@@ -59,7 +61,7 @@ router.post('/print', async (req, res) => {
   }
 
   const html = `
-    <form id="printForm" method="POST" action="https://logistics-stage.ecpay.com.tw/Express/PrintTradeDoc">
+    <form id="printForm" method="POST" action="https://logistics-stage.ecpay.com.tw/Express/PrintUniMartC2COrderInfo">
       <input type="hidden" name="MerchantID" value="${options.MerchantID}">
       <input type="hidden" name="AllPayLogisticsID" value="${AllPayLogisticsID}">
       <input type="hidden" name="CVSPaymentNo" value="${CVSPaymentNo}">
