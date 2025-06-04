@@ -31,6 +31,7 @@ router.post('/create-order', async (req, res) => {
       GoodsName: itemName,
       SenderName: '春枝',
       SenderPhone: '0222222222',
+      ReceiverCellPhone: phone, // ✅ 必填！否則會報錯
       ReceiverName: name,
       ReceiverPhone: phone,
       ReceiverStoreID: storeID,
