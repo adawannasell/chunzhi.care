@@ -4,14 +4,12 @@ const router = express.Router();
 const ECPayLogistics = require('ecpay-logistics');
 require('dotenv').config();
 
-// ✅ 建立物流 SDK 實例
 const logistics = new ECPayLogistics({
   MerchantID: process.env.PAY_MERCHANT_ID,
   HashKey: process.env.PAY_HASH_KEY,
   HashIV: process.env.PAY_HASH_IV,
 });
 
-// ✅ 建立物流訂單
 router.post('/create-order', async (req, res) => {
   try {
     const { name, phone, storeID, itemName, total } = req.body;
@@ -20,34 +18,32 @@ router.post('/create-order', async (req, res) => {
       return res.status(400).send('❗ 請填寫完整欄位');
     }
 
-const base_param = {
-  MerchantTradeNo:"SDSD4156s1a56d1asd", // 請帶20碼uid, ex: f0a0d7e9fae1bb72bc93, 為aiocheckout時所產生的
-	MerchantTradeDate:"2021/01/27 11:00:45", // 請帶交易時間, ex: 2017/05/17 16:23:45, 為aiocheckout時所產生的
-	LogisticsType:"CVS",
-	LogisticsSubType:"UNIMART",//UNIMART、FAMI、HILIFE、UNIMARTC2C、FAMIC2C、HILIFEC2C、OKMARTC2C
-	GoodsAmount:"200",
-	CollectionAmount:"200",
-	IsCollection:"N",
-	GoodsName:"test",
-	SenderName:"綠界科技",
-	SenderPhone:"29788833",
-	SenderCellPhone:"0912345678",
-	ReceiverName:"綠界科技",
-	ReceiverPhone:"0229768888",
-	ReceiverCellPhone:"0912345678",
-	ReceiverEmail:"tesy@gmail.com",
-	TradeDesc:"",
-	ServerReplyURL: process.env.ECPAY_LOGISTICS_REPLY_URL, // 物流狀況會通知到此URL
-	ClientReplyURL: process.env.ECPAY_LOGISTICS_CLIENT_URL,
-	Remark:"",
-	PlatformID:"",
-	ReceiverStoreID:"991182", // 請帶收件人門市代號(統一):991182  測試商店代號(全家):001779 測試商店代號(萊爾富):2001、F227
-	ReturnStoreID:""
-        
-      
+    const base_param = {
+      MerchantTradeNo: 'L' + Date.now(),
+      MerchantTradeDate: new Date().toISOString().slice(0, 19).replace('T', ' '),
+      LogisticsType: "CVS",
+      LogisticsSubType: "UNIMART",
+      GoodsAmount: parseInt(total),
+      CollectionAmount: 0,
+      IsCollection: "N",
+      GoodsName: itemName,
+      SenderName: "綠界科技",
+      SenderPhone: "29788833",
+      SenderCellPhone: "0912345678",
+      ReceiverName: name,
+      ReceiverPhone: "0229768888",
+      ReceiverCellPhone: phone,
+      ReceiverEmail: "test@example.com",
+      TradeDesc: "",
+      ServerReplyURL: process.env.ECPAY_LOGISTICS_REPLY_URL,
+      ClientReplyURL: process.env.ECPAY_LOGISTICS_CLIENT_URL,
+      Remark: "",
+      PlatformID: "",
+      ReceiverStoreID: storeID,
+      ReturnStoreID: ""
     };
 
-    console.log('🚚 建立物流訂單參數:', base_param);
+    console.log("🚚 建立物流參數:", base_param);
 
     const html = logistics.create_client.create(parameters = base_param);
     if (typeof html === 'string') {
@@ -64,7 +60,6 @@ const base_param = {
   }
 });
 
-// ✅ 列印交貨便單據
 router.post('/print', async (req, res) => {
   const { AllPayLogisticsID } = req.body;
 
@@ -85,6 +80,5 @@ router.post('/print', async (req, res) => {
     res.status(500).send('🚨 列印失敗');
   }
 });
-
 
 module.exports = router;
