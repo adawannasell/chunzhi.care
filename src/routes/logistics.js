@@ -21,6 +21,7 @@ router.post('/create-order', async (req, res) => {
       MerchantID: process.env.PAY_MERCHANT_ID,
       MerchantTradeNo: 'L' + Date.now(),
       MerchantTradeDate: new Date().toISOString().slice(0, 19).replace('T', ' '),
+      LogisticsC2CReplyURL: process.env.ECPAY_CVS_STORE_REPLY_URL,
       LogisticsType: "CVS",
       LogisticsSubType: "FAMI",
       GoodsAmount: parseInt(total) || 0,
