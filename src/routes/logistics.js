@@ -36,6 +36,7 @@ router.post('/create-order', async (req, res) => {
       ReceiverStoreID: storeID,
       ServerReplyURL: process.env.ECPAY_LOGISTICS_REPLY_URL,
       ClientReplyURL: process.env.ECPAY_LOGISTICS_CLIENT_URL,
+      LogisticsC2CReplyURL: process.env.ECPAY_LOGISTICS_C2C_URL, // ✅ 這一行必加！
     };
 
     console.log('🚚 建立物流訂單參數:', base_param);
@@ -75,6 +76,12 @@ router.post('/print', async (req, res) => {
     console.error('❌ 列印失敗:', err);
     res.status(500).send('🚨 列印失敗');
   }
+});
+
+// ✅ C2C 狀態通知 callback（必要）
+router.post('/c2c', (req, res) => {
+  console.log('📦 收到物流狀態通知:', req.body);
+  res.send('OK');
 });
 
 module.exports = router;
