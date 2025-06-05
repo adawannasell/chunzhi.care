@@ -18,7 +18,7 @@ router.post('/create-order', async (req, res) => {
       storeID,
       itemName,
       total,
-      logisticsSubType = 'FAMI' // 預設為全家 B2C
+      logisticsSubType = 'FAMI'
     } = req.body;
 
     if (!name || !phone || !itemName || !total) {
@@ -41,7 +41,7 @@ router.post('/create-order', async (req, res) => {
     });
 
     const base_param = {
-      MerchantID: "2000132", // ✅ 正式測試商店代碼
+      MerchantID: "2000132",
       MerchantTradeNo: 'L' + Date.now(),
       MerchantTradeDate,
       LogisticsType: "CVS",
@@ -88,9 +88,9 @@ router.post('/create-order', async (req, res) => {
   }
 });
 
-// ✅ 支援多超商選店（地圖）
+// ✅ 多超商選店地圖
 router.get('/cvs-map', (req, res) => {
-  const subtype = req.query.subtype || 'FAMI'; // 或從前端傳入
+  const subtype = req.query.subtype || 'FAMI';
   const MerchantTradeNo = 'MAP' + Date.now();
 
   res.send(`
@@ -101,17 +101,19 @@ router.get('/cvs-map', (req, res) => {
       <input type="hidden" name="LogisticsSubType" value="${subtype}" />
       <input type="hidden" name="IsCollection" value="N" />
       <input type="hidden" name="ServerReplyURL" value="https://chunzhi-care.onrender.com/api/logistics/cvs-store-reply" />
-      <input type="hidden" name="ClientReplyURL" value="https://chunzhi-care.onrender.com/logistics-test.html?subtype=${subtype}" />
+      <input type="hidden" name="ClientReplyURL" value="https://chunzhi-care.onrender.com/logistics-test.html" />
     </form>
     <script>document.getElementById('cvsMapForm').submit();</script>
   `);
 });
 
-// ✅ 接收門市資訊
+// ✅ 接收門市資訊並帶入 subtype
 router.post('/cvs-store-reply', (req, res) => {
   const storeInfo = req.body;
+  const subtype = storeInfo.LogisticsSubType || 'FAMI'; // ✅ 從回傳資料抓 subtype
+
   console.log("🏪 門市資訊已回傳：", storeInfo);
-  const subtype = req.query.subtype || 'FAMI';
+
   res.redirect(`/logistics-test.html?storeID=${storeInfo.CVSStoreID}&storeName=${encodeURIComponent(storeInfo.CVSStoreName)}&subtype=${subtype}`);
 });
 
