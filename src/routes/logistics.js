@@ -8,6 +8,9 @@ const logistics = new ECPayLogistics();
 const createClient = logistics.create_client;
 const queryClient = logistics.query_client;
 
+// ✅ 小工具函式：強制轉字串
+const safe = (v) => (v != null ? String(v) : '');
+
 // ✅ 建立物流訂單（FAMI 全家 B2C 模式）
 router.post('/create-order', async (req, res) => {
   try {
@@ -30,29 +33,29 @@ router.post('/create-order', async (req, res) => {
     }).replace(/\//g, '/');
 
     const base_param = {
-      MerchantID: process.env.PAY_MERCHANT_ID,
+      MerchantID: safe(process.env.PAY_MERCHANT_ID),
       MerchantTradeNo: 'L' + Date.now(),
       MerchantTradeDate,
       LogisticsType: "CVS",
       LogisticsSubType: "FAMI",
-      GoodsAmount: parseInt(total) || 0,
-      CollectionAmount: 0,
+      GoodsAmount: safe(parseInt(total) || 0),
+      CollectionAmount: "0",
       IsCollection: "N",
-      GoodsName: itemName,
+      GoodsName: safe(itemName),
       SenderName: "春枝",
       SenderPhone: "0222222222",
       SenderCellPhone: "0911222333",
-      ReceiverName: name,
+      ReceiverName: safe(name),
       ReceiverPhone: "0222222222",
-      ReceiverCellPhone: phone,
+      ReceiverCellPhone: safe(phone),
       ReceiverEmail: "test@example.com",
       TradeDesc: "全家 B2C 測試",
-      ServerReplyURL: process.env.ECPAY_LOGISTICS_REPLY_URL,
-      ClientReplyURL: process.env.ECPAY_LOGISTICS_CLIENT_URL,
-      LogisticsC2CReplyURL: process.env.ECPAY_CVS_STORE_REPLY_URL, // 必填參數
+      ServerReplyURL: safe(process.env.ECPAY_LOGISTICS_REPLY_URL),
+      ClientReplyURL: safe(process.env.ECPAY_LOGISTICS_CLIENT_URL),
+      LogisticsC2CReplyURL: safe(process.env.ECPAY_CVS_STORE_REPLY_URL),
       Remark: "",
       PlatformID: "",
-      ReceiverStoreID: storeID,
+      ReceiverStoreID: safe(storeID),
       ReturnStoreID: ""
     };
 
@@ -86,7 +89,7 @@ router.post('/print', async (req, res) => {
   }
 
   const base_param = {
-    AllPayLogisticsID,
+    AllPayLogisticsID: safe(AllPayLogisticsID),
     PlatformID: '',
   };
 
@@ -99,26 +102,24 @@ router.post('/print', async (req, res) => {
   }
 });
 
-// ✅ 導向綠界超商地圖選店（用於 C2C 或 FAMI 寄送）
+// ✅ 導向綠界超商地圖選店
 router.get('/cvs-map', (req, res) => {
   const map_param = {
-    MerchantID: process.env.PAY_MERCHANT_ID,
+    MerchantID: safe(process.env.PAY_MERCHANT_ID),
     LogisticsType: 'CVS',
     LogisticsSubType: 'FAMI',
     IsCollection: 'N',
-    ServerReplyURL: process.env.ECPAY_CVS_STORE_REPLY_URL,
+    ServerReplyURL: safe(process.env.ECPAY_CVS_STORE_REPLY_URL),
   };
 
   const html = createClient.cvs_map(map_param);
-  res.send(html); // ⬅️ 自動送出 POST 表單到綠界選店頁
+  res.send(html);
 });
 
-// ✅ 接收門市回傳（跳回你前端或存在後端 session）
+// ✅ 接收門市回傳
 router.post('/cvs-store-reply', (req, res) => {
   const storeInfo = req.body;
   console.log("🏪 門市資訊已回傳：", storeInfo);
-
-  // ➜ 可儲存至 session 或轉導前端
   res.redirect(`/store-selected?storeID=${storeInfo.CVSStoreID}&storeName=${storeInfo.CVSStoreName}`);
 });
 
