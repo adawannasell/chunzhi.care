@@ -39,7 +39,7 @@ router.post('/create-order', async (req, res) => {
       MerchantTradeNo: 'L' + Date.now(),
       MerchantTradeDate,
       LogisticsType: "CVS",
-      LogisticsSubType: "FAMIC2C", // ✅ C2C 模式
+      LogisticsSubType: "FAMI", // ✅ C2C 模式
       GoodsAmount: safe(parseInt(total) || 0),
       CollectionAmount: "0",
       IsCollection: "N",
