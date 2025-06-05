@@ -24,11 +24,8 @@
   </select>
 
   <!-- 📍 選擇門市 -->
-  <form id="mapForm" method="GET" action="/api/logistics/cvs-map" target="_blank">
-    <input type="hidden" name="subtype" id="subtypeInput" value="FAMI" />
-    <button type="submit">📍 選擇門市</button>
-    <p style="font-size: 0.9em; color: #666;">👉 選擇後將自動帶入門市代碼與名稱</p>
-  </form>
+  <button id="openMap">📍 選擇門市</button>
+  <p style="font-size: 0.9em; color: #666;">👉 選擇後將自動帶入門市代碼與名稱</p>
 
   <p id="selectedStore" style="font-weight: bold;"></p>
   <hr />
@@ -53,7 +50,6 @@
     const subtype = params.get('subtype') || 'FAMI';
 
     document.getElementById('logisticsSubType').value = subtype;
-    document.getElementById('subtypeInput').value = subtype;
     document.getElementById('hiddenSubType').value = subtype;
 
     if (storeID) {
@@ -64,8 +60,38 @@
 
     document.getElementById('logisticsSubType').addEventListener('change', (e) => {
       const selected = e.target.value;
-      document.getElementById('subtypeInput').value = selected;
       document.getElementById('hiddenSubType').value = selected;
+    });
+
+    document.getElementById('openMap').addEventListener('click', () => {
+      const subtype = document.getElementById('logisticsSubType').value;
+      const now = Date.now();
+      const form = document.createElement('form');
+      form.method = 'POST';
+      form.action = 'https://logistics-stage.ecpay.com.tw/Express/map';
+      form.target = '_blank';
+
+      const fields = {
+        MerchantID: '2000132',
+        MerchantTradeNo: 'MAP' + now,
+        LogisticsType: 'CVS',
+        LogisticsSubType: subtype,
+        IsCollection: 'N',
+        ServerReplyURL: 'https://chunzhi-care.onrender.com/api/logistics/cvs-store-reply',
+        ClientReplyURL: `https://chunzhi-care.onrender.com/logistics-test.html?subtype=${subtype}`
+      };
+
+      Object.entries(fields).forEach(([key, val]) => {
+        const input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = key;
+        input.value = val;
+        form.appendChild(input);
+      });
+
+      document.body.appendChild(form);
+      form.submit();
+      document.body.removeChild(form);
     });
 
     document.getElementById('logisticsForm').addEventListener('submit', async (e) => {
