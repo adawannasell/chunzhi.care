@@ -18,11 +18,58 @@
     <p class="text-sm leading-relaxed">
       我們已收到您的訂單！<br>
       訂單資訊將寄送至您的 Email，<br>
-      感謝您支持 <strong>春枝 Chun-Zhi</strong> 
+      感謝您支持 <strong>春枝 Chun-Zhi</strong>
     </p>
-    <a href="/" class="inline-block px-6 py-2 bg-green-700 hover:bg-green-800 text-white rounded-full text-sm font-semibold transition">
+
+    <div id="logistics-info" class="text-left text-sm bg-gray-100 p-4 rounded-md hidden">
+      <p><strong>物流單號：</strong><span id="logisticsIdText"></span></p>
+      <p><strong>寄件代碼：</strong><span id="paymentNoText"></span></p>
+      <p><strong>超商類型：</strong><span id="typeText"></span></p>
+    </div>
+
+    <div class="space-y-2">
+      <button onclick="printForm()" class="w-full px-4 py-2 bg-indigo-600 text-white rounded-full text-sm hover:bg-indigo-700 transition">
+        🖨 列印託運單
+      </button>
+      <button onclick="checkStatus()" class="w-full px-4 py-2 bg-gray-700 text-white rounded-full text-sm hover:bg-gray-800 transition">
+        📦 查詢物流狀態
+      </button>
+    </div>
+
+    <a href="/" class="inline-block mt-4 px-6 py-2 bg-green-700 hover:bg-green-800 text-white rounded-full text-sm font-semibold transition">
       回首頁
     </a>
   </div>
+
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const logisticsId = params.get('logisticsId');
+    const paymentNo = params.get('paymentNo');
+    const type = params.get('type');
+
+    // 顯示物流資訊區塊
+    if (logisticsId || paymentNo || type) {
+      document.getElementById('logistics-info').classList.remove('hidden');
+      document.getElementById('logisticsIdText').textContent = logisticsId || '—';
+      document.getElementById('paymentNoText').textContent = paymentNo || '—';
+      document.getElementById('typeText').textContent = type || '—';
+    }
+
+    function printForm() {
+      if (!logisticsId || !paymentNo || !type) {
+        alert('❗ 缺少列印必要參數');
+        return;
+      }
+      window.open(`/api/logistics/print/${logisticsId}/${paymentNo}/${type}`, '_blank');
+    }
+
+    function checkStatus() {
+      if (!logisticsId) {
+        alert('❗ 缺少物流查詢參數');
+        return;
+      }
+      window.open(`/api/logistics/status/${logisticsId}`, '_blank');
+    }
+  </script>
 </body>
 </html>

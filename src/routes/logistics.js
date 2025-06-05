@@ -5,6 +5,7 @@ require('dotenv').config();
 
 const logistics = new ECPayLogistics();
 const createClient = logistics.create_client;
+const queryClient = logistics.query_client;
 
 const safe = (v) => (v != null ? String(v) : '');
 const isValidChineseName = (name) => /^[\u4e00-\u9fa5]{2,5}$/.test(name);
@@ -75,7 +76,17 @@ router.post('/create-order', async (req, res) => {
       res.send(html);
     } else {
       html
-        .then(result => res.send(result))
+        .then((formHtml) => {
+          // ✅ 解析 ID 和代碼
+          const logisticsId = formHtml.match(/name="AllPayLogisticsID" value="(.*?)"/)?.[1];
+          const paymentNo = formHtml.match(/name="CVSPaymentNo" value="(.*?)"/)?.[1];
+
+          if (logisticsId && paymentNo) {
+            return res.redirect(`/thankyou.html?logisticsId=${logisticsId}&paymentNo=${paymentNo}&type=${safe(logisticsSubType)}`);
+          } else {
+            return res.status(500).send('🚨 建立成功但未能擷取物流編號');
+          }
+        })
         .catch(err => {
           console.error('❌ 建立物流表單錯誤:', err);
           res.status(500).send('🚨 建立物流訂單失敗');
@@ -101,16 +112,16 @@ router.get('/cvs-map', (req, res) => {
       <input type="hidden" name="LogisticsSubType" value="${subtype}" />
       <input type="hidden" name="IsCollection" value="N" />
       <input type="hidden" name="ServerReplyURL" value="https://chunzhi-care.onrender.com/api/logistics/cvs-store-reply" />
-      <input type="hidden" name="ClientReplyURL" value="https://chunzhi-care.onrender.com/logistics-test.html" />
+      <input type="hidden" name="ClientReplyURL" value="https://chunzhi-care.onrender.com/logistics-test.html?subtype=${subtype}" />
     </form>
     <script>document.getElementById('cvsMapForm').submit();</script>
   `);
 });
 
-// ✅ 接收門市資訊並帶入 subtype
+// ✅ 接收門市資訊
 router.post('/cvs-store-reply', (req, res) => {
   const storeInfo = req.body;
-  const subtype = storeInfo.LogisticsSubType || 'FAMI'; // ✅ 從回傳資料抓 subtype
+  const subtype = storeInfo.LogisticsSubType || 'FAMI';
 
   console.log("🏪 門市資訊已回傳：", storeInfo);
 
@@ -119,10 +130,55 @@ router.post('/cvs-store-reply', (req, res) => {
 
 // ✅ 感謝頁
 router.post('/thankyou', (req, res) => {
-  res.send(`
-    <h2>✅ 訂單已建立成功</h2>
-    <p>感謝您，請留意簡訊與物流通知。</p>
-  `);
+  res.redirect('/thankyou.html');
+});
+
+// ✅ 列印託運單
+router.get('/print/:logisticsId/:paymentNo/:type', (req, res) => {
+  const { logisticsId, paymentNo, type } = req.params;
+
+  const base_param = {
+    AllPayLogisticsID: logisticsId,
+    CVSPaymentNo: paymentNo,
+    PlatformID: ""
+  };
+
+  const fnMap = {
+    FAMI: logistics.c2c_process_client.printfamic2corderinfo,
+    UNIMART: logistics.c2c_process_client.printunimartc2corderinfo,
+    HILIFE: logistics.c2c_process_client.printhilifec2corderinfo
+  };
+
+  const fn = fnMap[type] || fnMap.FAMI;
+  const result = fn(base_param);
+
+  if (typeof result === 'string') {
+    res.send(result);
+  } else {
+    result
+      .then(html => res.send(html))
+      .catch(err => res.status(500).send('🚨 列印託運單失敗：' + err.message));
+  }
+});
+
+// ✅ 查詢物流狀態
+router.get('/status/:logisticsId', (req, res) => {
+  const { logisticsId } = req.params;
+
+  const base_param = {
+    AllPayLogisticsID: logisticsId,
+    PlatformID: ""
+  };
+
+  const result = queryClient.querylogisticstradeinfo(base_param);
+
+  if (typeof result === 'string') {
+    res.send(result);
+  } else {
+    result
+      .then(info => res.json(info))
+      .catch(err => res.status(500).send('🚨 查詢物流狀態失敗：' + err.message));
+  }
 });
 
 module.exports = router;
