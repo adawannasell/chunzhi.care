@@ -10,7 +10,7 @@ const queryClient = logistics.query_client;
 const safe = (v) => (v != null ? String(v) : '');
 const isValidChineseName = (name) => /^[\u4e00-\u9fa5]{2,5}$/.test(name);
 
-// ✅ 建立物流訂單（FAMI 全家 C2C 模式，測試用）
+// ✅ 建立物流訂單（正式帳號：2000132 + FAMI 模式）
 router.post('/create-order', async (req, res) => {
   try {
     const { name, phone, storeID, itemName, total } = req.body;
@@ -35,11 +35,11 @@ router.post('/create-order', async (req, res) => {
     });
 
     const base_param = {
-      MerchantID: "2000132", // ✅ 測試帳號
+      MerchantID: "2000132", // ✅ 正式帳號
       MerchantTradeNo: 'L' + Date.now(),
       MerchantTradeDate,
       LogisticsType: "CVS",
-      LogisticsSubType: "FAMI", // ✅ C2C 模式
+      LogisticsSubType: "FAMI", // ✅ 全家 B2C
       GoodsAmount: safe(parseInt(total) || 0),
       CollectionAmount: "0",
       IsCollection: "N",
@@ -51,13 +51,13 @@ router.post('/create-order', async (req, res) => {
       ReceiverPhone: "0222222222",
       ReceiverCellPhone: safe(phone),
       ReceiverEmail: "test@example.com",
-      TradeDesc: "全家 C2C 測試",
+      TradeDesc: "正式測試：全家 B2C",
       ServerReplyURL: "https://chunzhi-care.onrender.com/api/logistics/thankyou",
-      ClientReplyURL: "https://chunzhi-care.onrender.com/logistics-test.html",
+      ClientReplyURL: "https://chunzhi-care.onrender.com/api/logistics/thankyou", // ✅ 重要！不能用 .html
       LogisticsC2CReplyURL: "https://chunzhi-care.onrender.com/api/logistics/cvs-store-reply",
       Remark: "",
       PlatformID: "",
-      ReceiverStoreID: safe(storeID || "006598"), // ✅ 預設門市代碼
+      ReceiverStoreID: safe(storeID || "006598"),
       ReturnStoreID: ""
     };
 
@@ -82,19 +82,19 @@ router.post('/create-order', async (req, res) => {
   }
 });
 
-// ✅ 模擬超商選店 POST 地圖（不會出錯）
+// ✅ 正式帳號的地圖選店：2000132 + FAMI
 router.get('/cvs-map', (req, res) => {
   const MerchantTradeNo = 'MAP' + Date.now();
 
   res.send(`
     <form id="cvsMapForm" method="POST" action="https://logistics-stage.ecpay.com.tw/Express/map" target="_blank">
-      <input type="hidden" name="MerchantID" value="2000933" />
+      <input type="hidden" name="MerchantID" value="2000132" />
       <input type="hidden" name="MerchantTradeNo" value="${MerchantTradeNo}" />
       <input type="hidden" name="LogisticsType" value="CVS" />
-      <input type="hidden" name="LogisticsSubType" value="FAMIC2C" />
+      <input type="hidden" name="LogisticsSubType" value="FAMI" />
       <input type="hidden" name="IsCollection" value="N" />
       <input type="hidden" name="ServerReplyURL" value="https://chunzhi-care.onrender.com/api/logistics/cvs-store-reply" />
-      <input type="hidden" name="ClientReplyURL" value="https://chunzhi-care.onrender.com/logistics-test.html" />
+      <input type="hidden" name="ClientReplyURL" value="https://chunzhi-care.onrender.com/api/logistics/thankyou" />
     </form>
     <script>document.getElementById('cvsMapForm').submit();</script>
   `);
