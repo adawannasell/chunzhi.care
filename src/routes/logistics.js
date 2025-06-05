@@ -121,7 +121,7 @@ router.get('/cvs-map', (req, res) => {
     ServerReplyURL: safe(process.env.ECPAY_CVS_STORE_REPLY_URL),
   };
 
-  const html = createClient.cvs_map(map_param);
+  const html = logistics.cvs_map(map_param);
   res.send(html);
 });
 
