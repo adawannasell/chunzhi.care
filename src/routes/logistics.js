@@ -11,6 +11,12 @@ const queryClient = logistics.query_client;
 // ✅ 小工具函式：強制轉字串
 const safe = (v) => (v != null ? String(v) : '');
 
+// ✅ 驗證中文姓名（2–5字）
+const isValidChineseName = (name) => {
+  const regex = /^[\u4e00-\u9fa5]{2,5}$/;
+  return regex.test(name);
+};
+
 // ✅ 建立物流訂單（FAMI 全家 B2C 模式）
 router.post('/create-order', async (req, res) => {
   try {
@@ -20,7 +26,10 @@ router.post('/create-order', async (req, res) => {
       return res.status(400).send('❗ 請填寫完整欄位');
     }
 
-    // ✅ 正確格式的 MerchantTradeDate
+    if (!isValidChineseName(name)) {
+      return res.status(400).send('❗ 收件人姓名請輸入 2–5 個中文字');
+    }
+
     const date = new Date();
     const MerchantTradeDate = date.toLocaleString('zh-TW', {
       year: 'numeric',
