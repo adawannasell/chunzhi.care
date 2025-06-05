@@ -8,15 +8,14 @@ const createClient = logistics.create_client;
 const queryClient = logistics.query_client;
 
 const safe = (v) => (v != null ? String(v) : '');
-
 const isValidChineseName = (name) => /^[\u4e00-\u9fa5]{2,5}$/.test(name);
 
-// ✅ 建立物流訂單（FAMI 全家 B2C 模式）
+// ✅ 建立物流訂單（FAMI 全家 C2C 模式，測試用）
 router.post('/create-order', async (req, res) => {
   try {
     const { name, phone, storeID, itemName, total } = req.body;
 
-    if (!name || !phone || !storeID || !itemName || !total) {
+    if (!name || !phone || !itemName || !total) {
       return res.status(400).send('❗ 請填寫完整欄位');
     }
 
@@ -36,11 +35,11 @@ router.post('/create-order', async (req, res) => {
     });
 
     const base_param = {
-      MerchantID: safe(process.env.PAY_MERCHANT_ID),
+      MerchantID: "2000933", // ✅ 測試帳號
       MerchantTradeNo: 'L' + Date.now(),
       MerchantTradeDate,
       LogisticsType: "CVS",
-      LogisticsSubType: "FAMI",
+      LogisticsSubType: "FAMIC2C", // ✅ 改為可通過的 C2C 模式
       GoodsAmount: safe(parseInt(total) || 0),
       CollectionAmount: "0",
       IsCollection: "N",
@@ -52,13 +51,13 @@ router.post('/create-order', async (req, res) => {
       ReceiverPhone: "0222222222",
       ReceiverCellPhone: safe(phone),
       ReceiverEmail: "test@example.com",
-      TradeDesc: "全家 B2C 測試",
-      ServerReplyURL: safe(process.env.ECPAY_LOGISTICS_REPLY_URL),
-      ClientReplyURL: safe(process.env.ECPAY_LOGISTICS_CLIENT_URL),
-      LogisticsC2CReplyURL: safe(process.env.ECPAY_CVS_STORE_REPLY_URL),
+      TradeDesc: "全家 C2C 測試",
+      ServerReplyURL: "https://你的網址/api/logistics/thankyou",
+      ClientReplyURL: "https://你的網址/logistics-test.html",
+      LogisticsC2CReplyURL: "https://你的網址/api/logistics/cvs-store-reply",
       Remark: "",
       PlatformID: "",
-      ReceiverStoreID: safe(storeID),
+      ReceiverStoreID: safe(storeID || "006598"), // ✅ 預設測標門市代碼
       ReturnStoreID: ""
     };
 
@@ -83,54 +82,32 @@ router.post('/create-order', async (req, res) => {
   }
 });
 
-// ✅ 列印交貨便單據
-router.post('/print', async (req, res) => {
-  const { AllPayLogisticsID } = req.body;
-
-  if (!AllPayLogisticsID) {
-    return res.status(400).send('❗ 請提供物流交易編號 AllPayLogisticsID');
-  }
-
-  const base_param = {
-    AllPayLogisticsID: safe(AllPayLogisticsID),
-    PlatformID: '',
-  };
-
-  try {
-    const result = await queryClient.printTradeDocument(base_param);
-    res.send(result);
-  } catch (err) {
-    console.error('❌ 列印失敗:', err);
-    res.status(500).send('🚨 列印失敗');
-  }
-});
-
-// ✅ 導向綠界超商地圖選店（建議前端打這支 GET）
+// ✅ 模擬超商選店 POST 地圖（不會出錯）
 router.get('/cvs-map', (req, res) => {
   const MerchantTradeNo = 'MAP' + Date.now();
 
   res.send(`
-    <form id="cvsMapForm" method="POST" action="https://logistics-stage.ecpay.com.tw/Express/map">
-      <input type="hidden" name="MerchantID" value="${safe(process.env.PAY_MERCHANT_ID)}" />
+    <form id="cvsMapForm" method="POST" action="https://logistics-stage.ecpay.com.tw/Express/map" target="_blank">
+      <input type="hidden" name="MerchantID" value="2000933" />
       <input type="hidden" name="MerchantTradeNo" value="${MerchantTradeNo}" />
       <input type="hidden" name="LogisticsType" value="CVS" />
-      <input type="hidden" name="LogisticsSubType" value="FAMI" />
+      <input type="hidden" name="LogisticsSubType" value="FAMIC2C" />
       <input type="hidden" name="IsCollection" value="N" />
-      <input type="hidden" name="ServerReplyURL" value="${safe(process.env.ECPAY_CVS_STORE_REPLY_URL)}" />
-      <input type="hidden" name="ClientReplyURL" value="${safe(process.env.ECPAY_LOGISTICS_CLIENT_URL)}" />
+      <input type="hidden" name="ServerReplyURL" value="https://你的網址/api/logistics/cvs-store-reply" />
+      <input type="hidden" name="ClientReplyURL" value="https://你的網址/logistics-test.html" />
     </form>
     <script>document.getElementById('cvsMapForm').submit();</script>
   `);
 });
 
-// ✅ 接收門市回傳
+// ✅ 接收門市資訊
 router.post('/cvs-store-reply', (req, res) => {
   const storeInfo = req.body;
   console.log("🏪 門市資訊已回傳：", storeInfo);
   res.redirect(`/logistics-test.html?storeID=${storeInfo.CVSStoreID}&storeName=${encodeURIComponent(storeInfo.CVSStoreName)}`);
 });
 
-// ✅ 綠界物流建單完成後跳轉的感謝頁
+// ✅ 感謝頁
 router.post('/thankyou', (req, res) => {
   res.send(`
     <h2>✅ 訂單已建立成功</h2>
