@@ -17,11 +17,22 @@ router.post('/create-order', async (req, res) => {
       return res.status(400).send('❗ 請填寫完整欄位');
     }
 
+    // ✅ 正確格式的 MerchantTradeDate
+    const date = new Date();
+    const MerchantTradeDate = date.toLocaleString('zh-TW', {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+      hour12: false
+    }).replace(/\//g, '/');
+
     const base_param = {
       MerchantID: process.env.PAY_MERCHANT_ID,
       MerchantTradeNo: 'L' + Date.now(),
-      MerchantTradeDate: new Date().toISOString().slice(0, 19).replace('T', ' '),
-      LogisticsC2CReplyURL: process.env.ECPAY_CVS_STORE_REPLY_URL,
+      MerchantTradeDate,
       LogisticsType: "CVS",
       LogisticsSubType: "FAMI",
       GoodsAmount: parseInt(total) || 0,
@@ -38,6 +49,7 @@ router.post('/create-order', async (req, res) => {
       TradeDesc: "全家 B2C 測試",
       ServerReplyURL: process.env.ECPAY_LOGISTICS_REPLY_URL,
       ClientReplyURL: process.env.ECPAY_LOGISTICS_CLIENT_URL,
+      LogisticsC2CReplyURL: process.env.ECPAY_CVS_STORE_REPLY_URL, // 必填參數
       Remark: "",
       PlatformID: "",
       ReceiverStoreID: storeID,
@@ -94,11 +106,11 @@ router.get('/cvs-map', (req, res) => {
     LogisticsType: 'CVS',
     LogisticsSubType: 'FAMI',
     IsCollection: 'N',
-    ServerReplyURL: process.env.ECPAY_CVS_STORE_REPLY_URL, // ex: https://yourdomain.com/api/logistics/cvs-store-reply
+    ServerReplyURL: process.env.ECPAY_CVS_STORE_REPLY_URL,
   };
 
   const html = createClient.cvs_map(map_param);
-  res.send(html); // 自動送出 POST 表單到綠界選店頁
+  res.send(html); // ⬅️ 自動送出 POST 表單到綠界選店頁
 });
 
 // ✅ 接收門市回傳（跳回你前端或存在後端 session）
@@ -106,7 +118,7 @@ router.post('/cvs-store-reply', (req, res) => {
   const storeInfo = req.body;
   console.log("🏪 門市資訊已回傳：", storeInfo);
 
-  // ➜ 你可以把 storeInfo 存 session、DB 或直接跳轉帶參數
+  // ➜ 可儲存至 session 或轉導前端
   res.redirect(`/store-selected?storeID=${storeInfo.CVSStoreID}&storeName=${storeInfo.CVSStoreName}`);
 });
 
