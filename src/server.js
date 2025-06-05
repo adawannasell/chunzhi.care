@@ -102,8 +102,8 @@ app.post('/order', async (req, res) => {
 
   try {
     await pool.query(`
-      INSERT INTO orders (user_id, name, phone, email, address, note, cart_items)
-      VALUES ($1, $2, $3, $4, $5, $6, $7)
+       INSERT INTO orders (user_id, name, phone, email, address, note, cart_items, logistics_id, payment_no, logistics_subtype)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, null, null, null)
     `, [user_id, name, phone, email, address, note || '', JSON.stringify(items)]);
 
     const summary = items.map(i => `${i.name} x${i.qty}`).join('<br>');
@@ -219,6 +219,32 @@ app.get('/logout', (req, res, next) => {
 app.use((err, req, res, next) => {
   console.error('❌ 系統錯誤:', err.stack);
   res.status(500).send('🚨 系統錯誤，請稍後再試');
+});
+
+// ✅ 儲存物流資訊進資料庫
+app.post('/api/logistics/save-info', async (req, res) => {
+  const { email, logisticsId, paymentNo, logisticsSubType } = req.body;
+
+  if (!email || !logisticsId || !paymentNo || !logisticsSubType) {
+    return res.status(400).send('❗ 請填寫 email 與完整物流欄位');
+  }
+
+  try {
+    const result = await pool.query(`
+      UPDATE orders
+      SET logistics_id = $1,
+          payment_no = $2,
+          logistics_subtype = $3
+      WHERE email = $4
+      ORDER BY created_at DESC
+      LIMIT 1
+    `, [logisticsId, paymentNo, logisticsSubType, email]);
+
+    res.send('✅ 物流資訊已更新');
+  } catch (err) {
+    console.error('❌ 更新物流資訊失敗:', err);
+    res.status(500).send('🚨 系統錯誤，請稍後再試');
+  }
 });
 
 app.listen(PORT, () => {

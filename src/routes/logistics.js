@@ -108,7 +108,7 @@ router.get('/cvs-map', (req, res) => {
   `);
 });
 
-// ✅ 接收門市資訊並 redirect 帶 subtype
+// ✅ 接收門市資訊
 router.post('/cvs-store-reply', (req, res) => {
   const storeInfo = req.body;
   const subtype = storeInfo.LogisticsSubType || 'FAMI';
@@ -118,7 +118,7 @@ router.post('/cvs-store-reply', (req, res) => {
   res.redirect(`/logistics-test.html?storeID=${storeInfo.CVSStoreID}&storeName=${encodeURIComponent(storeInfo.CVSStoreName)}&subtype=${subtype}`);
 });
 
-// ✅ 感謝頁（自動 redirect 附帶物流資訊）
+// ✅ 感謝頁 redirect
 router.post('/thankyou', (req, res) => {
   const logisticsId = req.body.AllPayLogisticsID || '';
   const paymentNo = req.body.CVSPaymentNo || '';
@@ -158,12 +158,12 @@ router.get('/print/:logisticsId/:paymentNo/:type', (req, res) => {
   }
 });
 
-// ✅ 查詢物流狀態
+// ✅ 查詢物流狀態（修正格式錯誤）
 router.get('/status/:logisticsId', (req, res) => {
   const { logisticsId } = req.params;
 
   const base_param = {
-    AllPayLogisticsID: logisticsId,
+    AllPayLogisticsID: Number(logisticsId),  // ✅ 強制轉數字！
     PlatformID: ""
   };
 
