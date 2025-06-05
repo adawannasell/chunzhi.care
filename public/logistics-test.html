@@ -9,14 +9,16 @@
     button { padding: 8px 16px; }
     .success { color: green; margin-top: 20px; }
     .error { color: red; margin-top: 20px; }
+    .loading { color: #555; }
   </style>
 </head>
 <body>
   <h2>📦 建立物流訂單</h2>
 
-  <!-- 📍 選擇門市（開啟綠界選店地圖） -->
+  <!-- 📍 選擇門市 -->
   <form method="GET" action="/api/logistics/cvs-map" target="_blank">
     <button type="submit">📍 選擇門市</button>
+    <p style="font-size: 0.9em; color: #666;">👉 選擇後將自動帶入門市代碼與名稱</p>
   </form>
 
   <p id="selectedStore" style="font-weight: bold;"></p>
@@ -26,7 +28,7 @@
   <!-- 📝 AJAX 訂單建立表單 -->
   <form id="logisticsForm">
     <input name="name" placeholder="收件人姓名 (中文2~5字)" required />
-    <input name="phone" placeholder="手機號碼" pattern="09[0-9]{8}" required />
+    <input name="phone" placeholder="手機號碼 (例如 0912345678)" pattern="09[0-9]{8}" required />
     <input name="storeID" id="storeID" placeholder="門市代碼" required />
     <input name="itemName" placeholder="商品名稱" value="雪Q餅" required />
     <input name="total" placeholder="金額" value="399" required />
@@ -43,7 +45,7 @@
     if (storeID) {
       document.getElementById('storeID').value = storeID;
       document.getElementById('selectedStore').textContent =
-        `已選擇門市 ➜ ${storeName || ''}（代碼：${storeID}）`;
+        `已選擇門市 ➜ ${decodeURIComponent(storeName || '')}（代碼：${storeID}）`;
     }
 
     document.getElementById('logisticsForm').addEventListener('submit', async (e) => {
@@ -51,7 +53,8 @@
       const form = e.target;
       const data = Object.fromEntries(new FormData(form));
       const messageDiv = document.getElementById('message');
-      messageDiv.textContent = '📡 傳送中...';
+      messageDiv.className = 'loading';
+      messageDiv.textContent = '📡 傳送中...請稍候';
 
       try {
         const res = await fetch('/api/logistics/create-order', {
@@ -63,7 +66,7 @@
         const html = await res.text();
         if (res.ok) {
           messageDiv.className = 'success';
-          messageDiv.innerHTML = '✅ 訂單已送出，請查看畫面下方跳出的物流畫面';
+          messageDiv.innerHTML = '✅ 訂單已送出，請查看畫面跳出的物流畫面';
           const w = window.open();
           w.document.write(html);
         } else {

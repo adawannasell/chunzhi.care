@@ -3,19 +3,13 @@ const router = express.Router();
 const ECPayLogistics = require('ecpay-logistics');
 require('dotenv').config();
 
-// ✅ 建立 SDK client
 const logistics = new ECPayLogistics();
 const createClient = logistics.create_client;
 const queryClient = logistics.query_client;
 
-// ✅ 小工具函式：強制轉字串
 const safe = (v) => (v != null ? String(v) : '');
 
-// ✅ 驗證中文姓名（2–5字）
-const isValidChineseName = (name) => {
-  const regex = /^[\u4e00-\u9fa5]{2,5}$/;
-  return regex.test(name);
-};
+const isValidChineseName = (name) => /^[\u4e00-\u9fa5]{2,5}$/.test(name);
 
 // ✅ 建立物流訂單（FAMI 全家 B2C 模式）
 router.post('/create-order', async (req, res) => {
@@ -39,7 +33,7 @@ router.post('/create-order', async (req, res) => {
       minute: '2-digit',
       second: '2-digit',
       hour12: false
-    }).replace(/\//g, '/');
+    });
 
     const base_param = {
       MerchantID: safe(process.env.PAY_MERCHANT_ID),
@@ -111,18 +105,22 @@ router.post('/print', async (req, res) => {
   }
 });
 
-// ✅ 導向綠界超商地圖選店
+// ✅ 導向綠界超商地圖選店（建議前端打這支 GET）
 router.get('/cvs-map', (req, res) => {
-  const map_param = {
-    MerchantID: safe(process.env.PAY_MERCHANT_ID),
-    LogisticsType: 'CVS',
-    LogisticsSubType: 'FAMI',
-    IsCollection: 'N',
-    ServerReplyURL: safe(process.env.ECPAY_CVS_STORE_REPLY_URL),
-  };
+  const MerchantTradeNo = 'MAP' + Date.now();
 
-  const html = logistics.cvs_map(map_param);
-  res.send(html);
+  res.send(`
+    <form id="cvsMapForm" method="POST" action="https://logistics-stage.ecpay.com.tw/Express/map">
+      <input type="hidden" name="MerchantID" value="${safe(process.env.PAY_MERCHANT_ID)}" />
+      <input type="hidden" name="MerchantTradeNo" value="${MerchantTradeNo}" />
+      <input type="hidden" name="LogisticsType" value="CVS" />
+      <input type="hidden" name="LogisticsSubType" value="FAMI" />
+      <input type="hidden" name="IsCollection" value="N" />
+      <input type="hidden" name="ServerReplyURL" value="${safe(process.env.ECPAY_CVS_STORE_REPLY_URL)}" />
+      <input type="hidden" name="ClientReplyURL" value="${safe(process.env.ECPAY_LOGISTICS_CLIENT_URL)}" />
+    </form>
+    <script>document.getElementById('cvsMapForm').submit();</script>
+  `);
 });
 
 // ✅ 接收門市回傳
