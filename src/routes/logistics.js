@@ -132,4 +132,12 @@ router.post('/cvs-store-reply', (req, res) => {
   res.redirect(`/store-selected?storeID=${storeInfo.CVSStoreID}&storeName=${storeInfo.CVSStoreName}`);
 });
 
+// ✅ 綠界物流建單完成後跳轉的感謝頁
+router.post('/thankyou', (req, res) => {
+  res.send(`
+    <h2>✅ 訂單已建立成功</h2>
+    <p>感謝您，請留意簡訊與物流通知。</p>
+  `);
+});
+
 module.exports = router;
