@@ -39,7 +39,7 @@ router.post('/create-order', async (req, res) => {
       MerchantTradeNo: 'L' + Date.now(),
       MerchantTradeDate,
       LogisticsType: "CVS",
-      LogisticsSubType: "FAMIC2C", // ✅ 改為可通過的 C2C 模式
+      LogisticsSubType: "FAMIC2C", // ✅ C2C 模式
       GoodsAmount: safe(parseInt(total) || 0),
       CollectionAmount: "0",
       IsCollection: "N",
@@ -52,12 +52,12 @@ router.post('/create-order', async (req, res) => {
       ReceiverCellPhone: safe(phone),
       ReceiverEmail: "test@example.com",
       TradeDesc: "全家 C2C 測試",
-      ServerReplyURL: "https://你的網址/api/logistics/thankyou",
-      ClientReplyURL: "https://你的網址/logistics-test.html",
-      LogisticsC2CReplyURL: "https://你的網址/api/logistics/cvs-store-reply",
+      ServerReplyURL: "https://chunzhi-care.onrender.com/api/logistics/thankyou",
+      ClientReplyURL: "https://chunzhi-care.onrender.com/logistics-test.html",
+      LogisticsC2CReplyURL: "https://chunzhi-care.onrender.com/api/logistics/cvs-store-reply",
       Remark: "",
       PlatformID: "",
-      ReceiverStoreID: safe(storeID || "006598"), // ✅ 預設測標門市代碼
+      ReceiverStoreID: safe(storeID || "006598"), // ✅ 預設門市代碼
       ReturnStoreID: ""
     };
 
@@ -93,8 +93,8 @@ router.get('/cvs-map', (req, res) => {
       <input type="hidden" name="LogisticsType" value="CVS" />
       <input type="hidden" name="LogisticsSubType" value="FAMIC2C" />
       <input type="hidden" name="IsCollection" value="N" />
-      <input type="hidden" name="ServerReplyURL" value="https://你的網址/api/logistics/cvs-store-reply" />
-      <input type="hidden" name="ClientReplyURL" value="https://你的網址/logistics-test.html" />
+      <input type="hidden" name="ServerReplyURL" value="https://chunzhi-care.onrender.com/api/logistics/cvs-store-reply" />
+      <input type="hidden" name="ClientReplyURL" value="https://chunzhi-care.onrender.com/logistics-test.html" />
     </form>
     <script>document.getElementById('cvsMapForm').submit();</script>
   `);
