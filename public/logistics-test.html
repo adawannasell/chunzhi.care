@@ -5,7 +5,7 @@
   <title>物流訂單建立</title>
   <style>
     body { font-family: sans-serif; padding: 20px; line-height: 1.6; }
-    input { margin: 6px 0; padding: 6px; width: 100%; max-width: 400px; }
+    input, select { margin: 6px 0; padding: 6px; width: 100%; max-width: 400px; }
     button { padding: 8px 16px; }
     .success { color: green; margin-top: 20px; }
     .error { color: red; margin-top: 20px; }
@@ -15,14 +15,22 @@
 <body>
   <h2>📦 建立物流訂單</h2>
 
+  <!-- 🔽 選擇超商 -->
+  <label>選擇超商：</label>
+  <select id="logisticsSubType">
+    <option value="FAMI">全家</option>
+    <option value="UNIMART">7-11</option>
+    <option value="HILIFE">萊爾富</option>
+  </select>
+
   <!-- 📍 選擇門市 -->
-  <form method="GET" action="/api/logistics/cvs-map" target="_blank">
+  <form id="mapForm" method="GET" action="/api/logistics/cvs-map" target="_blank">
+    <input type="hidden" name="subtype" id="subtypeInput" value="FAMI" />
     <button type="submit">📍 選擇門市</button>
     <p style="font-size: 0.9em; color: #666;">👉 選擇後將自動帶入門市代碼與名稱</p>
   </form>
 
   <p id="selectedStore" style="font-weight: bold;"></p>
-
   <hr />
 
   <!-- 📝 AJAX 訂單建立表單 -->
@@ -32,6 +40,7 @@
     <input name="storeID" id="storeID" placeholder="門市代碼" required />
     <input name="itemName" placeholder="商品名稱" value="雪Q餅" required />
     <input name="total" placeholder="金額" value="399" required />
+    <input type="hidden" name="logisticsSubType" id="hiddenSubType" value="FAMI" />
     <button type="submit">✅ 送出物流訂單</button>
   </form>
 
@@ -41,12 +50,23 @@
     const params = new URLSearchParams(location.search);
     const storeID = params.get('storeID');
     const storeName = params.get('storeName');
+    const subtype = params.get('subtype') || 'FAMI';
+
+    document.getElementById('logisticsSubType').value = subtype;
+    document.getElementById('subtypeInput').value = subtype;
+    document.getElementById('hiddenSubType').value = subtype;
 
     if (storeID) {
       document.getElementById('storeID').value = storeID;
       document.getElementById('selectedStore').textContent =
         `已選擇門市 ➜ ${decodeURIComponent(storeName || '')}（代碼：${storeID}）`;
     }
+
+    document.getElementById('logisticsSubType').addEventListener('change', (e) => {
+      const selected = e.target.value;
+      document.getElementById('subtypeInput').value = selected;
+      document.getElementById('hiddenSubType').value = selected;
+    });
 
     document.getElementById('logisticsForm').addEventListener('submit', async (e) => {
       e.preventDefault();
