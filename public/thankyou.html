@@ -28,9 +28,6 @@
     </div>
 
     <div class="space-y-2">
-      <button onclick="printForm()" class="w-full px-4 py-2 bg-indigo-600 text-white rounded-full text-sm hover:bg-indigo-700 transition">
-        🖨 列印託運單
-      </button>
       <button onclick="checkStatus()" class="w-full px-4 py-2 bg-gray-700 text-white rounded-full text-sm hover:bg-gray-800 transition">
         📦 查詢物流狀態
       </button>
@@ -47,20 +44,11 @@
     const paymentNo = params.get('paymentNo');
     const type = params.get('type');
 
-    // 顯示物流資訊區塊
     if (logisticsId || paymentNo || type) {
       document.getElementById('logistics-info').classList.remove('hidden');
       document.getElementById('logisticsIdText').textContent = logisticsId || '—';
       document.getElementById('paymentNoText').textContent = paymentNo || '—';
       document.getElementById('typeText').textContent = type || '—';
-    }
-
-    function printForm() {
-      if (!logisticsId || !paymentNo || !type) {
-        alert('❗ 缺少列印必要參數');
-        return;
-      }
-      window.open(`/api/logistics/print/${logisticsId}/${paymentNo}/${type}`, '_blank');
     }
 
     function checkStatus() {
