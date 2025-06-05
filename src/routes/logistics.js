@@ -76,17 +76,7 @@ router.post('/create-order', async (req, res) => {
       res.send(html);
     } else {
       html
-        .then((formHtml) => {
-          // ✅ 解析 ID 和代碼
-          const logisticsId = formHtml.match(/name="AllPayLogisticsID" value="(.*?)"/)?.[1];
-          const paymentNo = formHtml.match(/name="CVSPaymentNo" value="(.*?)"/)?.[1];
-
-          if (logisticsId && paymentNo) {
-            return res.redirect(`/thankyou.html?logisticsId=${logisticsId}&paymentNo=${paymentNo}&type=${safe(logisticsSubType)}`);
-          } else {
-            return res.status(500).send('🚨 建立成功但未能擷取物流編號');
-          }
-        })
+        .then(result => res.send(result))
         .catch(err => {
           console.error('❌ 建立物流表單錯誤:', err);
           res.status(500).send('🚨 建立物流訂單失敗');
@@ -99,7 +89,7 @@ router.post('/create-order', async (req, res) => {
   }
 });
 
-// ✅ 多超商選店地圖
+// ✅ 選店地圖
 router.get('/cvs-map', (req, res) => {
   const subtype = req.query.subtype || 'FAMI';
   const MerchantTradeNo = 'MAP' + Date.now();
@@ -118,7 +108,7 @@ router.get('/cvs-map', (req, res) => {
   `);
 });
 
-// ✅ 接收門市資訊
+// ✅ 接收門市資訊並 redirect 帶 subtype
 router.post('/cvs-store-reply', (req, res) => {
   const storeInfo = req.body;
   const subtype = storeInfo.LogisticsSubType || 'FAMI';
@@ -128,9 +118,16 @@ router.post('/cvs-store-reply', (req, res) => {
   res.redirect(`/logistics-test.html?storeID=${storeInfo.CVSStoreID}&storeName=${encodeURIComponent(storeInfo.CVSStoreName)}&subtype=${subtype}`);
 });
 
-// ✅ 感謝頁
+// ✅ 感謝頁（自動 redirect 附帶物流資訊）
 router.post('/thankyou', (req, res) => {
-  res.redirect('/thankyou.html');
+  const logisticsId = req.body.AllPayLogisticsID || '';
+  const paymentNo = req.body.CVSPaymentNo || '';
+  const type = req.body.LogisticsSubType || 'FAMI';
+
+  const redirectUrl = `/thankyou.html?logisticsId=${encodeURIComponent(logisticsId)}&paymentNo=${encodeURIComponent(paymentNo)}&type=${encodeURIComponent(type)}`;
+  console.log('✅ Redirecting to:', redirectUrl);
+
+  res.redirect(redirectUrl);
 });
 
 // ✅ 列印託運單
