@@ -3,13 +3,7 @@ const router = express.Router();
 const ECPayLogistics = require('ecpay-logistics');
 require('dotenv').config();
 
-// ✅ 使用綠界 C2C 測試帳號
-const logistics = new ECPayLogistics({
-  MerchantID: "2000132",
-  HashKey: "XBERn1YOvpM9nfZc",
-  HashIV: "h1ONHk4P4yqbl5LK",
-  env: "stage"
-});
+const logistics = new ECPayLogistics();
 const createClient = logistics.create_client;
 const queryClient = logistics.query_client;
 
@@ -41,11 +35,11 @@ router.post('/create-order', async (req, res) => {
     });
 
     const base_param = {
-      MerchantID: "2000132", // ✅ C2C 測試帳號
+      MerchantID: "2000132", // ✅ 測試帳號
       MerchantTradeNo: 'L' + Date.now(),
       MerchantTradeDate,
       LogisticsType: "CVS",
-      LogisticsSubType: "FAMIC2C",
+      LogisticsSubType: "FAMIC2C", // ✅ C2C 模式
       GoodsAmount: safe(parseInt(total) || 0),
       CollectionAmount: "0",
       IsCollection: "N",
@@ -63,7 +57,7 @@ router.post('/create-order', async (req, res) => {
       LogisticsC2CReplyURL: "https://chunzhi-care.onrender.com/api/logistics/cvs-store-reply",
       Remark: "",
       PlatformID: "",
-      ReceiverStoreID: safe(storeID || "006598"),
+      ReceiverStoreID: safe(storeID || "006598"), // ✅ 預設門市代碼
       ReturnStoreID: ""
     };
 
@@ -94,7 +88,7 @@ router.get('/cvs-map', (req, res) => {
 
   res.send(`
     <form id="cvsMapForm" method="POST" action="https://logistics-stage.ecpay.com.tw/Express/map" target="_blank">
-      <input type="hidden" name="MerchantID" value="2000132" />
+      <input type="hidden" name="MerchantID" value="2000933" />
       <input type="hidden" name="MerchantTradeNo" value="${MerchantTradeNo}" />
       <input type="hidden" name="LogisticsType" value="CVS" />
       <input type="hidden" name="LogisticsSubType" value="FAMIC2C" />
