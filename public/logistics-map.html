@@ -2,51 +2,97 @@
 <html lang="zh-Hant">
 <head>
   <meta charset="UTF-8">
-  <title>選擇超商門市</title>
+  <title>物流訂單建立</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <style>
-    body { font-family: sans-serif; }
-  </style>
 </head>
 <body class="bg-[#fdfaf5] text-[#1a1a1a] px-4 py-12">
-  <div class="max-w-xl mx-auto bg-white shadow rounded p-6">
-    <h1 class="text-xl font-bold mb-4 text-center">🏪 選擇取貨門市</h1>
-    <p class="mb-6 text-sm text-gray-700">請點選下方按鈕開啟綠界地圖，選擇您想取貨的超商門市。</p>
+  <div class="max-w-xl mx-auto bg-white shadow rounded p-6 space-y-6">
+    <h1 class="text-2xl font-bold text-center">📦 建立物流訂單</h1>
 
-    <button id="open-map" class="w-full bg-green-700 text-white py-3 rounded font-semibold hover:bg-green-800 transition">
-      開啟門市選擇地圖
-    </button>
+    <!-- 👉 選擇門市按鈕 -->
+    <form method="POST" action="https://logistics-stage.ecpay.com.tw/Express/map" target="_blank" class="space-y-2">
+      <input type="hidden" name="MerchantID" value="2000933" />
+      <input type="hidden" name="MerchantTradeNo" value="MAP123456789" />
+      <input type="hidden" name="LogisticsType" value="CVS" />
+      <input type="hidden" name="LogisticsSubType" value="FAMIC2C" />
+      <input type="hidden" name="IsCollection" value="N" />
+      <input type="hidden" name="ServerReplyURL" value="https://chunzhi-care.onrender.com/api/logistics/cvs-store-reply" />
+      <input type="hidden" name="ClientReplyURL" value="https://chunzhi-care.onrender.com/logistics-test.html" />
+      <button type="submit" class="w-full bg-green-700 text-white py-3 rounded hover:bg-green-800 transition">
+        📍 開啟門市選擇地圖
+      </button>
+      <p class="text-xs text-gray-600 text-center">＊測試模式中，畫面為靜態不可選</p>
+    </form>
 
-    <div id="result" class="mt-6 text-sm text-gray-800 space-y-1"></div>
+    <!-- ✅ 顯示已選門市 -->
+    <div id="selectedStore" class="text-sm text-gray-800 font-semibold"></div>
+
+    <hr>
+
+    <!-- 📝 建立物流訂單表單 -->
+    <form id="logisticsForm" class="space-y-4">
+      <input name="name" placeholder="收件人姓名 (中文2~5字)" required class="border rounded w-full px-3 py-2" />
+      <input name="phone" placeholder="手機號碼 (例如 0912345678)" pattern="09[0-9]{8}" required class="border rounded w-full px-3 py-2" />
+      <input name="storeID" id="storeID" placeholder="門市代碼" required class="border rounded w-full px-3 py-2" />
+      <input name="itemName" placeholder="商品名稱" value="雪Q餅" required class="border rounded w-full px-3 py-2" />
+      <input name="total" placeholder="金額" value="399" required class="border rounded w-full px-3 py-2" />
+      <button type="submit" class="w-full bg-blue-600 text-white py-3 rounded hover:bg-blue-700 transition">
+        ✅ 送出物流訂單
+      </button>
+    </form>
+
+    <div id="message" class="text-sm mt-4"></div>
   </div>
 
   <script>
-    document.getElementById('open-map').addEventListener('click', () => {
-      const url = `https://logistics-stage.ecpay.com.tw/Express/map` +
-        `?MerchantID=2000132` +  // 測試帳號固定寫死
-        `&LogisticsType=CVS` +
-        `&LogisticsSubType=OKMart` +
-        `&IsCollection=NO` +
-        `&ServerReplyURL=${encodeURIComponent(window.location.origin + '/logistics-map-reply.html')}`;
+    // 讀取 URL 參數（如選完門市後回跳）
+    const params = new URLSearchParams(location.search);
+    const storeID = params.get('storeID');
+    const storeName = params.get('storeName');
 
-      window.open(url, 'ecpayMapWindow', 'width=500,height=600');
-    });
+    if (storeID) {
+      document.getElementById('storeID').value = storeID;
+      document.getElementById('selectedStore').innerHTML =
+        `📍 已選擇門市：<strong>${decodeURIComponent(storeName || '')}</strong>（代碼：${storeID}）`;
+    }
 
-    // 接收選完門市的資料
-    window.addEventListener('message', function (e) {
-      if (typeof e.data === 'string' && e.data.includes('CVSStoreID')) {
-        const params = new URLSearchParams(e.data);
-        const storeInfo = {
-          店名: params.get('CVSStoreName'),
-          地址: params.get('CVSAddress'),
-          門市代碼: params.get('CVSStoreID')
-        };
+    // 表單送出後送出建單請求
+    document.getElementById('logisticsForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const form = e.target;
+      const data = Object.fromEntries(new FormData(form));
+      const messageDiv = document.getElementById('message');
+      messageDiv.className = 'text-gray-600';
+      messageDiv.textContent = '📡 傳送中...';
 
-        const output = Object.entries(storeInfo).map(([k, v]) => `<div><strong>${k}：</strong>${v}</div>`).join('');
-        document.getElementById('result').innerHTML = output;
+      try {
+        const res = await fetch('/api/logistics/create-order', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data),
+        });
+
+        const html = await res.text();
+        if (res.ok) {
+          messageDiv.className = 'text-green-600';
+          messageDiv.innerHTML = '✅ 訂單已送出，物流畫面已開啟';
+          const w = window.open('', '_blank');
+          if (w) {
+            w.document.write(html);
+            w.document.close();
+          } else {
+            messageDiv.innerHTML += '<br>⚠️ 無法開新視窗，請檢查瀏覽器是否封鎖彈窗';
+          }
+        } else {
+          messageDiv.className = 'text-red-600';
+          messageDiv.textContent = '🚨 發生錯誤：' + html;
+        }
+      } catch (err) {
+        messageDiv.className = 'text-red-600';
+        messageDiv.textContent = '🚨 系統錯誤：' + err.message;
       }
-    }, false);
+    });
   </script>
 </body>
 </html>
