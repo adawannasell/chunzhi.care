@@ -129,7 +129,7 @@ router.get('/cvs-map', (req, res) => {
 router.post('/cvs-store-reply', (req, res) => {
   const storeInfo = req.body;
   console.log("🏪 門市資訊已回傳：", storeInfo);
-  res.redirect(`/store-selected?storeID=${storeInfo.CVSStoreID}&storeName=${storeInfo.CVSStoreName}`);
+  res.redirect(`/logistics-test.html?storeID=${storeInfo.CVSStoreID}&storeName=${encodeURIComponent(storeInfo.CVSStoreName)}`);
 });
 
 // ✅ 綠界物流建單完成後跳轉的感謝頁
