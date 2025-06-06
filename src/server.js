@@ -98,15 +98,22 @@ passport.use(new LineStrategy({
   }
 }));
 
+function generateOrderNumber(date = new Date()) {
+  const yyyyMMdd = date.toISOString().slice(0, 10).replace(/-/g, '');
+  const randomNum = Math.floor(Math.random() * 9000 + 1000);
+  return `ORD${yyyyMMdd}${randomNum}`;
+}
+
 app.post('/order', async (req, res) => {
   const { name, phone, email, address, note, items } = req.body;
   const user_id = req.user?.id || null;
+  const orderNumber = generateOrderNumber();
 
   try {
     await pool.query(`
-       INSERT INTO orders (user_id, name, phone, email, address, note, cart_items, logistics_id, payment_no, logistics_subtype)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, null, null, null)
-    `, [user_id, name, phone, email, address, note || '', JSON.stringify(items)]);
+       INSERT INTO orders (order_number, user_id, name, phone, email, address, note, cart_items, logistics_id, payment_no, logistics_subtype)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, null, null, null)
+    `, [orderNumber, user_id, name, phone, email, address, note || '', JSON.stringify(items)]);
 
     const summary = items.map(i => `${i.name} x${i.qty}`).join('<br>');
     const resend = new Resend(process.env.RESEND_API_KEY);
@@ -117,7 +124,7 @@ app.post('/order', async (req, res) => {
       subject: '感謝您的訂購',
       html: `
         <h2>親愛的 ${name}，您好：</h2>
-        <p>我們已收到您的訂單，以下是您訂購的商品：</p>
+        <p>我們已收到您的訂單（編號：${orderNumber}），以下是您訂購的商品：</p>
         <p>${summary}</p>
         <p>我們將盡快為您安排出貨，感謝您的支持！</p>
         <br><p>— 愛妲生活</p>

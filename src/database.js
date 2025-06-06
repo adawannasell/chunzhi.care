@@ -27,6 +27,7 @@ const initDB = async () => {
   const createOrdersTableSQL = `
     CREATE TABLE IF NOT EXISTS orders (
       id SERIAL PRIMARY KEY,
+      order_number VARCHAR(32) UNIQUE,               -- ✅ 訂單編號
       user_id INTEGER REFERENCES users(id) ON DELETE SET NULL,
       name VARCHAR(100) NOT NULL,
       email VARCHAR(100),
@@ -37,6 +38,9 @@ const initDB = async () => {
       status VARCHAR(20) DEFAULT '未出貨',
       payment_status VARCHAR(20) DEFAULT '未付款',
       tracking_number VARCHAR(100),
+      logistics_id VARCHAR(100),
+      payment_no VARCHAR(100),
+      logistics_subtype VARCHAR(50),
       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     );
   `;
@@ -45,6 +49,7 @@ const initDB = async () => {
     CREATE INDEX IF NOT EXISTS idx_orders_user_id ON orders(user_id);
     CREATE INDEX IF NOT EXISTS idx_orders_status ON orders(status);
     CREATE INDEX IF NOT EXISTS idx_orders_payment_status ON orders(payment_status);
+    CREATE INDEX IF NOT EXISTS idx_orders_order_number ON orders(order_number);
   `;
 
   try {
