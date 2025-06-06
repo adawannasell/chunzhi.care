@@ -8,15 +8,16 @@ const LineStrategy = require('passport-line-auth').Strategy;
 const dotenv = require('dotenv');
 const { pool, initDB } = require('./database');
 const { Resend } = require('resend');
+const { DateTime } = require('luxon'); 
+
+dotenv.config();
+initDB();
 
 const emailRoutes = require('./routes/email');
 const recommendRoute = require('./routes/recommend');
 const ecpayRoute = require('./routes/ecpay');
 const logisticsRoute = require('./routes/logistics');
 const returnImartRoute = require('./routes/return-imart');
-
-dotenv.config();
-initDB();
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -98,21 +99,29 @@ passport.use(new LineStrategy({
   }
 }));
 
-function generateOrderNumber(date = new Date()) {
-  const yyyyMMdd = date.toISOString().slice(0, 10).replace(/-/g, '');
-  const randomNum = Math.floor(Math.random() * 9000 + 1000);
-  return `ORD${yyyyMMdd}${randomNum}`;
+async function generateOrderNumber() {
+  const taipei = DateTime.now().setZone('Asia/Taipei');
+  const yyyyMMdd = taipei.toFormat('yyyyLLdd'); // = 20250606
+  const prefix = `R${yyyyMMdd}`;
+
+  const result = await pool.query(
+    `SELECT COUNT(*) FROM orders WHERE TO_CHAR(created_at AT TIME ZONE 'Asia/Taipei', 'YYYYMMDD') = $1`,
+    [yyyyMMdd]
+  );
+  const count = parseInt(result.rows[0].count, 10) + 1;
+  const padded = count.toString().padStart(4, '0');
+  return `${prefix}${padded}`;
 }
 
 app.post('/order', async (req, res) => {
   const { name, phone, email, address, note, items } = req.body;
   const user_id = req.user?.id || null;
-  const orderNumber = generateOrderNumber();
+  const orderNumber = await generateOrderNumber();
 
   try {
     await pool.query(`
-       INSERT INTO orders (order_number, user_id, name, phone, email, address, note, cart_items, logistics_id, payment_no, logistics_subtype)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, null, null, null)
+      INSERT INTO orders (order_number, user_id, name, phone, email, address, note, cart_items, logistics_id, payment_no, logistics_subtype)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, null, null, null)
     `, [orderNumber, user_id, name, phone, email, address, note || '', JSON.stringify(items)]);
 
     const summary = items.map(i => `${i.name} x${i.qty}`).join('<br>');
@@ -216,7 +225,7 @@ app.get('/admin', async (req, res) => {
                     <a href="/api/logistics/status/${o.logistics_id}" target="_blank">📦查詢</a>
                   </div>
                 </td>
-                <td>${new Date(o.created_at).toLocaleString()}</td>
+                <td>${DateTime.fromISO(o.created_at.toISOString()).setZone('Asia/Taipei').toFormat('yyyy/MM/dd HH:mm')}</td>
               </tr>
             `).join('')}
           </tbody>
