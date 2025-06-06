@@ -25,30 +25,33 @@
     <p>support@chunzhi.com｜@chunzhi_care</p>
   </footer>
 
-  <script>
-    // 先確認登入狀態
-    fetch('/me')
-      .then(res => res.json())
-      .then(user => {
-        if (!user.name) {
-          window.location.href = '/login.html';
-          return;
-        }
+ <script>
+  fetch('/me')
+    .then(res => res.json())
+    .then(user => {
+      if (!user.name) {
+        window.location.href = '/login.html';
+        return;
+      }
 
-        // 再載入訂單資料
-        fetch('/api/orders')
-          .then(res => res.json())
-          .then(data => {
-            const container = document.getElementById('orders');
-            if (!data.length) {
-              container.innerHTML = '<p>目前沒有訂單紀錄。</p>';
-              return;
-            }
+      fetch('/api/orders')
+        .then(res => res.json())
+        .then(data => {
+          const container = document.getElementById('orders');
+          if (!data.length) {
+            container.innerHTML = '<p>目前沒有訂單紀錄。</p>';
+            return;
+          }
 
-            container.innerHTML = data.map(order => `
+          container.innerHTML = data.map(order => {
+            const logisticsHtml = order.logistics_id
+              ? `<button onclick="checkLogistics('${order.logistics_id}')" class="mt-2 px-3 py-1 bg-gray-700 text-white rounded text-xs hover:bg-gray-800">📦 查詢物流</button>`
+              : '<p class="text-sm text-gray-400 mt-2">尚無物流資訊</p>';
+
+            return `
               <div class="border border-gray-200 rounded-lg p-4">
                 <p class="text-sm"><strong>訂購日期：</strong> ${new Date(order.created_at).toLocaleString()}</p>
-                <p class="text-sm mt-1"><strong>訂購人：</strong> ${order.name}</p>
+                <p class="text-sm"><strong>訂購人：</strong> ${order.name}</p>
                 <p class="text-sm"><strong>收件地址：</strong> ${order.address}</p>
                 <p class="text-sm"><strong>備註：</strong> ${order.note || '無'}</p>
                 <p class="text-sm"><strong>狀態：</strong> ${order.status}</p>
@@ -56,17 +59,28 @@
                 <ul class="list-disc list-inside">
                   ${order.cart_items.map(item => `<li>${item.name} x${item.qty}</li>`).join('')}
                 </ul>
+                ${logisticsHtml}
               </div>
-            `).join('');
-          })
-          .catch(err => {
-            console.error('❌ 載入失敗:', err);
-            document.getElementById('orders').innerHTML = '<p class="text-red-600">無法載入訂單資料，請稍後再試。</p>';
-          });
-      })
-      .catch(() => {
-        window.location.href = '/login.html';
-      });
-  </script>
+            `;
+          }).join('');
+        })
+        .catch(err => {
+          console.error('❌ 載入失敗:', err);
+          document.getElementById('orders').innerHTML = '<p class="text-red-600">無法載入訂單資料，請稍後再試。</p>';
+        });
+    })
+    .catch(() => {
+      window.location.href = '/login.html';
+    });
+
+  function checkLogistics(logisticsId) {
+    if (!logisticsId) {
+      alert('❗ 缺少物流單號');
+      return;
+    }
+    window.open(`/api/logistics/status/${logisticsId}`, '_blank');
+  }
+</script>
+
 </body>
 </html>
