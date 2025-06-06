@@ -13,6 +13,7 @@ const emailRoutes = require('./routes/email');
 const recommendRoute = require('./routes/recommend');
 const ecpayRoute = require('./routes/ecpay');
 const logisticsRoute = require('./routes/logistics');
+const returnImartRoute = require('./routes/return-imart');
 
 dotenv.config();
 initDB();
@@ -36,6 +37,7 @@ app.use('/api', recommendRoute);
 app.use('/api/ecpay', ecpayRoute);
 app.use('/health', (req, res) => res.send('ok'));
 app.use('/api/logistics', logisticsRoute);
+app.use('/api/logistics', returnImartRoute);
 
 passport.serializeUser((user, done) => {
   done(null, user.provider_id);
