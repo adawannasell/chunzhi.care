@@ -101,12 +101,12 @@ passport.use(new LineStrategy({
 
 async function generateOrderNumber() {
   const taipei = DateTime.now().setZone('Asia/Taipei');
-  const yyyyMMdd = taipei.toFormat('yyyyLLdd'); // = 20250606
-  const prefix = `R${yyyyMMdd}`;
+  const shortDate = taipei.toFormat('yyLLdd'); // e.g., "250606"
+  const prefix = `R${shortDate}`;
 
   const result = await pool.query(
-    `SELECT COUNT(*) FROM orders WHERE TO_CHAR(created_at AT TIME ZONE 'Asia/Taipei', 'YYYYMMDD') = $1`,
-    [yyyyMMdd]
+    `SELECT COUNT(*) FROM orders WHERE TO_CHAR(created_at AT TIME ZONE 'Asia/Taipei', 'YYMMDD') = $1`,
+    [shortDate]
   );
   const count = parseInt(result.rows[0].count, 10) + 1;
   const padded = count.toString().padStart(4, '0');
