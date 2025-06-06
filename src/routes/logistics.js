@@ -1,3 +1,4 @@
+const fetch = require('node-fetch'); // 👈 一定要加這行才能用 fetch
 const express = require('express');
 const router = express.Router();
 const ECPayLogistics = require('ecpay-logistics');
@@ -119,10 +120,26 @@ router.post('/cvs-store-reply', (req, res) => {
 });
 
 // ✅ 感謝頁 redirect
-router.post('/thankyou', (req, res) => {
+router.post('/thankyou', async (req, res) => {
   const logisticsId = req.body.AllPayLogisticsID || '';
   const paymentNo = req.body.CVSPaymentNo || '';
   const type = req.body.LogisticsSubType || 'FAMI';
+  const email = req.body.ReceiverEmail || '';
+
+  try {
+    await fetch('https://chunzhi-care.onrender.com/api/logistics/save-info', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        email,
+        logisticsId,
+        paymentNo,
+        logisticsSubType: type
+      })
+    });
+  } catch (err) {
+    console.error('❌ 自動寫入物流資訊失敗:', err);
+  }
 
   const redirectUrl = `/thankyou.html?logisticsId=${encodeURIComponent(logisticsId)}&paymentNo=${encodeURIComponent(paymentNo)}&type=${encodeURIComponent(type)}`;
   console.log('✅ Redirecting to:', redirectUrl);

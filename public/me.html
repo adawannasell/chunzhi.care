@@ -23,9 +23,11 @@
       <a href="/logout" class="block hover:text-green-700">登出</a>
     </aside>
 
-    <!-- 會員資料 -->
+    <!-- 主區塊 -->
     <main class="w-full md:w-3/4 space-y-6 text-sm">
       <h1 class="text-xl font-bold mb-2">會員中心</h1>
+      
+      <!-- 會員資訊 -->
       <div class="space-y-4">
         <div>
           <p><span class="font-semibold">姓名：</span><span id="name">載入中...</span></p>
@@ -40,14 +42,19 @@
         </div>
       </div>
 
+      <!-- 登入綁定 -->
       <div class="pt-4 border-t">
         <h2 class="font-bold mb-2">登入綁定</h2>
-        <p>
-          LINE 帳號：<span id="line-status">載入中...</span>
-        </p>
-        <p>
-          Facebook 帳號：<span id="fb-status">載入中...</span>
-        </p>
+        <p>LINE 帳號：<span id="line-status">載入中...</span></p>
+        <p>Facebook 帳號：<span id="fb-status">載入中...</span></p>
+      </div>
+
+      <!-- 物流查詢 -->
+      <div class="pt-6 border-t">
+        <h2 class="font-bold mb-3">📦 我的物流資訊</h2>
+        <div id="order-logistics" class="text-sm text-gray-700 space-y-4">
+          <p>載入中...</p>
+        </div>
       </div>
     </main>
   </div>
@@ -58,6 +65,7 @@
   </footer>
 
   <script>
+    // 取得會員資料
     fetch('/me')
       .then(res => res.json())
       .then(data => {
@@ -81,12 +89,13 @@
       })
       .catch(() => window.location.href = '/login.html');
 
+    // 編輯姓名與地址
     document.getElementById('edit-name').onclick = () => {
       const newName = prompt('請輸入新的會員名稱：');
       if (newName) {
         fetch('/update-profile', {
           method: 'POST',
-          headers: {'Content-Type': 'application/json'},
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ name: newName })
         }).then(() => location.reload());
       }
@@ -97,11 +106,43 @@
       if (newAddr) {
         fetch('/update-address', {
           method: 'POST',
-          headers: {'Content-Type': 'application/json'},
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ address: newAddr })
         }).then(() => location.reload());
       }
     };
+
+    // 取得物流資訊
+    fetch('/api/orders')
+      .then(res => res.json())
+      .then(orders => {
+        const container = document.getElementById('order-logistics');
+        if (!orders.length) return container.innerHTML = '<p>目前沒有物流資訊。</p>';
+
+        container.innerHTML = orders.map(order => {
+          const lid = order.logistics_id || '—';
+          const code = order.payment_no || '—';
+          const type = order.logistics_subtype || '—';
+
+          let queryLink = '';
+          if (order.logistics_id) {
+            queryLink = `<a href="/api/logistics/status/${lid}" target="_blank" class="ml-2 text-blue-600 hover:underline">查詢</a>`;
+          }
+
+          return `
+            <div class="border p-4 rounded bg-gray-50">
+              <p><strong>訂單時間：</strong>${new Date(order.created_at).toLocaleString()}</p>
+              <p><strong>物流單號：</strong>${lid}</p>
+              <p><strong>寄件代碼：</strong>${code}</p>
+              <p><strong>超商類型：</strong>${type}</p>
+              <p><strong>物流查詢：</strong>${queryLink || '—'}</p>
+            </div>
+          `;
+        }).join('');
+      })
+      .catch(() => {
+        document.getElementById('order-logistics').innerHTML = '<p class="text-red-600">❌ 無法取得物流資訊，請稍後再試。</p>';
+      });
   </script>
 </body>
 </html>

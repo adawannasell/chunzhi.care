@@ -20,43 +20,29 @@
       訂單資訊將寄送至您的 Email，<br>
       感謝您支持 <strong>春枝 Chun-Zhi</strong>
     </p>
-
-    <div id="logistics-info" class="text-left text-sm bg-gray-100 p-4 rounded-md hidden">
-      <p><strong>物流單號：</strong><span id="logisticsIdText"></span></p>
-      <p><strong>寄件代碼：</strong><span id="paymentNoText"></span></p>
-      <p><strong>超商類型：</strong><span id="typeText"></span></p>
-    </div>
-
-    <div class="space-y-2">
-      <button onclick="checkStatus()" class="w-full px-4 py-2 bg-gray-700 text-white rounded-full text-sm hover:bg-gray-800 transition">
-        📦 查詢物流狀態
-      </button>
-    </div>
-
-    <a href="/" class="inline-block mt-4 px-6 py-2 bg-green-700 hover:bg-green-800 text-white rounded-full text-sm font-semibold transition">
+    <a href="/" class="inline-block px-6 py-2 bg-green-700 hover:bg-green-800 text-white rounded-full text-sm font-semibold transition">
       回首頁
     </a>
   </div>
 
   <script>
-    const params = new URLSearchParams(window.location.search);
+    const params = new URLSearchParams(location.search);
     const logisticsId = params.get('logisticsId');
     const paymentNo = params.get('paymentNo');
     const type = params.get('type');
+    const email = localStorage.getItem('checkout_email'); // ✅ 暫存訂單時記下的 email
 
-    if (logisticsId || paymentNo || type) {
-      document.getElementById('logistics-info').classList.remove('hidden');
-      document.getElementById('logisticsIdText').textContent = logisticsId || '—';
-      document.getElementById('paymentNoText').textContent = paymentNo || '—';
-      document.getElementById('typeText').textContent = type || '—';
-    }
-
-    function checkStatus() {
-      if (!logisticsId) {
-        alert('❗ 缺少物流查詢參數');
-        return;
-      }
-      window.open(`/api/logistics/status/${logisticsId}`, '_blank');
+    if (logisticsId && paymentNo && type && email) {
+      fetch('/api/logistics/save-info', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          logisticsId,
+          paymentNo,
+          logisticsSubType: type,
+          email
+        })
+      }).then(res => res.ok ? console.log('✅ 已寫入物流資訊') : console.warn('❌ 儲存失敗'));
     }
   </script>
 </body>
