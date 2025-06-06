@@ -130,32 +130,29 @@ router.post('/thankyou', (req, res) => {
   res.redirect(redirectUrl);
 });
 
-// ✅ 列印託運單
+// ✅ 列印託運單（改為 redirect 方式）
 router.get('/print/:logisticsId/:paymentNo/:type', (req, res) => {
   const { logisticsId, paymentNo, type } = req.params;
 
-  const base_param = {
+  if (!logisticsId || !paymentNo || !type) {
+    return res.status(400).send('❗ 缺少必要參數');
+  }
+
+  const formUrlMap = {
+    FAMI: 'https://logistics.ecpay.com.tw/Express/PrintFAMIC2COrderInfo',
+    UNIMART: 'https://logistics.ecpay.com.tw/Express/PrintUnimartC2COrderInfo',
+    HILIFE: 'https://logistics.ecpay.com.tw/Express/PrintHiLifeC2COrderInfo'
+  };
+
+  const targetUrl = formUrlMap[type.toUpperCase()] || formUrlMap.FAMI;
+
+  const query = new URLSearchParams({
     AllPayLogisticsID: logisticsId,
     CVSPaymentNo: paymentNo,
-    PlatformID: ""
-  };
+    PlatformID: ''
+  });
 
-  const fnMap = {
-    FAMI: logistics.c2c_process_client.printfamic2corderinfo,
-    UNIMART: logistics.c2c_process_client.printunimartc2corderinfo,
-    HILIFE: logistics.c2c_process_client.printhilifec2corderinfo
-  };
-
-  const fn = fnMap[type] || fnMap.FAMI;
-  const result = fn(base_param);
-
-  if (typeof result === 'string') {
-    res.send(result);
-  } else {
-    result
-      .then(html => res.send(html))
-      .catch(err => res.status(500).send('🚨 列印託運單失敗：' + err.message));
-  }
+  res.redirect(`${targetUrl}?${query.toString()}`);
 });
 
 // ✅ 查詢物流狀態（修正格式錯誤）
