@@ -160,7 +160,7 @@ router.get('/status/:logisticsId', (req, res) => {
   const { logisticsId } = req.params;
 
   const base_param = {
-    AllPayLogisticsID: Number(logisticsId),  // ✅ 強制轉數字！
+    AllPayLogisticsID: String(logisticsId),  // ✅ 正確：字串格式
     PlatformID: ""
   };
 
