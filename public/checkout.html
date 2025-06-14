@@ -7,9 +7,7 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC&display=swap" rel="stylesheet">
   <style>
-    body {
-      font-family: 'Noto Serif TC', serif;
-    }
+    body { font-family: 'Noto Serif TC', serif; }
   </style>
 </head>
 <body class="bg-[#fdfaf5] text-[#1a1a1a] px-4 py-12">
@@ -32,7 +30,6 @@
         <input type="text" name="address" placeholder="完整地址" required class="border border-gray-300 rounded px-3 py-2 sm:col-span-2" />
         <textarea name="note" placeholder="備註（選填）" rows="2" class="border border-gray-300 rounded px-3 py-2 sm:col-span-2"></textarea>
       </div>
-
       <button type="submit" class="w-full bg-green-700 hover:bg-green-800 text-white py-3 rounded font-semibold transition">確認送出</button>
     </form>
   </div>
@@ -70,40 +67,36 @@
     e.preventDefault();
     const form = e.target;
 
-    const order = {
+    const payload = {
       name: form.name.value.trim(),
       phone: form.phone.value.trim(),
       email: form.email.value.trim(),
       address: form.address.value.trim(),
       note: form.note.value.trim(),
-      items: cart
+      items: cart,
+      storeID: '006598', // ✅ 預設全家測試店（若未整合選店功能）
+      itemName: cart.map(i => i.name).join(', '),
+      total
     };
 
     try {
-      // 1️⃣ 建立訂單
-      const orderRes = await fetch('/order', {
+      const res = await fetch('/api/checkout', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(order)
-      });
-      if (!orderRes.ok) throw new Error(await orderRes.text());
-
-      // 2️⃣ 建立物流訂單（此處假設使用 FAMI 超商，未選店就用預設）
-      await fetch('/api/logistics/create-order', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name: order.name,
-          phone: order.phone,
-          storeID: "006598", // ✅ 若未整合選店，先用預設門市 ID（例如全家台北測試店）
-          itemName: cart.map(i => i.name).join(', '),
-          total
-        })
+        body: JSON.stringify(payload)
       });
 
-      // 3️⃣ 清空購物車並跳轉成功頁
+      const html = await res.text();
+      if (!res.ok) throw new Error(html);
+
       localStorage.removeItem('cart');
-      window.location.href = '/thankyou.html';
+      const w = window.open();
+      if (w) {
+        w.document.write(html);
+        w.document.close();
+      } else {
+        alert('✅ 訂單建立成功，但未能自動跳出綠界付款畫面，請檢查瀏覽器彈窗設定');
+      }
     } catch (err) {
       alert('❌ 訂單送出失敗：' + err.message);
     }
