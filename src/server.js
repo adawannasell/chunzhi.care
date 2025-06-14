@@ -149,14 +149,52 @@ app.post('/order', async (req, res) => {
   }
 });
 
-app.get('/api/orders', async (req, res) => {
-  if (!req.isAuthenticated()) return res.status(401).json({ error: '未登入' });
+app.post('/api/checkout', async (req, res) => {
+  const { name, phone, email, address, note, items } = req.body;
+  const user_id = req.user?.id || null;
+  const orderNumber = await generateOrderNumber();
+
   try {
-    const result = await pool.query('SELECT * FROM orders WHERE user_id = $1 ORDER BY created_at DESC', [req.user.id]);
-    res.json(result.rows);
+    // 1️⃣ 建立訂單
+    await pool.query(`
+      INSERT INTO orders (order_number, user_id, name, phone, email, address, note, cart_items, logistics_id, payment_no, logistics_subtype)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, null, null, null)
+    `, [orderNumber, user_id, name, phone, email, address, note || '', JSON.stringify(items)]);
+
+    // 2️⃣ 寄信
+    const summary = items.map(i => `${i.name} x${i.qty}`).join('<br>');
+    const resend = new Resend(process.env.RESEND_API_KEY);
+    await resend.emails.send({
+      from: 'onboarding@resend.dev',
+      to: email,
+      subject: '感謝您的訂購',
+      html: `
+        <h2>親愛的 ${name}，您好：</h2>
+        <p>我們已收到您的訂單（編號：${orderNumber}），以下是您訂購的商品：</p>
+        <p>${summary}</p>
+        <p>我們將盡快為您安排出貨，感謝您的支持！</p>
+        <br><p>— 愛妲生活</p>
+      `
+    });
+
+    // 3️⃣ 建立物流訂單（用預設門市）
+    await fetch(`${process.env.BASE_URL}/api/logistics/create-order`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        name,
+        phone,
+        email,
+        storeID: '006598',
+        itemName: summary,
+        total: items.reduce((sum, i) => sum + (i.price * i.qty), 0)
+      })
+    });
+
+    res.redirect('/thankyou.html');
   } catch (err) {
-    console.error('❌ 讀取個人訂單失敗:', err);
-    res.status(500).send('🚨 無法取得訂單');
+    console.error('❌ Checkout 錯誤:', err);
+    res.status(500).send('🚨 結帳流程錯誤，請稍後再試');
   }
 });
 
