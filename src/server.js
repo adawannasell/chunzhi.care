@@ -103,16 +103,29 @@ passport.use(new LineStrategy({
 
 async function generateOrderNumber() {
   const taipei = DateTime.now().setZone('Asia/Taipei');
-  const shortDate = taipei.toFormat('yyLLdd'); // e.g., "250606"
+  const shortDate = taipei.toFormat('yyLLdd'); // e.g., 250615
   const prefix = `R${shortDate}`;
 
-  const result = await pool.query(
-    `SELECT COUNT(*) FROM orders WHERE TO_CHAR(created_at AT TIME ZONE 'Asia/Taipei', 'YYMMDD') = $1`,
-    [shortDate]
-  );
-  const count = parseInt(result.rows[0].count, 10) + 1;
-  const padded = count.toString().padStart(4, '0');
-  return `${prefix}${padded}`;
+  let count = 1;
+  let orderNumber;
+
+  while (true) {
+    const padded = count.toString().padStart(4, '0');
+    orderNumber = `${prefix}${padded}`;
+
+    const result = await pool.query(
+      'SELECT 1 FROM orders WHERE order_number = $1 LIMIT 1',
+      [orderNumber]
+    );
+
+    if (result.rows.length === 0) {
+      break;
+    }
+
+    count++;
+  }
+
+  return orderNumber;
 }
 
 app.post('/order', async (req, res) => {
