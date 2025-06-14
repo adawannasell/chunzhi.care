@@ -44,13 +44,15 @@ router.post('/', async (req, res) => {
     const orderNumber = await generateOrderNumber();
     const user_id = req.user?.id || null;
 
+    // 1️⃣ 寫入訂單
     await pool.query(
       `INSERT INTO orders (order_number, user_id, name, phone, email, address, note, cart_items)
        VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`,
       [orderNumber, user_id, name, phone, email, address, note || '', JSON.stringify(items)]
     );
 
-    const logisticsForm = createClient.create({
+    // 2️⃣ 建立物流訂單（需 await）
+    await createClient.create({
       MerchantID: '2000132',
       MerchantTradeNo: 'L' + Date.now(),
       MerchantTradeDate: formatECPayDate(),
@@ -75,6 +77,23 @@ router.post('/', async (req, res) => {
       PlatformID: ''
     });
 
+    // 3️⃣ 寄信（可選）
+    const resend = new Resend(process.env.RESEND_API_KEY);
+    const summary = items.map(i => `${i.name} x${i.qty}`).join('<br>');
+    await resend.emails.send({
+      from: 'onboarding@resend.dev',
+      to: email,
+      subject: '感謝您的訂購',
+      html: `
+        <h2>親愛的 ${name}，您好：</h2>
+        <p>我們已收到您的訂單（編號：${orderNumber}），以下是您訂購的商品：</p>
+        <p>${summary}</p>
+        <p>我們將盡快為您安排出貨，感謝您的支持！</p>
+        <br><p>— 愛妲生活</p>
+      `
+    });
+
+    // 4️⃣ 建立金流付款畫面
     const base_param = {
       MerchantTradeNo: 'NO' + Date.now(),
       MerchantTradeDate: formatECPayDate(),
@@ -84,7 +103,7 @@ router.post('/', async (req, res) => {
       EncryptType: 1,
       ReturnURL: process.env.ECPAY_RETURN_URL,
       ClientBackURL: process.env.ECPAY_CLIENT_BACK_URL,
-      Remark: email,
+      Remark: `${orderNumber} / ${email}`
     };
 
     const html = ecpayClient.payment_client.aio_check_out_all(base_param);

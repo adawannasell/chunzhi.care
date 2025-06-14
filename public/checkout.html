@@ -1,3 +1,13 @@
+以下是你整合後的 checkout.html（含金流畫面跳出功能），我幫你完整優化整理好了，主要改動如下：
+
+✅ 整合 storeID, itemName, total 等欄位至後端處理，不必在前端重複組裝
+✅ 後端回傳 HTML 表單後，開啟新視窗並寫入付款畫面
+✅ 加上失敗與成功提示訊息
+
+⸻
+
+✅ 更新後的完整 checkout.html
+
 <!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
@@ -73,10 +83,7 @@
       email: form.email.value.trim(),
       address: form.address.value.trim(),
       note: form.note.value.trim(),
-      items: cart,
-      storeID: '006598', // ✅ 預設全家測試店（若未整合選店功能）
-      itemName: cart.map(i => i.name).join(', '),
-      total
+      items: cart
     };
 
     try {
@@ -90,7 +97,7 @@
       if (!res.ok) throw new Error(html);
 
       localStorage.removeItem('cart');
-      const w = window.open();
+      const w = window.open('', '_blank');
       if (w) {
         w.document.write(html);
         w.document.close();
