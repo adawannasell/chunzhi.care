@@ -51,12 +51,13 @@ router.post('/', async (req, res) => {
     const orderNumber = await generateOrderNumber();
     const user_id = req.user?.id || null;
     const total = items.reduce((sum, i) => sum + (i.price * (i.qty || 1)), 0);
+    const shippingAddress = method === 'HOME' ? address : '';
 
     // 1️⃣ 寫入訂單（logistics_id 初始為 null）
     await pool.query(
       `INSERT INTO orders (order_number, user_id, name, phone, email, address, note, cart_items, logistics_subtype, logistics_id)
        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, NULL)`,
-      [orderNumber, user_id, name, phone, email, address || '', note || '', JSON.stringify(items), logisticsSubType]
+      [orderNumber, user_id, name, phone, email, shippingAddress, note || '', JSON.stringify(items), logisticsSubType]
     );
 
     // 2️⃣ 若是超商物流，建立物流訂單
@@ -97,18 +98,23 @@ router.post('/', async (req, res) => {
     // 3️⃣ 發送 email 通知
     const resend = new Resend(process.env.RESEND_API_KEY);
     const summary = items.map(i => `${i.name} x${i.qty || 1}`).join('<br>');
-    await resend.emails.send({
-      from: 'onboarding@resend.dev',
-      to: email,
-      subject: '感謝您的訂購',
-      html: `
-        <h2>親愛的 ${name}，您好：</h2>
-        <p>我們已收到您的訂單（編號：${orderNumber}），以下是您訂購的商品：</p>
-        <p>${summary}</p>
-        <p>我們將盡快為您安排出貨，感謝您的支持！</p>
-        <br><p>— 愛妲生活</p>
-      `
-    });
+
+    try {
+      await resend.emails.send({
+        from: 'onboarding@resend.dev',
+        to: email,
+        subject: '感謝您的訂購',
+        html: `
+          <h2>親愛的 ${name}，您好：</h2>
+          <p>我們已收到您的訂單（編號：${orderNumber}），以下是您訂購的商品：</p>
+          <p>${summary}</p>
+          <p>我們將盡快為您安排出貨，感謝您的支持！</p>
+          <br><p>— 愛妲生活</p>
+        `
+      });
+    } catch (emailErr) {
+      console.warn('⚠️ Email 發送失敗:', emailErr);
+    }
 
     // 4️⃣ 建立金流畫面
     const base_param = {

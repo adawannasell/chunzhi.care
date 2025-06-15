@@ -24,43 +24,46 @@
     </div>
 
     <form id="checkout-form" class="space-y-4">
-  <!-- 🚚 配送方式 -->
-  <div>
-    <label class="font-semibold mb-2 block">🚚 配送方式</label>
-    <label><input type="radio" name="deliveryMethod" value="CVS" checked /> 超商取貨</label>
-    <label class="ml-4"><input type="radio" name="deliveryMethod" value="HOME" /> 宅配到府</label>
-  </div>
+      <!-- 配送方式 -->
+      <div>
+        <label class="font-semibold mb-2 block">🚚 配送方式</label>
+        <label><input type="radio" name="deliveryMethod" value="CVS" checked /> 超商取貨</label>
+        <label class="ml-4"><input type="radio" name="deliveryMethod" value="HOME" /> 宅配到府</label>
+      </div>
 
-  <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-    <input type="text" name="name" placeholder="收件人姓名" required class="border border-gray-300 rounded px-3 py-2" />
-    <input type="text" name="phone" placeholder="聯絡電話" required class="border border-gray-300 rounded px-3 py-2" />
-    <input type="email" name="email" placeholder="電子信箱" required class="border border-gray-300 rounded px-3 py-2 sm:col-span-2" />
-    
-    <!-- 🏠 宅配地址 -->
-    <input type="text" name="address" id="homeAddress" placeholder="完整宅配地址" class="border border-gray-300 rounded px-3 py-2 sm:col-span-2" />
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <input type="text" name="name" placeholder="收件人姓名" required class="border border-gray-300 rounded px-3 py-2" />
+        <input type="text" name="phone" placeholder="聯絡電話" required class="border border-gray-300 rounded px-3 py-2" />
+        <input type="email" name="email" placeholder="電子信箱" required class="border border-gray-300 rounded px-3 py-2 sm:col-span-2" />
 
-    <textarea name="note" placeholder="備註（選填）" rows="2" class="border border-gray-300 rounded px-3 py-2 sm:col-span-2"></textarea>
-  </div>
+        <!-- 宅配地址包裹用於隱藏 -->
+        <div id="homeAddressSection" class="sm:col-span-2">
+          <input type="text" name="address" id="homeAddress" placeholder="完整宅配地址"
+            class="border border-gray-300 rounded px-3 py-2 w-full" />
+        </div>
 
-  <!-- 🏪 超商門市區塊 -->
-  <div id="cvsSection" class="mt-6 border border-gray-200 rounded p-4 bg-[#fdfaf5]">
-    <h2 class="text-lg font-semibold mb-3">🏪 超商取貨門市</h2>
-    <select id="logisticsSubType" class="border rounded px-2 py-1">
-      <option value="FAMI">全家</option>
-      <option value="UNIMART">7-11</option>
-      <option value="HILIFE">萊爾富</option>
-    </select>
-    <button type="button" id="openMap" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded mt-2">
-      選擇門市
-    </button>
-    <input type="hidden" name="storeID" id="storeID" />
-    <input type="hidden" name="logisticsSubType" id="hiddenSubType" value="FAMI" />
-    <div id="storeInfo" class="mt-3 text-sm text-gray-800">尚未選擇門市</div>
-  </div>
+        <textarea name="note" placeholder="備註（選填）" rows="2" class="border border-gray-300 rounded px-3 py-2 sm:col-span-2"></textarea>
+      </div>
 
-  <div id="message"></div>
-  <button type="submit" class="w-full bg-green-700 hover:bg-green-800 text-white py-3 rounded font-semibold transition">確認送出</button>
-</form>
+      <!-- 超商門市區塊 -->
+      <div id="cvsSection" class="mt-6 border border-gray-200 rounded p-4 bg-[#fdfaf5]">
+        <h2 class="text-lg font-semibold mb-3">🏪 超商取貨門市</h2>
+        <select id="logisticsSubType" class="border rounded px-2 py-1">
+          <option value="FAMI">全家</option>
+          <option value="UNIMART">7-11</option>
+          <option value="HILIFE">萊爾富</option>
+        </select>
+        <button type="button" id="openMap" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded mt-2">
+          選擇門市
+        </button>
+        <input type="hidden" name="storeID" id="storeID" />
+        <input type="hidden" name="logisticsSubType" id="hiddenSubType" value="FAMI" />
+        <div id="storeInfo" class="mt-3 text-sm text-gray-800">尚未選擇門市</div>
+      </div>
+
+      <div id="message"></div>
+      <button type="submit" class="w-full bg-green-700 hover:bg-green-800 text-white py-3 rounded font-semibold transition">確認送出</button>
+    </form>
   </div>
 
   <div class="max-w-xl mx-auto text-center mt-16">
@@ -91,34 +94,26 @@
   }).join('');
   totalEl.textContent = `總金額：NT$${total}`;
 
-  // 設定 logisticsSubType 改變時更新隱藏欄位
+  // 超商類型更新
   document.getElementById('logisticsSubType').addEventListener('change', (e) => {
     document.getElementById('hiddenSubType').value = e.target.value;
   });
 
-  // 監聽配送方式選擇
   const cvsSection = document.getElementById('cvsSection');
-  const homeAddress = document.getElementById('homeAddress');
+  const homeAddressSection = document.getElementById('homeAddressSection');
 
   function toggleDeliveryMethod() {
-    const selected = document.querySelector('input[name="deliveryMethod"]:checked').value;
-    if (selected === 'CVS') {
-      cvsSection.style.display = 'block';
-      homeAddress.parentElement.style.display = 'none';
-    } else {
-      cvsSection.style.display = 'none';
-      homeAddress.parentElement.style.display = 'block';
-    }
+    const method = document.querySelector('input[name="deliveryMethod"]:checked').value;
+    cvsSection.style.display = method === 'CVS' ? 'block' : 'none';
+    homeAddressSection.style.display = method === 'HOME' ? 'block' : 'none';
   }
 
-  document.querySelectorAll('input[name="deliveryMethod"]').forEach(radio => {
-    radio.addEventListener('change', toggleDeliveryMethod);
+  document.querySelectorAll('input[name="deliveryMethod"]').forEach(el => {
+    el.addEventListener('change', toggleDeliveryMethod);
   });
 
-  // 初始呼叫一次
-  toggleDeliveryMethod();
+  toggleDeliveryMethod(); // 初始狀態
 
-  // 門市選擇
   document.getElementById('openMap').addEventListener('click', () => {
     const subtype = document.getElementById('logisticsSubType').value;
     const now = Date.now();
@@ -137,11 +132,11 @@
       ClientReplyURL: location.href
     };
 
-    Object.entries(fields).forEach(([key, val]) => {
+    Object.entries(fields).forEach(([k, v]) => {
       const input = document.createElement('input');
       input.type = 'hidden';
-      input.name = key;
-      input.value = val;
+      input.name = k;
+      input.value = v;
       form.appendChild(input);
     });
 
@@ -150,7 +145,6 @@
     document.body.removeChild(form);
   });
 
-  // 門市回填
   window.addEventListener('load', () => {
     const params = new URLSearchParams(location.search);
     const storeID = params.get('CVSStoreID');
@@ -162,14 +156,13 @@
       document.getElementById('storeID').value = storeID;
       document.getElementById('storeInfo').textContent = `🏪 ${storeName}（${address}）`;
     }
+
     document.getElementById('logisticsSubType').value = subtype;
     document.getElementById('hiddenSubType').value = subtype;
 
-    // 再次套用配送方式
-    toggleDeliveryMethod();
+    toggleDeliveryMethod(); // 再次應用配送狀態
   });
 
-  // 表單送出
   document.getElementById('checkout-form').addEventListener('submit', async e => {
     e.preventDefault();
     const form = e.target;
@@ -201,7 +194,6 @@
       const blobURL = URL.createObjectURL(blob);
       window.open(blobURL, '_blank');
       window.location.href = '/thankyou.html';
-
     } catch (err) {
       const msgDiv = document.getElementById('message');
       msgDiv.className = 'error';
