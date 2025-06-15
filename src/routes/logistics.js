@@ -1,4 +1,4 @@
-const fetch = require('node-fetch'); // 👈 一定要加這行才能用 fetch
+const fetch = require('node-fetch');
 const express = require('express');
 const router = express.Router();
 const ECPayLogistics = require('ecpay-logistics');
@@ -8,10 +8,12 @@ const logistics = new ECPayLogistics();
 const createClient = logistics.create_client;
 const queryClient = logistics.query_client;
 
+const BASE = process.env.BASE_URL || 'https://chunzhi-care.onrender.com';
+
 const safe = (v) => (v != null ? String(v) : '');
 const isValidChineseName = (name) => /^[\u4e00-\u9fa5]{2,5}$/.test(name);
 
-// ✅ 建立物流訂單（支援多家超商）
+// ✅ 建立物流訂單
 router.post('/create-order', async (req, res) => {
   try {
     const {
@@ -33,12 +35,8 @@ router.post('/create-order', async (req, res) => {
 
     const date = new Date();
     const MerchantTradeDate = date.toLocaleString('zh-TW', {
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit',
-      hour: '2-digit',
-      minute: '2-digit',
-      second: '2-digit',
+      year: 'numeric', month: '2-digit', day: '2-digit',
+      hour: '2-digit', minute: '2-digit', second: '2-digit',
       hour12: false
     });
 
@@ -60,9 +58,9 @@ router.post('/create-order', async (req, res) => {
       ReceiverCellPhone: safe(phone),
       ReceiverEmail: "test@example.com",
       TradeDesc: `正式測試：${logisticsSubType}`,
-      ServerReplyURL: "https://chunzhi-care.onrender.com/api/logistics/thankyou",
-      ClientReplyURL: "https://chunzhi-care.onrender.com/api/logistics/thankyou",
-      LogisticsC2CReplyURL: "https://chunzhi-care.onrender.com/api/logistics/cvs-store-reply",
+      ServerReplyURL: `${BASE}/api/logistics/thankyou`,
+      ClientReplyURL: `${BASE}/checkout.html`,
+      LogisticsC2CReplyURL: `${BASE}/api/logistics/cvs-store-reply`,
       Remark: "",
       PlatformID: "",
       ReceiverStoreID: safe(storeID || "006598"),
@@ -71,18 +69,8 @@ router.post('/create-order', async (req, res) => {
 
     console.log("🚚 建立物流參數:", base_param);
 
-    const html = createClient.create(base_param);
-
-    if (typeof html === 'string') {
-      res.send(html);
-    } else {
-      html
-        .then(result => res.send(result))
-        .catch(err => {
-          console.error('❌ 建立物流表單錯誤:', err);
-          res.status(500).send('🚨 建立物流訂單失敗');
-        });
-    }
+    const html = await createClient.create(base_param);
+    res.send(html);
 
   } catch (error) {
     console.error('❌ 建立物流訂單錯誤:', error);
@@ -102,8 +90,8 @@ router.get('/cvs-map', (req, res) => {
       <input type="hidden" name="LogisticsType" value="CVS" />
       <input type="hidden" name="LogisticsSubType" value="${subtype}" />
       <input type="hidden" name="IsCollection" value="N" />
-      <input type="hidden" name="ServerReplyURL" value="https://chunzhi-care.onrender.com/api/logistics/cvs-store-reply" />
-      <input type="hidden" name="ClientReplyURL" value="https://chunzhi-care.onrender.com/logistics-test.html?subtype=${subtype}" />
+      <input type="hidden" name="ServerReplyURL" value="${BASE}/api/logistics/cvs-store-reply" />
+      <input type="hidden" name="ClientReplyURL" value="${BASE}/checkout.html?subtype=${subtype}" />
     </form>
     <script>document.getElementById('cvsMapForm').submit();</script>
   `);
@@ -134,7 +122,7 @@ router.post('/thankyou', async (req, res) => {
   const email = req.body.ReceiverEmail || '';
 
   try {
-    await fetch('https://chunzhi-care.onrender.com/api/logistics/save-info', {
+    await fetch(`${BASE}/api/logistics/save-info`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -149,18 +137,13 @@ router.post('/thankyou', async (req, res) => {
   }
 
   const redirectUrl = `/thankyou.html?logisticsId=${encodeURIComponent(logisticsId)}&paymentNo=${encodeURIComponent(paymentNo)}&type=${encodeURIComponent(type)}`;
-  console.log('✅ Redirecting to:', redirectUrl);
-
   res.redirect(redirectUrl);
 });
 
-// ✅ 列印託運單（改為 redirect 方式）
+// ✅ 列印託運單
 router.get('/print/:logisticsId/:paymentNo/:type', (req, res) => {
   const { logisticsId, paymentNo, type } = req.params;
-
-  if (!logisticsId || !paymentNo || !type) {
-    return res.status(400).send('❗ 缺少必要參數');
-  }
+  if (!logisticsId || !paymentNo || !type) return res.status(400).send('❗ 缺少必要參數');
 
   const formUrlMap = {
     FAMI: 'https://logistics.ecpay.com.tw/Express/PrintFAMIC2COrderInfo',
@@ -169,7 +152,6 @@ router.get('/print/:logisticsId/:paymentNo/:type', (req, res) => {
   };
 
   const targetUrl = formUrlMap[type.toUpperCase()] || formUrlMap.FAMI;
-
   const query = new URLSearchParams({
     AllPayLogisticsID: logisticsId,
     CVSPaymentNo: paymentNo,
@@ -179,17 +161,15 @@ router.get('/print/:logisticsId/:paymentNo/:type', (req, res) => {
   res.redirect(`${targetUrl}?${query.toString()}`);
 });
 
-// ✅ 查詢物流狀態（修正格式錯誤）
+// ✅ 查詢物流狀態
 router.get('/status/:logisticsId', (req, res) => {
   const { logisticsId } = req.params;
-
   const base_param = {
-    AllPayLogisticsID: String(logisticsId),  // ✅ 正確：字串格式
+    AllPayLogisticsID: String(logisticsId),
     PlatformID: ""
   };
 
   const result = queryClient.querylogisticstradeinfo(base_param);
-
   if (typeof result === 'string') {
     res.send(result);
   } else {
