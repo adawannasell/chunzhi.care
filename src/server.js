@@ -1,17 +1,27 @@
+// ✅ 優先載入 .env
 const path = require('path');
-const dotenv = require('dotenv');
+require('dotenv').config({ path: path.resolve(__dirname, '../.env') });
 
-// ✅ 把 dotenv 提早執行，並正確指定 .env 路徑
-dotenv.config({ path: path.resolve(__dirname, '../.env') });
 const express = require('express');
 const bodyParser = require('body-parser');
 const session = require('express-session');
 const Redis = require('ioredis');
-const RedisStore = require('connect-redis')(session); // ✅ 核心修正！
+const RedisStore = require('connect-redis')(session); // v5 用法
 
+const passport = require('passport');
+const FacebookStrategy = require('passport-facebook').Strategy;
+const LineStrategy = require('passport-line-auth').Strategy;
+const { pool, initDB } = require('./database');
+const { Resend } = require('resend');
+const { DateTime } = require('luxon');
+
+// ✅ 初始化資料庫
+initDB();
+
+// ✅ Redis 設定（Upstash）
 const redisClient = new Redis(process.env.REDIS_URL, {
   password: process.env.REDIS_TOKEN,
-  tls: {}
+  tls: {} // Upstash 必須
 });
 
 const store = new RedisStore({
@@ -19,38 +29,23 @@ const store = new RedisStore({
   prefix: 'sess:',
 });
 
-const passport = require('passport');
-const FacebookStrategy = require('passport-facebook').Strategy;
-const LineStrategy = require('passport-line-auth').Strategy;
-const { pool, initDB } = require('./database');
-const { Resend } = require('resend');
-const { DateTime } = require('luxon'); 
-
-dotenv.config();
-initDB();
-
-const emailRoutes = require('./routes/email');
-const recommendRoute = require('./routes/recommend');
-const ecpayRoute = require('./routes/ecpay');
-const logisticsRoute = require('./routes/logistics');
-const returnImartRoute = require('./routes/return-imart');
-const checkoutRoute = require('./routes/checkout');
-
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// ✅ Middleware
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.use(express.static('public'));
+
 app.use(session({
-  store: store,
+  store,
   secret: process.env.SESSION_SECRET || 'default-secret',
   resave: false,
   saveUninitialized: false,
   cookie: {
-    secure: process.env.NODE_ENV === 'production',
+    secure: false, // ⚠️ 本地測試必須設 false，部署上線再改成 NODE_ENV === 'production'
     httpOnly: true,
-    maxAge: 1000 * 60 * 60 * 24 // 1 天
+    maxAge: 1000 * 60 * 60 * 24
   }
 }));
 app.use(passport.initialize());
