@@ -11,10 +11,20 @@ router.get('/', async (req, res) => {
       `SELECT * FROM orders WHERE user_id = $1 ORDER BY created_at DESC`,
       [userId]
     );
-    const orders = result.rows.map(order => ({
-      ...order,
-      cart_items: JSON.parse(order.cart_items)
-    }));
+
+    const orders = result.rows.map(order => {
+      let cartItems;
+      try {
+        cartItems = typeof order.cart_items === 'string'
+          ? JSON.parse(order.cart_items)
+          : order.cart_items;
+      } catch {
+        cartItems = [];
+      }
+
+      return { ...order, cart_items: cartItems };
+    });
+
     res.json(orders);
   } catch (err) {
     console.error('❌ 查詢訂單錯誤:', err);
