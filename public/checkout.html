@@ -8,6 +8,9 @@
   <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC&display=swap" rel="stylesheet">
   <style>
     body { font-family: 'Noto Serif TC', serif; }
+    .success { color: green; margin-top: 20px; }
+    .error { color: red; margin-top: 20px; }
+    .loading { color: #555; }
   </style>
 </head>
 <body class="bg-[#fdfaf5] text-[#1a1a1a] px-4 py-12">
@@ -31,12 +34,20 @@
 
       <div class="mt-6 border border-gray-200 rounded p-4 bg-[#fdfaf5]">
         <h2 class="text-lg font-semibold mb-3">🏪 超商取貨門市</h2>
-        <button type="button" onclick="openStoreMap()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded">
+        <select id="logisticsSubType" class="border rounded px-2 py-1">
+          <option value="FAMI">全家</option>
+          <option value="UNIMART">7-11</option>
+          <option value="HILIFE">萊爾富</option>
+        </select>
+        <button type="button" id="openMap" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded mt-2">
           選擇門市
         </button>
-        <div id="storeInfo" class="mt-3 text-sm text-gray-800">尚未選擇門市</div>
         <input type="hidden" name="storeID" id="storeID" />
+        <input type="hidden" name="logisticsSubType" id="hiddenSubType" value="FAMI" />
+        <div id="storeInfo" class="mt-3 text-sm text-gray-800">尚未選擇門市</div>
       </div>
+
+      <div id="message"></div>
 
       <button type="submit" class="w-full bg-green-700 hover:bg-green-800 text-white py-3 rounded font-semibold transition">確認送出</button>
     </form>
@@ -70,7 +81,12 @@
   }).join('');
   totalEl.textContent = `總金額：NT$${total}`;
 
-  function openStoreMap() {
+  document.getElementById('logisticsSubType').addEventListener('change', (e) => {
+    document.getElementById('hiddenSubType').value = e.target.value;
+  });
+
+  document.getElementById('openMap').addEventListener('click', () => {
+    const subtype = document.getElementById('logisticsSubType').value;
     const now = Date.now();
     const form = document.createElement('form');
     form.method = 'POST';
@@ -81,7 +97,7 @@
       MerchantID: '2000132',
       MerchantTradeNo: 'MAP' + now,
       LogisticsType: 'CVS',
-      LogisticsSubType: 'FAMI',
+      LogisticsSubType: subtype,
       IsCollection: 'N',
       ServerReplyURL: location.origin + '/api/logistics/cvs-store-reply',
       ClientReplyURL: location.href
@@ -98,18 +114,21 @@
     document.body.appendChild(form);
     form.submit();
     document.body.removeChild(form);
-  }
+  });
 
   window.addEventListener('load', () => {
     const params = new URLSearchParams(location.search);
     const storeID = params.get('CVSStoreID');
     const storeName = params.get('CVSStoreName');
     const address = params.get('CVSAddress');
+    const subtype = params.get('subtype') || 'FAMI';
 
     if (storeID && storeName) {
       document.getElementById('storeID').value = storeID;
       document.getElementById('storeInfo').textContent = `🏪 ${storeName}（${address}）`;
     }
+    document.getElementById('logisticsSubType').value = subtype;
+    document.getElementById('hiddenSubType').value = subtype;
   });
 
   document.getElementById('checkout-form').addEventListener('submit', async e => {
@@ -123,7 +142,7 @@
       address: form.address.value.trim(),
       note: form.note.value.trim(),
       storeID: form.storeID.value.trim(),
-      logisticsSubType: 'FAMI',
+      logisticsSubType: form.logisticsSubType.value.trim(),
       items: cart
     };
 
@@ -144,7 +163,9 @@
       window.location.href = '/thankyou.html';
 
     } catch (err) {
-      alert('❌ 訂單送出失敗：' + err.message);
+      const msgDiv = document.getElementById('message');
+      msgDiv.className = 'error';
+      msgDiv.textContent = '❌ 訂單送出失敗：' + err.message;
     }
   });
 </script>
