@@ -21,6 +21,7 @@ const ecpayRoute = require('./routes/ecpay');
 const logisticsRoute = require('./routes/logistics');
 const returnImartRoute = require('./routes/return-imart');
 const checkoutRoute = require('./routes/checkout');
+const orderRoutes = require('./routes/orders'); // ✅ 加這行
 
 // ✅ 初始化資料庫
 initDB();
@@ -58,6 +59,7 @@ app.use(session({
 app.use(passport.initialize());
 app.use(passport.session());
 
+app.use('/api/orders', orderRoutes); // ✅ 掛上訂單查詢路由
 app.use('/api/email', emailRoutes);
 app.use('/api', recommendRoute);
 app.use('/api/ecpay', ecpayRoute);
