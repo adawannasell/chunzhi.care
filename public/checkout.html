@@ -91,10 +91,34 @@
   }).join('');
   totalEl.textContent = `總金額：NT$${total}`;
 
+  // 設定 logisticsSubType 改變時更新隱藏欄位
   document.getElementById('logisticsSubType').addEventListener('change', (e) => {
     document.getElementById('hiddenSubType').value = e.target.value;
   });
 
+  // 監聽配送方式選擇
+  const cvsSection = document.getElementById('cvsSection');
+  const homeAddress = document.getElementById('homeAddress');
+
+  function toggleDeliveryMethod() {
+    const selected = document.querySelector('input[name="deliveryMethod"]:checked').value;
+    if (selected === 'CVS') {
+      cvsSection.style.display = 'block';
+      homeAddress.parentElement.style.display = 'none';
+    } else {
+      cvsSection.style.display = 'none';
+      homeAddress.parentElement.style.display = 'block';
+    }
+  }
+
+  document.querySelectorAll('input[name="deliveryMethod"]').forEach(radio => {
+    radio.addEventListener('change', toggleDeliveryMethod);
+  });
+
+  // 初始呼叫一次
+  toggleDeliveryMethod();
+
+  // 門市選擇
   document.getElementById('openMap').addEventListener('click', () => {
     const subtype = document.getElementById('logisticsSubType').value;
     const now = Date.now();
@@ -126,6 +150,7 @@
     document.body.removeChild(form);
   });
 
+  // 門市回填
   window.addEventListener('load', () => {
     const params = new URLSearchParams(location.search);
     const storeID = params.get('CVSStoreID');
@@ -139,20 +164,25 @@
     }
     document.getElementById('logisticsSubType').value = subtype;
     document.getElementById('hiddenSubType').value = subtype;
+
+    // 再次套用配送方式
+    toggleDeliveryMethod();
   });
 
+  // 表單送出
   document.getElementById('checkout-form').addEventListener('submit', async e => {
     e.preventDefault();
     const form = e.target;
+    const method = document.querySelector('input[name="deliveryMethod"]:checked').value;
 
     const payload = {
       name: form.name.value.trim(),
       phone: form.phone.value.trim(),
       email: form.email.value.trim(),
-      address: form.address.value.trim(),
+      address: method === 'HOME' ? form.address.value.trim() : '',
       note: form.note.value.trim(),
-      storeID: form.storeID.value.trim(),
-      logisticsSubType: form.logisticsSubType.value.trim(),
+      storeID: method === 'CVS' ? form.storeID.value.trim() : '',
+      logisticsSubType: method === 'CVS' ? form.logisticsSubType.value.trim() : '',
       items: cart
     };
 
