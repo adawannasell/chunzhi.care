@@ -30,6 +30,17 @@
         <input type="text" name="address" placeholder="完整地址" required class="border border-gray-300 rounded px-3 py-2 sm:col-span-2" />
         <textarea name="note" placeholder="備註（選填）" rows="2" class="border border-gray-300 rounded px-3 py-2 sm:col-span-2"></textarea>
       </div>
+
+      <!-- 門市選擇區塊 -->
+      <div class="mt-6 border border-gray-200 rounded p-4 bg-[#fdfaf5]">
+        <h2 class="text-lg font-semibold mb-3">🏪 超商取貨門市</h2>
+        <button type="button" onclick="openStoreMap()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded">
+          選擇門市
+        </button>
+        <div id="storeInfo" class="mt-3 text-sm text-gray-800">尚未選擇門市</div>
+        <input type="hidden" name="storeID" id="storeID" />
+      </div>
+
       <button type="submit" class="w-full bg-green-700 hover:bg-green-800 text-white py-3 rounded font-semibold transition">確認送出</button>
     </form>
   </div>
@@ -63,6 +74,27 @@
   }).join('');
   totalEl.textContent = `總金額：NT$${total}`;
 
+  function openStoreMap() {
+    const url = `https://logistics-stage.ecpay.com.tw/Express/map` + 
+                `?MerchantID=2000132&LogisticsType=CVS&LogisticsSubType=FAMI` +
+                `&IsCollection=N&ServerReplyURL=${location.origin}/api/logistics/cvs-store-reply` +
+                `&ClientReplyURL=${location.href}`;
+    window.open(url, 'ecpayStore', 'width=500,height=600');
+  }
+
+  window.addEventListener('message', event => {
+    const data = event.data;
+    if (typeof data === 'string' && data.includes('CVSStoreID')) {
+      const params = new URLSearchParams(data);
+      const storeID = params.get('CVSStoreID');
+      const storeName = params.get('CVSStoreName');
+      const address = params.get('CVSAddress');
+
+      document.getElementById('storeID').value = storeID;
+      document.getElementById('storeInfo').textContent = `🏪 ${storeName}（${address}）`;
+    }
+  });
+
   document.getElementById('checkout-form').addEventListener('submit', async e => {
     e.preventDefault();
     const form = e.target;
@@ -73,32 +105,32 @@
       email: form.email.value.trim(),
       address: form.address.value.trim(),
       note: form.note.value.trim(),
+      storeID: form.storeID.value.trim(),
+      logisticsSubType: 'FAMI',
       items: cart
     };
 
     try {
-  const res = await fetch('/api/checkout', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(payload)
-  });
+      const res = await fetch('/api/checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
 
-  const html = await res.text();
-  if (!res.ok) throw new Error(html);
+      const html = await res.text();
+      if (!res.ok) throw new Error(html);
 
-  localStorage.removeItem('cart');
+      localStorage.removeItem('cart');
 
-  // ✅ 使用 Blob 避免 document.write 導致的空白頁
-  const blob = new Blob([html], { type: 'text/html' });
-  const blobURL = URL.createObjectURL(blob);
-  window.open(blobURL, '_blank');
+      const blob = new Blob([html], { type: 'text/html' });
+      const blobURL = URL.createObjectURL(blob);
+      window.open(blobURL, '_blank');
 
-  // ✅ 同時主頁跳轉
-  window.location.href = '/thankyou.html';
+      window.location.href = '/thankyou.html';
 
-} catch (err) {
-  alert('❌ 訂單送出失敗：' + err.message);
-}
+    } catch (err) {
+      alert('❌ 訂單送出失敗：' + err.message);
+    }
   });
 </script>
 </body>

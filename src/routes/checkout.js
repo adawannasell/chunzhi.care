@@ -1,4 +1,3 @@
-// routes/checkout.js
 const express = require('express');
 const router = express.Router();
 const { pool } = require('../database');
@@ -34,15 +33,17 @@ async function generateOrderNumber() {
 }
 
 router.post('/', async (req, res) => {
-  const { name, phone, email, address, note, items, storeID, logisticsSubType = 'FAMI', total } = req.body;
+  const { name, phone, email, address, note, items, storeID, logisticsSubType = 'FAMI' } = req.body;
 
-  if (!name || !phone || !email || !address || !items || !storeID || !total) {
+  if (!name || !phone || !email || !address || !items?.length || !storeID) {
     return res.status(400).send('❗ 請填寫完整欄位');
   }
 
   try {
     const orderNumber = await generateOrderNumber();
     const user_id = req.user?.id || null;
+
+    const total = items.reduce((sum, i) => sum + (i.price * (i.qty || 1)), 0);
 
     // 1️⃣ 寫入訂單
     await pool.query(
@@ -51,7 +52,7 @@ router.post('/', async (req, res) => {
       [orderNumber, user_id, name, phone, email, address, note || '', JSON.stringify(items)]
     );
 
-    // 2️⃣ 建立物流訂單（需 await）
+    // 2️⃣ 建立物流訂單
     await createClient.create({
       MerchantID: '2000132',
       MerchantTradeNo: 'L' + Date.now(),
@@ -77,9 +78,9 @@ router.post('/', async (req, res) => {
       PlatformID: ''
     });
 
-    // 3️⃣ 寄信（可選）
+    // 3️⃣ 寄信
     const resend = new Resend(process.env.RESEND_API_KEY);
-    const summary = items.map(i => `${i.name} x${i.qty}`).join('<br>');
+    const summary = items.map(i => `${i.name} x${i.qty || 1}`).join('<br>');
     await resend.emails.send({
       from: 'onboarding@resend.dev',
       to: email,
@@ -93,7 +94,7 @@ router.post('/', async (req, res) => {
       `
     });
 
-    // 4️⃣ 建立金流付款畫面
+    // 4️⃣ 建立金流畫面
     const base_param = {
       MerchantTradeNo: 'NO' + Date.now(),
       MerchantTradeDate: formatECPayDate(),
