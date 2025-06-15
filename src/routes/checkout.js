@@ -42,7 +42,6 @@ router.post('/', async (req, res) => {
   try {
     const orderNumber = await generateOrderNumber();
     const user_id = req.user?.id || null;
-
     const total = items.reduce((sum, i) => sum + (i.price * (i.qty || 1)), 0);
 
     // 1️⃣ 寫入訂單
@@ -53,7 +52,7 @@ router.post('/', async (req, res) => {
     );
 
     // 2️⃣ 建立物流訂單
-    await createClient.create({
+    const logisticsResult = await createClient.create({
       MerchantID: '2000132',
       MerchantTradeNo: 'L' + Date.now(),
       MerchantTradeDate: formatECPayDate(),
@@ -78,6 +77,14 @@ router.post('/', async (req, res) => {
       PlatformID: ''
     });
 
+    // 👉 儲存物流資訊（若有回傳 ID）
+    if (logisticsResult?.AllPayLogisticsID) {
+      await pool.query(`
+        UPDATE orders SET logistics_id = $1, logistics_subtype = $2
+        WHERE order_number = $3
+      `, [logisticsResult.AllPayLogisticsID, logisticsSubType, orderNumber]);
+    }
+
     // 3️⃣ 寄信
     const resend = new Resend(process.env.RESEND_API_KEY);
     const summary = items.map(i => `${i.name} x${i.qty || 1}`).join('<br>');
@@ -96,7 +103,7 @@ router.post('/', async (req, res) => {
 
     // 4️⃣ 建立金流畫面
     const base_param = {
-      MerchantTradeNo: 'NO' + Date.now(),
+      MerchantTradeNo: 'NO' + orderNumber,
       MerchantTradeDate: formatECPayDate(),
       TotalAmount: String(total),
       TradeDesc: '綠界付款',

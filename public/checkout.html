@@ -38,7 +38,7 @@
           選擇門市
         </button>
         <div id="storeInfo" class="mt-3 text-sm text-gray-800">尚未選擇門市</div>
-        <input type="hidden" name="storeID" id="storeID" />
+        <input type="hidden" name="storeID" id="storeID" required />
       </div>
 
       <button type="submit" class="w-full bg-green-700 hover:bg-green-800 text-white py-3 rounded font-semibold transition">確認送出</button>
@@ -75,11 +75,35 @@
   totalEl.textContent = `總金額：NT$${total}`;
 
   function openStoreMap() {
-    const url = `https://logistics-stage.ecpay.com.tw/Express/map` + 
-                `?MerchantID=2000132&LogisticsType=CVS&LogisticsSubType=FAMI` +
-                `&IsCollection=N&ServerReplyURL=${location.origin}/api/logistics/cvs-store-reply` +
-                `&ClientReplyURL=${location.href}`;
-    window.open(url, 'ecpayStore', 'width=500,height=600');
+    const subtype = 'FAMI';
+    const now = Date.now();
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = 'https://logistics-stage.ecpay.com.tw/Express/map';
+    form.target = 'ecpayStore';
+
+    const fields = {
+      MerchantID: '2000132',
+      MerchantTradeNo: 'MAP' + now,
+      LogisticsType: 'CVS',
+      LogisticsSubType: subtype,
+      IsCollection: 'N',
+      ServerReplyURL: location.origin + '/api/logistics/cvs-store-reply',
+      ClientReplyURL: location.href
+    };
+
+    for (const key in fields) {
+      const input = document.createElement('input');
+      input.type = 'hidden';
+      input.name = key;
+      input.value = fields[key];
+      form.appendChild(input);
+    }
+
+    document.body.appendChild(form);
+    window.open('', 'ecpayStore', 'width=500,height=600');
+    form.submit();
+    document.body.removeChild(form);
   }
 
   window.addEventListener('message', event => {
@@ -99,6 +123,11 @@
     e.preventDefault();
     const form = e.target;
 
+    if (!form.storeID.value.trim()) {
+      alert('❗ 請先選擇門市');
+      return;
+    }
+
     const payload = {
       name: form.name.value.trim(),
       phone: form.phone.value.trim(),
@@ -107,6 +136,7 @@
       note: form.note.value.trim(),
       storeID: form.storeID.value.trim(),
       logisticsSubType: 'FAMI',
+      total: total,
       items: cart
     };
 
@@ -127,7 +157,6 @@
       window.open(blobURL, '_blank');
 
       window.location.href = '/thankyou.html';
-
     } catch (err) {
       alert('❌ 訂單送出失敗：' + err.message);
     }
