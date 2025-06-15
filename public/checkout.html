@@ -77,28 +77,28 @@
     };
 
     try {
-      const res = await fetch('/api/checkout', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-      });
+  const res = await fetch('/api/checkout', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload)
+  });
 
-   const html = await res.text();
-    if (!res.ok) throw new Error(html);
+  const html = await res.text();
+  if (!res.ok) throw new Error(html);
 
-        localStorage.removeItem('cart');
+  localStorage.removeItem('cart');
 
-   const w = window.open('', '_blank'); // ✅ 開新視窗（而不是開首頁）
-    if (w) {
-        w.document.write(html);             // ✅ 寫進金流 HTML
-        w.document.close();
-        window.location.href = '/thankyou.html'; // ✅ 主頁跳轉
-    } else {
-      alert('✅ 訂單建立成功，但未能自動跳出綠界付款畫面，請檢查瀏覽器彈窗設定');
-    }
-    } catch (err) {
-      alert('❌ 訂單送出失敗：' + err.message);
-    }
+  // ✅ 使用 Blob 避免 document.write 導致的空白頁
+  const blob = new Blob([html], { type: 'text/html' });
+  const blobURL = URL.createObjectURL(blob);
+  window.open(blobURL, '_blank');
+
+  // ✅ 同時主頁跳轉
+  window.location.href = '/thankyou.html';
+
+} catch (err) {
+  alert('❌ 訂單送出失敗：' + err.message);
+}
   });
 </script>
 </body>
