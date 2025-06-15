@@ -15,6 +15,13 @@ const { pool, initDB } = require('./database');
 const { Resend } = require('resend');
 const { DateTime } = require('luxon');
 
+const emailRoutes = require('./routes/email');
+const recommendRoute = require('./routes/recommend');
+const ecpayRoute = require('./routes/ecpay');
+const logisticsRoute = require('./routes/logistics');
+const returnImartRoute = require('./routes/return-imart');
+const checkoutRoute = require('./routes/checkout');
+
 // ✅ 初始化資料庫
 initDB();
 
