@@ -116,7 +116,14 @@ router.post('/cvs-store-reply', (req, res) => {
 
   console.log("🏪 門市資訊已回傳：", storeInfo);
 
-  res.redirect(`/logistics-test.html?storeID=${storeInfo.CVSStoreID}&storeName=${encodeURIComponent(storeInfo.CVSStoreName)}&subtype=${subtype}`);
+  const qs = new URLSearchParams({
+    CVSStoreID: storeInfo.CVSStoreID,
+    CVSStoreName: storeInfo.CVSStoreName,
+    CVSAddress: storeInfo.CVSAddress,
+    subtype
+  }).toString();
+
+  res.redirect(`/checkout.html?${qs}`);
 });
 
 // ✅ 感謝頁 redirect
