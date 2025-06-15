@@ -187,13 +187,23 @@
       });
 
       const html = await res.text();
-      if (!res.ok) throw new Error(html);
+if (!res.ok) throw new Error(html);
 
-      localStorage.removeItem('cart');
-      const blob = new Blob([html], { type: 'text/html' });
-      const blobURL = URL.createObjectURL(blob);
-      window.open(blobURL, '_blank');
-      window.location.href = '/thankyou.html';
+// ✅ 儲存訂單編號與 email 到 localStorage
+const match = html.match(/訂單編號：(\w+)/);
+if (match) localStorage.setItem('lastOrder', match[1]);
+localStorage.setItem('checkout_email', payload.email);
+
+// ✅ 清空購物車並開新視窗跳轉至綠界金流頁
+localStorage.removeItem('cart');
+const blob = new Blob([html], { type: 'text/html' });
+const blobURL = URL.createObjectURL(blob);
+window.open(blobURL, '_blank');
+
+// ✅ 同時跳轉到 thankyou，讓用戶看見確認畫面
+setTimeout(() => {
+  window.location.href = '/thankyou.html';
+}, 1000);
     } catch (err) {
       const msgDiv = document.getElementById('message');
       msgDiv.className = 'error';

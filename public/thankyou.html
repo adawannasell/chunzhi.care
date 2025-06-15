@@ -20,6 +20,9 @@
       訂單資訊將寄送至您的 Email，<br>
       感謝您支持 <strong>春枝 Chun-Zhi</strong>
     </p>
+
+    <p id="order-number" class="text-sm text-gray-600"></p>
+
     <a href="/" class="inline-block px-6 py-2 bg-green-700 hover:bg-green-800 text-white rounded-full text-sm font-semibold transition">
       回首頁
     </a>
@@ -44,6 +47,14 @@
         })
       }).then(res => res.ok ? console.log('✅ 已寫入物流資訊') : console.warn('❌ 儲存失敗'));
     }
+
+    // ✅ 顯示訂單編號（並清除 localStorage）
+    const orderNumber = localStorage.getItem('lastOrder');
+    if (orderNumber) {
+      document.getElementById('order-number').textContent = `訂單編號：${orderNumber}`;
+      localStorage.removeItem('lastOrder');
+    }
+    localStorage.removeItem('checkout_email'); // ⚠️ 一起清除 email
   </script>
 </body>
 </html>
