@@ -1,11 +1,27 @@
-const express = require('express');
 const path = require('path');
+const dotenv = require('dotenv');
+
+// ✅ 把 dotenv 提早執行，並正確指定 .env 路徑
+dotenv.config({ path: path.resolve(__dirname, '../.env') });
+const express = require('express');
 const bodyParser = require('body-parser');
 const session = require('express-session');
+const Redis = require('ioredis');
+const RedisStore = require('connect-redis')(session); // ✅ 核心修正！
+
+const redisClient = new Redis(process.env.REDIS_URL, {
+  password: process.env.REDIS_TOKEN,
+  tls: {}
+});
+
+const store = new RedisStore({
+  client: redisClient,
+  prefix: 'sess:',
+});
+
 const passport = require('passport');
 const FacebookStrategy = require('passport-facebook').Strategy;
 const LineStrategy = require('passport-line-auth').Strategy;
-const dotenv = require('dotenv');
 const { pool, initDB } = require('./database');
 const { Resend } = require('resend');
 const { DateTime } = require('luxon'); 
@@ -27,9 +43,15 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.use(express.static('public'));
 app.use(session({
+  store: store,
   secret: process.env.SESSION_SECRET || 'default-secret',
   resave: false,
   saveUninitialized: false,
+  cookie: {
+    secure: process.env.NODE_ENV === 'production',
+    httpOnly: true,
+    maxAge: 1000 * 60 * 60 * 24 // 1 天
+  }
 }));
 app.use(passport.initialize());
 app.use(passport.session());
