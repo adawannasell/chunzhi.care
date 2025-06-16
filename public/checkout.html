@@ -196,16 +196,14 @@ if (match && match[1]) {
 }
 if (payload.email) localStorage.setItem('checkout_email', payload.email);
 
-// ✅ 清空購物車並開新視窗跳轉至綠界金流頁
+// ✅ 儲存必要資訊
 localStorage.removeItem('cart');
-const blob = new Blob([html], { type: 'text/html' });
-const blobURL = URL.createObjectURL(blob);
-window.open(blobURL, '_blank');
+if (payload.email) localStorage.setItem('checkout_email', payload.email);
 
-// ✅ 同時跳轉到 thankyou，讓用戶看見確認畫面
-setTimeout(() => {
-  window.location.href = '/thankyou.html';
-}, 1000);
+// ✅ 直接整頁跳轉綠界付款頁
+document.open();
+document.write(html);
+document.close();
     } catch (err) {
       const msgDiv = document.getElementById('message');
       msgDiv.className = 'error';
