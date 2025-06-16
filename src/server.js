@@ -189,20 +189,31 @@ app.post('/order', async (req, res) => {
 });
 
 app.post('/api/checkout', async (req, res) => {
-  const { name, phone, email, address, note, items } = req.body;
+  const { name, phone, email, address, note, items, storeID, logisticsSubType } = req.body;
   const user_id = req.user?.id || null;
   const orderNumber = await generateOrderNumber();
 
   try {
-    // 1️⃣ 建立訂單
+    // 1️⃣ 寫入訂單
     await pool.query(`
       INSERT INTO orders (order_number, user_id, name, phone, email, address, note, cart_items, logistics_id, payment_no, logistics_subtype)
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, null, null, null)
-    `, [orderNumber, user_id, name, phone, email, address, note || '', JSON.stringify(items)]);
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, null, null, $9)
+    `, [
+      orderNumber,
+      user_id,
+      name,
+      phone,
+      email,
+      address || '',
+      note || '',
+      JSON.stringify(items),
+      logisticsSubType || ''
+    ]);
 
     // 2️⃣ 寄信
-    const summary = items.map(i => `${i.name} x${i.qty}`).join('<br>');
     const resend = new Resend(process.env.RESEND_API_KEY);
+    const summary = items.map(i => `${i.name} x${i.qty || 1}`).join('<br>');
+
     await resend.emails.send({
       from: 'onboarding@resend.dev',
       to: email,
@@ -216,7 +227,7 @@ app.post('/api/checkout', async (req, res) => {
       `
     });
 
-    // 3️⃣ 建立物流訂單（用預設門市）
+    // 3️⃣ 建立物流訂單（用預設門市或你傳的 storeID）
     await fetch(`${process.env.BASE_URL}/api/logistics/create-order`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -224,18 +235,35 @@ app.post('/api/checkout', async (req, res) => {
         name,
         phone,
         email,
-        storeID: '006598',
-        itemName: summary,
+        storeID: storeID || '006598', // fallback 預設門市
+        itemName: summary.replace(/<br>/g, ', '),
         total: items.reduce((sum, i) => sum + (i.price * i.qty), 0)
       })
     });
 
-    res.redirect('/thankyou.html');
+    // 4️⃣ 回傳金流表單 HTML 給前端自動送出
+    const base_param = {
+      MerchantTradeNo: 'NO' + orderNumber,
+      MerchantTradeDate: DateTime.now().setZone('Asia/Taipei').toFormat('yyyy/MM/dd HH:mm:ss'),
+      TotalAmount: String(items.reduce((sum, i) => sum + (i.price * i.qty), 0)),
+      TradeDesc: '綠界付款',
+      ItemName: items.map(i => i.name).join('#'),
+      EncryptType: 1,
+      ReturnURL: process.env.ECPAY_RETURN_URL,
+      ClientBackURL: process.env.ECPAY_CLIENT_BACK_URL,
+      Remark: `${orderNumber} / ${email}`
+    };
+
+    const html = ecpayClient.payment_client.aio_check_out_all(base_param);
+    res.send(html); // ✅ 回傳給前端由它送出表單
+
   } catch (err) {
     console.error('❌ Checkout 錯誤:', err);
     res.status(500).send('🚨 結帳流程錯誤，請稍後再試');
   }
 });
+
+  
 
 app.get('/admin', async (req, res) => {
   const password = req.query.p;
