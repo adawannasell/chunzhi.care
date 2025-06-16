@@ -14,6 +14,7 @@ const LineStrategy = require('passport-line-auth').Strategy;
 const { pool, initDB } = require('./database');
 const { Resend } = require('resend');
 const { DateTime } = require('luxon');
+const { ecpayClient } = require('./utils/ecpay'); 
 
 const emailRoutes = require('./routes/email');
 const recommendRoute = require('./routes/recommend');
