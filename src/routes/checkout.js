@@ -50,7 +50,7 @@ router.post('/', async (req, res) => {
   try {
     const orderNumber = await generateOrderNumber();
     const user_id = req.user?.id || null;
-    const total = items.reduce((sum, i) => sum + (i.price * (i.qty || 1)), 0);
+    const total = Math.round(items.reduce((sum, i) => sum + (i.price * (i.qty || 1)), 0));
     const shippingAddress = method === 'HOME' ? address : '';
 
     // 1️⃣ 寫入訂單（logistics_id 初始為 null）
