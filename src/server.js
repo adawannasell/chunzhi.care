@@ -246,7 +246,7 @@ app.post('/api/checkout', async (req, res) => {
     const base_param = {
       MerchantTradeNo: 'NO' + orderNumber,
       MerchantTradeDate: DateTime.now().setZone('Asia/Taipei').toFormat('yyyy/MM/dd HH:mm:ss'),
-      TotalAmount: String(items.reduce((sum, i) => sum + (i.price * i.qty), 0)),
+      TotalAmount: Math.round(items.reduce((sum, i) => sum + (i.price * i.qty), 0)).toString(),
       TradeDesc: '綠界付款',
       ItemName: items.map(i => i.name).join('#'),
       EncryptType: 1,

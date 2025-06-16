@@ -21,7 +21,7 @@ router.post('/create-payment', (req, res) => {
   const base_param = {
     MerchantTradeNo: 'NO' + Date.now(),
     MerchantTradeDate: formatECPayDate(),
-    TotalAmount: String(total),
+    TotalAmount: Math.round(total).toString(), // ✅ 修正為整數字串
     TradeDesc: '綠界金流測試付款',
     ItemName: itemName,
     EncryptType: 1,
