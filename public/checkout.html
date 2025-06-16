@@ -24,7 +24,6 @@
     </div>
 
     <form id="checkout-form" class="space-y-4">
-      <!-- 配送方式 -->
       <div>
         <label class="font-semibold mb-2 block">🚚 配送方式</label>
         <label><input type="radio" name="deliveryMethod" value="CVS" checked /> 超商取貨</label>
@@ -35,17 +34,12 @@
         <input type="text" name="name" placeholder="收件人姓名" required class="border border-gray-300 rounded px-3 py-2" />
         <input type="text" name="phone" placeholder="聯絡電話" required class="border border-gray-300 rounded px-3 py-2" />
         <input type="email" name="email" placeholder="電子信箱" required class="border border-gray-300 rounded px-3 py-2 sm:col-span-2" />
-
-        <!-- 宅配地址包裹用於隱藏 -->
         <div id="homeAddressSection" class="sm:col-span-2">
-          <input type="text" name="address" id="homeAddress" placeholder="完整宅配地址"
-            class="border border-gray-300 rounded px-3 py-2 w-full" />
+          <input type="text" name="address" id="homeAddress" placeholder="完整宅配地址" class="border border-gray-300 rounded px-3 py-2 w-full" />
         </div>
-
         <textarea name="note" placeholder="備註（選填）" rows="2" class="border border-gray-300 rounded px-3 py-2 sm:col-span-2"></textarea>
       </div>
 
-      <!-- 超商門市區塊 -->
       <div id="cvsSection" class="mt-6 border border-gray-200 rounded p-4 bg-[#fdfaf5]">
         <h2 class="text-lg font-semibold mb-3">🏪 超商取貨門市</h2>
         <select id="logisticsSubType" class="border rounded px-2 py-1">
@@ -94,7 +88,6 @@
   }).join('');
   totalEl.textContent = `總金額：NT$${total}`;
 
-  // 超商類型更新
   document.getElementById('logisticsSubType').addEventListener('change', (e) => {
     document.getElementById('hiddenSubType').value = e.target.value;
   });
@@ -112,7 +105,7 @@
     el.addEventListener('change', toggleDeliveryMethod);
   });
 
-  toggleDeliveryMethod(); // 初始狀態
+  toggleDeliveryMethod();
 
   document.getElementById('openMap').addEventListener('click', () => {
     const subtype = document.getElementById('logisticsSubType').value;
@@ -159,8 +152,7 @@
 
     document.getElementById('logisticsSubType').value = subtype;
     document.getElementById('hiddenSubType').value = subtype;
-
-    toggleDeliveryMethod(); // 再次應用配送狀態
+    toggleDeliveryMethod();
   });
 
   document.getElementById('checkout-form').addEventListener('submit', async e => {
@@ -179,6 +171,10 @@
       items: cart
     };
 
+    const msgDiv = document.getElementById('message');
+    msgDiv.className = 'loading';
+    msgDiv.textContent = '📡 傳送中...請稍候';
+
     try {
       const res = await fetch('/api/checkout', {
         method: 'POST',
@@ -187,25 +183,24 @@
       });
 
       const html = await res.text();
-if (!res.ok) throw new Error(html);
+      if (!res.ok) throw new Error(html);
 
-// ✅ 儲存訂單編號與 email 到 localStorage
-const match = html.match(/訂單編號：(\w+)/);
-if (match && match[1]) {
-  localStorage.setItem('lastOrder', match[1]);
-}
-if (payload.email) localStorage.setItem('checkout_email', payload.email);
+      const match = html.match(/訂單編號：(\w+)/);
+      if (match && match[1]) {
+        localStorage.setItem('lastOrder', match[1]);
+      }
+      if (payload.email) localStorage.setItem('checkout_email', payload.email);
+      localStorage.removeItem('cart');
 
-// ✅ 儲存必要資訊
-localStorage.removeItem('cart');
-if (payload.email) localStorage.setItem('checkout_email', payload.email);
+      const win = window.open('', '_blank');
+      win.document.open();
+      win.document.write(html);
+      win.document.close();
 
-// ✅ 直接整頁跳轉綠界付款頁
-document.open();
-document.write(html);
-document.close();
+      msgDiv.className = 'success';
+      msgDiv.textContent = '✅ 訂單已送出，請查看彈出金流視窗完成付款';
+
     } catch (err) {
-      const msgDiv = document.getElementById('message');
       msgDiv.className = 'error';
       msgDiv.textContent = '❌ 訂單送出失敗：' + err.message;
     }
