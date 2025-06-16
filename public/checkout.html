@@ -191,8 +191,10 @@ if (!res.ok) throw new Error(html);
 
 // ✅ 儲存訂單編號與 email 到 localStorage
 const match = html.match(/訂單編號：(\w+)/);
-if (match) localStorage.setItem('lastOrder', match[1]);
-localStorage.setItem('checkout_email', payload.email);
+if (match && match[1]) {
+  localStorage.setItem('lastOrder', match[1]);
+}
+if (payload.email) localStorage.setItem('checkout_email', payload.email);
 
 // ✅ 清空購物車並開新視窗跳轉至綠界金流頁
 localStorage.removeItem('cart');
