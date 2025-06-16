@@ -160,16 +160,17 @@
     const form = e.target;
     const method = document.querySelector('input[name="deliveryMethod"]:checked').value;
 
-    const payload = {
-      name: form.name.value.trim(),
-      phone: form.phone.value.trim(),
-      email: form.email.value.trim(),
-      address: method === 'HOME' ? form.address.value.trim() : '',
-      note: form.note.value.trim(),
-      storeID: method === 'CVS' ? form.storeID.value.trim() : '',
-      logisticsSubType: method === 'CVS' ? form.logisticsSubType.value.trim() : '',
-      items: cart
-    };
+   const payload = {
+  name: form.name.value.trim(),
+  phone: form.phone.value.trim(),
+  email: form.email.value.trim(),
+  address: method === 'HOME' ? form.address.value.trim() : '',
+  note: form.note.value.trim(),
+  storeID: method === 'CVS' ? form.storeID.value.trim() : '',
+  logisticsSubType: method === 'CVS' ? form.logisticsSubType.value.trim() : '',
+  items: cart,
+  total: Math.round(cart.reduce((sum, i) => sum + (i.price * (i.quantity || 1)), 0)).toString()
+};
 
     const msgDiv = document.getElementById('message');
     msgDiv.className = 'loading';
