@@ -45,7 +45,7 @@
     <p class="text-lg mt-2">Embrace the Essence of Nature</p>
   </section>
 
-    <!-- 精簡型文字連結功能列 -->
+  <!-- 精簡型文字連結功能列 -->
   <section class="bg-[#f2f7f5] py-6 text-center border-t border-b">
     <div class="max-w-6xl mx-auto px-4 text-sm flex flex-wrap justify-center gap-x-8 gap-y-2 text-gray-700">
       <a href="/products/shampoo-intro" class="hover:underline hover:text-green-700">什麼是洗髮餅？</a>
@@ -91,14 +91,14 @@
         <h3 class="text-lg font-semibold">[2件組] 原味洗髮餅</h3>
         <p class="text-sm text-gray-500 mt-1">原價 NT$ 398</p>
         <p class="text-green-700 font-bold text-lg">NT$ 299</p>
-        <button onclick="addToCart('原味洗髮餅', 299)" class="mt-4 w-full py-2 bg-green-700 text-white rounded hover:bg-green-800">加入購物車</button>
+        <button onclick="addToCart('ShampooBarOriginal', 299)" class="mt-4 w-full py-2 bg-green-700 text-white rounded hover:bg-green-800">加入購物車</button>
       </div>
       <div class="bg-[#fdfaf5] p-4 rounded-xl shadow">
         <img src="/pp2.jpeg" alt="商品2" class="w-full rounded mb-4">
         <h3 class="text-lg font-semibold">[4件組] 洗髮餅組合優惠</h3>
         <p class="text-sm text-gray-500 mt-1">原價 NT$ 796</p>
         <p class="text-green-700 font-bold text-lg">NT$ 560</p>
-        <button onclick="addToCart('洗髮餅組合', 560)" class="mt-4 w-full py-2 bg-green-700 text-white rounded hover:bg-green-800">加入購物車</button>
+        <button onclick="addToCart('ShampooBarSet', 560)" class="mt-4 w-full py-2 bg-green-700 text-white rounded hover:bg-green-800">加入購物車</button>
       </div>
     </div>
   </section>
@@ -111,35 +111,30 @@
   </footer>
 
   <!-- 懸浮按鈕：聯絡客服（展開）、立即結帳、回頂部 -->
-<div x-data="{ showTop: false, openContact: false }" x-init="window.addEventListener('scroll', () => { showTop = window.scrollY > 200 })" class="fixed bottom-4 right-4 z-50 space-y-2 flex flex-col items-end">
-
-  <!-- 聯絡客服主按鈕 -->
-  <button @click="openContact = !openContact" class="px-4 py-2 bg-[#7c3aed] text-white rounded-full shadow hover:bg-[#6b21a8] text-sm">
-    <template x-if="!openContact">
-      <span>聯絡客服</span>
-    </template>
-    <template x-if="openContact">
-      <span>關閉客服</span>
-    </template>
-  </button>
-
-  <!-- 聯絡客服展開內容 -->
-  <div x-show="openContact" x-transition class="flex flex-col items-end space-y-2">
-    <a href="https://line.me/ti/p/你的LINEID" target="_blank" class="px-4 py-2 bg-[#4d7c0f] text-white rounded-full shadow hover:bg-[#3f6212] text-sm">LINE</a>
-    <a href="https://m.me/你的MessengerID" target="_blank" class="px-4 py-2 bg-[#3b5998] text-white rounded-full shadow hover:bg-[#2d4373] text-sm">Facebook</a>
-    <a href="mailto:you@example.com" class="px-4 py-2 bg-[#6b4c3b] text-white rounded-full shadow hover:bg-[#4e352a] text-sm">信箱</a>
+  <div x-data="{ showTop: false, openContact: false }" x-init="window.addEventListener('scroll', () => { showTop = window.scrollY > 200 })" class="fixed bottom-4 right-4 z-50 space-y-2 flex flex-col items-end">
+    <button @click="openContact = !openContact" class="px-4 py-2 bg-[#7c3aed] text-white rounded-full shadow hover:bg-[#6b21a8] text-sm">
+      <template x-if="!openContact">
+        <span>聯絡客服</span>
+      </template>
+      <template x-if="openContact">
+        <span>關閉客服</span>
+      </template>
+    </button>
+    <div x-show="openContact" x-transition class="flex flex-col items-end space-y-2">
+      <a href="https://line.me/ti/p/你的LINEID" target="_blank" class="px-4 py-2 bg-[#4d7c0f] text-white rounded-full shadow hover:bg-[#3f6212] text-sm">LINE</a>
+      <a href="https://m.me/你的MessengerID" target="_blank" class="px-4 py-2 bg-[#3b5998] text-white rounded-full shadow hover:bg-[#2d4373] text-sm">Facebook</a>
+      <a href="mailto:you@example.com" class="px-4 py-2 bg-[#6b4c3b] text-white rounded-full shadow hover:bg-[#4e352a] text-sm">信箱</a>
+    </div>
+    <a href="/checkout.html" onclick="return goToCheckout(event)" class="px-4 py-2 bg-[#a16244] text-white rounded-full shadow hover:bg-[#854c35] text-sm">立即結帳</a>
+    <button x-show="showTop" x-transition @click="window.scrollTo({ top: 0, behavior: 'smooth' })" class="px-4 py-2 bg-[#f6f4ec] text-[#1a1a1a] rounded-full shadow hover:bg-[#e6e1d5] text-sm">↑ 回頂部</button>
   </div>
 
-  <!-- 立即結帳（需登入判斷） -->
-  <a href="/checkout.html" onclick="return goToCheckout(event)" class="px-4 py-2 bg-[#a16244] text-white rounded-full shadow hover:bg-[#854c35] text-sm">立即結帳</a>
-
-  <!-- 回頂部 -->
-  <button x-show="showTop" x-transition @click="window.scrollTo({ top: 0, behavior: 'smooth' })" class="px-4 py-2 bg-[#f6f4ec] text-[#1a1a1a] rounded-full shadow hover:bg-[#e6e1d5] text-sm">↑ 回頂部</button>
-</div>
-
 <script>
+  const displayNames = {
+    ShampooBarOriginal: '原味洗髮餅',
+    ShampooBarSet: '洗髮餅組合優惠'
+  };
   let currentUser = null;
-
   fetch('/me')
     .then(res => res.json())
     .then(user => {
@@ -159,22 +154,21 @@
       el.href = '/login.html';
     });
 
-  function addToCart(name, price) {
+  function addToCart(id, price) {
     if (!currentUser) {
       alert("請先登入才能加入購物車！");
       window.location.href = '/login.html';
       return;
     }
-
     const cart = JSON.parse(localStorage.getItem('cart')) || [];
-    const existing = cart.find(item => item.name === name);
+    const existing = cart.find(item => item.id === id);
     if (existing) {
       existing.quantity += 1;
     } else {
-      cart.push({ name, price, quantity: 1 });
+      cart.push({ id, name: displayNames[id], price, quantity: 1 });
     }
     localStorage.setItem('cart', JSON.stringify(cart));
-    alert(`${name} 已加入購物車！`);
+    alert(`${displayNames[id]} 已加入購物車！`);
   }
 
   function goToCheckout(e) {
@@ -183,13 +177,11 @@
       window.location.href = "/login.html";
       return false;
     }
-
     const cart = JSON.parse(localStorage.getItem('cart')) || [];
     if (cart.length === 0) {
       alert("購物車是空的喔，請先加入商品！");
       return false;
     }
-
     return true;
   }
 </script>
