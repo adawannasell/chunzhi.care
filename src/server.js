@@ -21,7 +21,6 @@ const recommendRoute = require('./routes/recommend');
 const ecpayRoute = require('./routes/ecpay');
 const logisticsRoute = require('./routes/logistics');
 const returnImartRoute = require('./routes/return-imart');
-const checkoutRoute = require('./routes/checkout');
 const orderRoutes = require('./routes/orders'); // ✅ 加這行
 
 // ✅ 初始化資料庫
@@ -67,7 +66,6 @@ app.use('/api/ecpay', ecpayRoute);
 app.use('/health', (req, res) => res.send('ok'));
 app.use('/api/logistics', logisticsRoute);
 app.use('/api/logistics', returnImartRoute);
-app.use('/api', checkoutRoute);
 
 passport.serializeUser((user, done) => {
   done(null, user.provider_id);
