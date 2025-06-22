@@ -36,7 +36,6 @@ router.post('/', async (req, res) => {
 
   const method = logisticsSubType === 'HOME' ? 'HOME' : 'CVS';
 
-  // 🔍 驗證欄位
   if (!name || !phone || !email || !items?.length) {
     return res.status(400).send('❗ 請填寫完整欄位');
   }
@@ -53,14 +52,12 @@ router.post('/', async (req, res) => {
     const total = Math.round(items.reduce((sum, i) => sum + (i.price * (i.qty || 1)), 0));
     const shippingAddress = method === 'HOME' ? address : '';
 
-    // 1️⃣ 寫入訂單（logistics_id 初始為 null）
     await pool.query(
       `INSERT INTO orders (order_number, user_id, name, phone, email, address, note, cart_items, logistics_subtype, logistics_id)
        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, NULL)`,
       [orderNumber, user_id, name, phone, email, shippingAddress, note || '', JSON.stringify(items), logisticsSubType]
     );
 
-    // 2️⃣ 若是超商物流，建立物流訂單
     if (method === 'CVS') {
       const logisticsResult = await createClient.create({
         MerchantID: '2000132',
@@ -95,7 +92,6 @@ router.post('/', async (req, res) => {
       }
     }
 
-    // 3️⃣ 發送 email 通知
     const resend = new Resend(process.env.RESEND_API_KEY);
     const summary = items.map(i => `${i.name} x${i.qty || 1}`).join('<br>');
 
@@ -116,18 +112,21 @@ router.post('/', async (req, res) => {
       console.warn('⚠️ Email 發送失敗:', emailErr);
     }
 
-    // 4️⃣ 建立金流畫面
     const base_param = {
       MerchantTradeNo: 'NO' + orderNumber,
       MerchantTradeDate: formatECPayDate(),
       TotalAmount: String(total),
       TradeDesc: '綠界付款',
       ItemName: items.map(i => i.name).join('#'),
+      ChoosePayment: 'ALL',
+      IgnorePayment: '',
       EncryptType: 1,
       ReturnURL: process.env.ECPAY_RETURN_URL,
       ClientBackURL: process.env.ECPAY_CLIENT_BACK_URL,
       Remark: `${orderNumber} / ${email}`
     };
+
+    console.log('🔍 綠界 base_param:', base_param);
 
     const html = ecpayClient.payment_client.aio_check_out_all(base_param);
     res.send(html);

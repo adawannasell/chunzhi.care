@@ -21,20 +21,17 @@ router.post('/create-payment', (req, res) => {
   const base_param = {
     MerchantTradeNo: 'NO' + Date.now(),
     MerchantTradeDate: formatECPayDate(),
-    TotalAmount: Math.round(total).toString(), // ✅ 修正為整數字串
+    TotalAmount: Math.round(total).toString(), // ✅ 確保為整數字串
     TradeDesc: '綠界金流測試付款',
     ItemName: itemName,
     EncryptType: 1,
     ReturnURL: process.env.ECPAY_RETURN_URL,
     ClientBackURL: process.env.ECPAY_CLIENT_BACK_URL,
     Remark: email,
+    ChoosePayment: 'ALL' // ✅ 明確指定付款方式，避免格式錯誤
   };
 
-  console.log('新增交易: ', {
-    name,
-    email,
-    base_param,
-  });
+  console.log('🚀 即將送出金流參數：', JSON.stringify(base_param, null, 2));
 
   try {
     const html = ecpayClient.payment_client.aio_check_out_all(base_param);
@@ -49,9 +46,7 @@ router.post('/callback', express.urlencoded({ extended: false }), (req, res) => 
   const result = req.body;
   console.log('✅ 金流回傳結果：', result);
 
-  // ✅ 這裡可以驗證交易結果、更新訂單狀態
-  // result.MerchantTradeNo, result.TradeNo, result.RtnCode === '1'（成功）
-
+  // ✅ 可依據回傳更新訂單狀態
   res.send('1|OK');
 });
 
