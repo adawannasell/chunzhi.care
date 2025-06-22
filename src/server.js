@@ -193,6 +193,9 @@ app.post('/api/checkout', async (req, res) => {
   const orderNumber = await generateOrderNumber();
 
   try {
+    // ✅ 安全計算總金額（確保是整數）
+    const total = Math.round(items.reduce((sum, i) => sum + (parseFloat(i.price) * (i.qty || 1)), 0));
+
     // 1️⃣ 寫入訂單
     await pool.query(`
       INSERT INTO orders (order_number, user_id, name, phone, email, address, note, cart_items, logistics_id, payment_no, logistics_subtype)
@@ -209,10 +212,9 @@ app.post('/api/checkout', async (req, res) => {
       logisticsSubType || ''
     ]);
 
-    // 2️⃣ 寄信
+    // 2️⃣ 寄信通知
     const resend = new Resend(process.env.RESEND_API_KEY);
     const summary = items.map(i => `${i.name} x${i.qty || 1}`).join('<br>');
-
     await resend.emails.send({
       from: 'onboarding@resend.dev',
       to: email,
@@ -226,7 +228,7 @@ app.post('/api/checkout', async (req, res) => {
       `
     });
 
-    // 3️⃣ 建立物流訂單（用預設門市或你傳的 storeID）
+    // 3️⃣ 建立物流訂單（用預設門市或前端傳的 storeID）
     await fetch(`${process.env.BASE_URL}/api/logistics/create-order`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -234,17 +236,17 @@ app.post('/api/checkout', async (req, res) => {
         name,
         phone,
         email,
-        storeID: storeID || '006598', // fallback 預設門市
+        storeID: storeID || '006598',
         itemName: summary.replace(/<br>/g, ', '),
-        total: items.reduce((sum, i) => sum + (i.price * i.qty), 0)
+        total
       })
     });
 
-    // 4️⃣ 回傳金流表單 HTML 給前端自動送出
+    // 4️⃣ 建立綠界付款參數
     const base_param = {
       MerchantTradeNo: 'NO' + orderNumber,
       MerchantTradeDate: DateTime.now().setZone('Asia/Taipei').toFormat('yyyy/MM/dd HH:mm:ss'),
-      TotalAmount: Math.round(items.reduce((sum, i) => sum + (i.price * i.qty), 0)).toString(),
+      TotalAmount: total.toString(), // ✅ 整數字串
       TradeDesc: '綠界付款',
       ItemName: items.map(i => i.name).join('#'),
       EncryptType: 1,
@@ -253,8 +255,10 @@ app.post('/api/checkout', async (req, res) => {
       Remark: `${orderNumber} / ${email}`
     };
 
+    console.log('✅ 綠界金流金額為：', total.toString());
+
     const html = ecpayClient.payment_client.aio_check_out_all(base_param);
-    res.send(html); // ✅ 回傳給前端由它送出表單
+    res.send(html);
 
   } catch (err) {
     console.error('❌ Checkout 錯誤:', err);
@@ -262,7 +266,6 @@ app.post('/api/checkout', async (req, res) => {
   }
 });
 
-  
 
 app.get('/admin', async (req, res) => {
   const password = req.query.p;
