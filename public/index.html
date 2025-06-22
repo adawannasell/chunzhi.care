@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>鏡熙坊 Jing-Xi Fang | Handmade Shampoo Bar</title>
+  <title>春枝 Chun-Zhi | Handmade Shampoo Bar</title>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC&display=swap" rel="stylesheet" />
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/alpinejs" defer></script>
@@ -13,21 +13,21 @@
     }
   </style>
 </head>
-<body class="bg-[#3e2f23] text-[#f3e7d4]">
+<body class="bg-[#fdfaf5] text-[#1a1a1a]">
   <!-- 導覽列 -->
-  <nav class="bg-[#2e2218] shadow sticky top-0 z-50">
+  <nav class="bg-white shadow sticky top-0 z-50">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="flex justify-between h-16 items-center">
         <div class="flex space-x-8 text-sm font-medium">
-          <a href="#" class="text-[#f3e7d4] hover:text-[#f2b16d]">首頁</a>
-          <a href="#about" class="text-[#f3e7d4] hover:text-[#f2b16d]">品牌理念</a>
-          <a href="#products" class="text-[#f3e7d4] hover:text-[#f2b16d]">產品介紹</a>
-          <a href="#review" class="text-[#f3e7d4] hover:text-[#f2b16d]">顧客好評</a>
-          <a href="#contact" class="text-[#f3e7d4] hover:text-[#f2b16d]">聯絡我們</a>
+          <a href="#" class="text-gray-700 hover:text-green-700">首頁</a>
+          <a href="#about" class="text-gray-700 hover:text-green-700">品牌理念</a>
+          <a href="#products" class="text-gray-700 hover:text-green-700">產品介紹</a>
+          <a href="#review" class="text-gray-700 hover:text-green-700">顧客好評</a>
+          <a href="#contact" class="text-gray-700 hover:text-green-700">聯絡我們</a>
         </div>
         <div class="flex items-center space-x-4">
-          <a id="member-area" href="/login.html" class="text-[#f3e7d4] hover:text-[#f2b16d] text-sm">登入 / 註冊</a>
-          <a href="/cart.html" class="relative text-[#f3e7d4] hover:text-[#f2b16d]">
+          <a id="member-area" href="/login.html" class="text-gray-700 hover:text-green-700 text-sm">登入 / 註冊</a>
+          <a href="/cart.html" class="relative text-gray-700 hover:text-green-700">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                 d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13l-1.3 5.3a1 1 0 001 .7h12.6M7 13l1.3-5.3M17 17a2 2 0 100 4 2 2 0 000-4zm-10 0a2 2 0 100 4 2 2 0 000-4z" />
@@ -40,23 +40,22 @@
 
   <!-- Banner -->
   <section class="text-center py-28 bg-[url('/back.png')] bg-cover bg-center">
-    <img src="/logo.png" alt="鏡熙坊 Logo" class="mx-auto mb-6 w-32 h-32">
-    <h1 class="text-4xl font-bold tracking-wide">鏡熙坊</h1>
+    <img src="/logo.png" alt="春枝 Logo" class="mx-auto mb-6 w-32 h-32">
+    <h1 class="text-4xl font-bold tracking-wide">CHUN-ZHI</h1>
     <p class="text-lg mt-2">Embrace the Essence of Nature</p>
   </section>
 
   <!-- 精簡型文字連結功能列 -->
-  <section class="bg-[#4a392b] py-6 text-center border-t border-b border-[#715c4a]">
-    <div class="max-w-6xl mx-auto px-4 text-sm flex flex-wrap justify-center gap-x-8 gap-y-2 text-[#d8c5a5]">
-      <a href="/products/shampoo-intro" class="hover:underline hover:text-[#f2b16d]">什麼是洗髮餅？</a>
-      <a href="/products/hair-types" class="hover:underline hover:text-[#f2b16d]">依頭皮選配方</a>
-      <a href="/products/eco-benefits" class="hover:underline hover:text-[#f2b16d]">環保優勢與包裝</a>
-      <a href="/products/how-to-use" class="hover:underline hover:text-[#f2b16d]">使用教學</a>
-      <a href="/products/faq" class="hover:underline hover:text-[#f2b16d]">常見問題</a>
+  <section class="bg-[#f2f7f5] py-6 text-center border-t border-b">
+    <div class="max-w-6xl mx-auto px-4 text-sm flex flex-wrap justify-center gap-x-8 gap-y-2 text-gray-700">
+      <a href="/products/shampoo-intro" class="hover:underline hover:text-green-700">什麼是洗髮餅？</a>
+      <a href="/products/hair-types" class="hover:underline hover:text-green-700">依頭皮選配方</a>
+      <a href="/products/eco-benefits" class="hover:underline hover:text-green-700">環保優勢與包裝</a>
+      <a href="/products/how-to-use" class="hover:underline hover:text-green-700">使用教學</a>
+      <a href="/products/faq" class="hover:underline hover:text-green-700">常見問題</a>
     </div>
   </section>
 
-  <!-- 以下區塊保持原功能，但背景與文字色調深色處理，略微強調溫潤感 -->
   <!-- 一頁式商品展示區 -->
   <section id="products" class="py-16 px-4 flex flex-col gap-10 max-w-3xl mx-auto">
     <img src="/shampoo-1.jpg" alt="商品圖片1" class="w-full rounded-xl shadow">
@@ -65,10 +64,10 @@
   </section>
 
   <!-- 品牌介紹 -->
-  <section id="about" class="py-16 bg-[#2c2119] text-center px-6">
-    <h3 class="text-xl font-bold mb-4 text-[#f3e7d4]">品牌介紹</h3>
-    <p class="max-w-xl mx-auto text-sm leading-loose text-[#e0d2ba]">
-      鏡熙坊 Jing-Xi Fang 相信植物的力量與手作的溫度，採用天然萃取與在地素材製成每一顆洗髮餅，給你來自土地的柔和呵護。
+  <section id="about" class="py-16 bg-[#f6f4ec] text-center px-6">
+    <h3 class="text-xl font-bold mb-4">品牌介紹</h3>
+    <p class="max-w-xl mx-auto text-sm leading-loose">
+      春枝 CHUN-ZHI 相信植物的力量與手作的溫度，採用天然萃取與在地素材製成每一顆洗髮餅，給你來自土地的柔和呵護。
     </p>
   </section>
 
@@ -76,41 +75,115 @@
   <section id="review" class="py-16 px-6 text-center">
     <h3 class="text-xl font-bold mb-4">顧客好評</h3>
     <blockquote class="italic max-w-md mx-auto">
-      “用了鏡熙坊的洗髮餅之後，頭皮真的不癢了，而且洗完非常清爽，超喜歡～”<br />
+      “用了春枝的洗髮餅之後，頭皮真的不癢了，而且洗完非常清爽，超喜歡～”<br />
       <span class="text-sm font-light mt-2 block">—— 王小明</span>
     </blockquote>
   </section>
 
-  <!-- 熱銷組合區背景深色調整 -->
-  <section class="bg-[#2e2218] py-16 px-6">
+  <!-- 熱銷組合 -->
+  <section class="bg-white py-16 px-6">
     <div class="text-center mb-10">
-      <h2 class="text-2xl font-bold text-[#f3e7d4]">熱銷組合</h2>
+      <h2 class="text-2xl font-bold">熱銷組合</h2>
     </div>
     <div class="max-w-6xl mx-auto grid gap-8 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
-      <div class="bg-[#3e2f23] p-4 rounded-xl shadow">
+      <div class="bg-[#fdfaf5] p-4 rounded-xl shadow">
         <img src="/shampoo-1.jpg" alt="商品1" class="w-full rounded mb-4">
         <h3 class="text-lg font-semibold">[2件組] 原味洗髮餅</h3>
-        <p class="text-sm text-[#cbb89b] mt-1">原價 NT$ 398</p>
-        <p class="text-[#f2b16d] font-bold text-lg">NT$ 299</p>
-        <button onclick="addToCart('ShampooBarOriginal', 299)" class="mt-4 w-full py-2 bg-[#a47851] text-white rounded hover:bg-[#8f6541]">加入購物車</button>
+        <p class="text-sm text-gray-500 mt-1">原價 NT$ 398</p>
+        <p class="text-green-700 font-bold text-lg">NT$ 299</p>
+        <button onclick="addToCart('ShampooBarOriginal', 299)" class="mt-4 w-full py-2 bg-green-700 text-white rounded hover:bg-green-800">加入購物車</button>
       </div>
-      <div class="bg-[#3e2f23] p-4 rounded-xl shadow">
+      <div class="bg-[#fdfaf5] p-4 rounded-xl shadow">
         <img src="/pp2.jpeg" alt="商品2" class="w-full rounded mb-4">
         <h3 class="text-lg font-semibold">[4件組] 洗髮餅組合優惠</h3>
-        <p class="text-sm text-[#cbb89b] mt-1">原價 NT$ 796</p>
-        <p class="text-[#f2b16d] font-bold text-lg">NT$ 560</p>
-        <button onclick="addToCart('ShampooBarSet', 560)" class="mt-4 w-full py-2 bg-[#a47851] text-white rounded hover:bg-[#8f6541]">加入購物車</button>
+        <p class="text-sm text-gray-500 mt-1">原價 NT$ 796</p>
+        <p class="text-green-700 font-bold text-lg">NT$ 560</p>
+        <button onclick="addToCart('ShampooBarSet', 560)" class="mt-4 w-full py-2 bg-green-700 text-white rounded hover:bg-green-800">加入購物車</button>
       </div>
     </div>
   </section>
 
   <!-- Footer -->
-  <footer id="contact" class="bg-[#2c2119] py-10 text-center text-sm text-[#cbb89b]">
-    <p>© 2025 鏡熙坊 Jing-Xi Fang</p>
-    <p>聯絡信箱：support@jingxifang.com</p>
-    <p>Instagram：@jingxifang_care</p>
+  <footer id="contact" class="bg-[#e6e1d5] py-10 text-center text-sm text-gray-700">
+    <p>© 2025 春枝 CHUN-ZHI 手作洗髮餅</p>
+    <p>聯絡信箱：support@chunzhi.com</p>
+    <p>Instagram：@chunzhi_care</p>
   </footer>
 
-  <!-- 懸浮按鈕與功能保持不變 -->
+  <!-- 懸浮按鈕：聯絡客服（展開）、立即結帳、回頂部 -->
+  <div x-data="{ showTop: false, openContact: false }" x-init="window.addEventListener('scroll', () => { showTop = window.scrollY > 200 })" class="fixed bottom-4 right-4 z-50 space-y-2 flex flex-col items-end">
+    <button @click="openContact = !openContact" class="px-4 py-2 bg-[#7c3aed] text-white rounded-full shadow hover:bg-[#6b21a8] text-sm">
+      <template x-if="!openContact">
+        <span>聯絡客服</span>
+      </template>
+      <template x-if="openContact">
+        <span>關閉客服</span>
+      </template>
+    </button>
+    <div x-show="openContact" x-transition class="flex flex-col items-end space-y-2">
+      <a href="https://line.me/ti/p/你的LINEID" target="_blank" class="px-4 py-2 bg-[#4d7c0f] text-white rounded-full shadow hover:bg-[#3f6212] text-sm">LINE</a>
+      <a href="https://m.me/你的MessengerID" target="_blank" class="px-4 py-2 bg-[#3b5998] text-white rounded-full shadow hover:bg-[#2d4373] text-sm">Facebook</a>
+      <a href="mailto:you@example.com" class="px-4 py-2 bg-[#6b4c3b] text-white rounded-full shadow hover:bg-[#4e352a] text-sm">信箱</a>
+    </div>
+    <a href="/checkout.html" onclick="return goToCheckout(event)" class="px-4 py-2 bg-[#a16244] text-white rounded-full shadow hover:bg-[#854c35] text-sm">立即結帳</a>
+    <button x-show="showTop" x-transition @click="window.scrollTo({ top: 0, behavior: 'smooth' })" class="px-4 py-2 bg-[#f6f4ec] text-[#1a1a1a] rounded-full shadow hover:bg-[#e6e1d5] text-sm">↑ 回頂部</button>
+  </div>
+
+<script>
+  const displayNames = {
+    ShampooBarOriginal: '原味洗髮餅',
+    ShampooBarSet: '洗髮餅組合優惠'
+  };
+  let currentUser = null;
+  fetch('/me')
+    .then(res => res.json())
+    .then(user => {
+      const el = document.getElementById('member-area');
+      if (user.name) {
+        el.textContent = `歡迎，${user.name}`;
+        el.href = '/me.html';
+        currentUser = user;
+      } else {
+        el.textContent = '登入 / 註冊';
+        el.href = '/login.html';
+      }
+    })
+    .catch(() => {
+      const el = document.getElementById('member-area');
+      el.textContent = '登入 / 註冊';
+      el.href = '/login.html';
+    });
+
+  function addToCart(id, price) {
+    if (!currentUser) {
+      alert("請先登入才能加入購物車！");
+      window.location.href = '/login.html';
+      return;
+    }
+    const cart = JSON.parse(localStorage.getItem('cart')) || [];
+    const existing = cart.find(item => item.id === id);
+    if (existing) {
+      existing.quantity += 1;
+    } else {
+      cart.push({ id, name: displayNames[id], price, quantity: 1 });
+    }
+    localStorage.setItem('cart', JSON.stringify(cart));
+    alert(`${displayNames[id]} 已加入購物車！`);
+  }
+
+  function goToCheckout(e) {
+    if (!currentUser) {
+      alert("請先登入才能進入結帳頁！");
+      window.location.href = "/login.html";
+      return false;
+    }
+    const cart = JSON.parse(localStorage.getItem('cart')) || [];
+    if (cart.length === 0) {
+      alert("購物車是空的喔，請先加入商品！");
+      return false;
+    }
+    return true;
+  }
+</script>
 </body>
 </html>
