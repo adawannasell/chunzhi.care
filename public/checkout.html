@@ -16,196 +16,160 @@
 <body class="bg-[#fdfaf5] text-[#1a1a1a] px-4 py-12">
   <div class="max-w-2xl mx-auto bg-white rounded-xl shadow-md p-6">
     <h1 class="text-2xl font-bold text-center mb-6">結帳</h1>
-
     <div class="mb-6 border border-gray-200 rounded p-4 bg-[#fdfaf5]">
-      <h2 class="text-lg font-semibold mb-3">🛒 購物清單</h2>
+      <h2 class="text-lg font-semibold mb-3">🍎 購物清單</h2>
       <div id="items" class="text-sm leading-relaxed text-gray-800 space-y-1"></div>
       <p id="total" class="text-right font-semibold mt-4 text-green-700"></p>
     </div>
-
     <form id="checkout-form" class="space-y-4">
       <div>
         <label class="font-semibold mb-2 block">🚚 配送方式</label>
         <label><input type="radio" name="deliveryMethod" value="CVS" checked /> 超商取貨</label>
-        <label class="ml-4"><input type="radio" name="deliveryMethod" value="HOME" /> 宅配到府</label>
+        <label class="ml-4"><input type="radio" name="deliveryMethod" value="HOME" /> 家屋配送</label>
       </div>
-
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <input type="text" name="name" placeholder="收件人姓名" required class="border border-gray-300 rounded px-3 py-2" />
         <input type="text" name="phone" placeholder="聯絡電話" required class="border border-gray-300 rounded px-3 py-2" />
         <input type="email" name="email" placeholder="電子信箱" required class="border border-gray-300 rounded px-3 py-2 sm:col-span-2" />
         <div id="homeAddressSection" class="sm:col-span-2">
-          <input type="text" name="address" id="homeAddress" placeholder="完整宅配地址" class="border border-gray-300 rounded px-3 py-2 w-full" />
+          <input type="text" name="address" id="homeAddress" placeholder="完整家配地址" class="border border-gray-300 rounded px-3 py-2 w-full" />
         </div>
         <textarea name="note" placeholder="備註（選填）" rows="2" class="border border-gray-300 rounded px-3 py-2 sm:col-span-2"></textarea>
       </div>
-
       <div id="cvsSection" class="mt-6 border border-gray-200 rounded p-4 bg-[#fdfaf5]">
-        <h2 class="text-lg font-semibold mb-3">🏪 超商取貨門市</h2>
+        <h2 class="text-lg font-semibold mb-3">🏪 超商取貨門店</h2>
         <select id="logisticsSubType" class="border rounded px-2 py-1">
           <option value="FAMI">全家</option>
           <option value="UNIMART">7-11</option>
           <option value="HILIFE">萊爾富</option>
         </select>
-        <button type="button" id="openMap" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded mt-2">
-          選擇門市
-        </button>
+        <button type="button" id="openMap" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded mt-2">選擇門店</button>
         <input type="hidden" name="storeID" id="storeID" />
         <input type="hidden" name="logisticsSubType" id="hiddenSubType" value="FAMI" />
-        <div id="storeInfo" class="mt-3 text-sm text-gray-800">尚未選擇門市</div>
+        <div id="storeInfo" class="mt-3 text-sm text-gray-800">尚未選擇門店</div>
       </div>
-
       <div id="message"></div>
       <button type="submit" class="w-full bg-green-700 hover:bg-green-800 text-white py-3 rounded font-semibold transition">確認送出</button>
     </form>
   </div>
-
   <div class="max-w-xl mx-auto text-center mt-16">
     <h2 class="text-base font-semibold mb-4">如有任何問題</h2>
     <div class="space-y-4">
-      <a href="https://lin.ee/FS1G2gAC" target="_blank"
-        class="block w-full rounded-md bg-green-100 text-green-800 font-medium py-3 hover:bg-green-200 transition">
-        洽詢 LINE 客服
-      </a>
-      <a href="https://m.me/61555204626935" target="_blank"
-        class="block w-full rounded-md bg-blue-100 text-blue-800 font-medium py-3 hover:bg-blue-200 transition">
-        洽詢 Facebook 客服
-      </a>
+      <a href="https://lin.ee/FS1G2gAC" target="_blank" class="block w-full rounded-md bg-green-100 text-green-800 font-medium py-3 hover:bg-green-200 transition">潔訊 LINE 客服</a>
+      <a href="https://m.me/61555204626935" target="_blank" class="block w-full rounded-md bg-blue-100 text-blue-800 font-medium py-3 hover:bg-blue-200 transition">潔訊 Facebook 客服</a>
     </div>
   </div>
-
 <script>
-  const cart = JSON.parse(localStorage.getItem('cart')) || [];
-  const itemsEl = document.getElementById('items');
-  const totalEl = document.getElementById('total');
-  let total = 0;
-
-  itemsEl.innerHTML = cart.map(item => {
-    const quantity = item.quantity || 1;
-    const subtotal = item.price * quantity;
-    total += subtotal;
-    return `<div>${item.name} x ${quantity} <span class="float-right">NT$${subtotal}</span></div>`;
-  }).join('');
-  totalEl.textContent = `總金額：NT$${total}`;
-
-  document.getElementById('logisticsSubType').addEventListener('change', (e) => {
-    document.getElementById('hiddenSubType').value = e.target.value;
+const cart = JSON.parse(localStorage.getItem('cart')) || [];
+const itemsEl = document.getElementById('items');
+const totalEl = document.getElementById('total');
+let total = 0;
+itemsEl.innerHTML = cart.map(item => {
+  const quantity = item.quantity || 1;
+  const subtotal = item.price * quantity;
+  total += subtotal;
+  return `<div>${item.name} x ${quantity} <span class="float-right">NT$${subtotal}</span></div>`;
+}).join('');
+totalEl.textContent = `總金額：NT$${total}`;
+document.getElementById('logisticsSubType').addEventListener('change', (e) => {
+  document.getElementById('hiddenSubType').value = e.target.value;
+});
+const cvsSection = document.getElementById('cvsSection');
+const homeAddressSection = document.getElementById('homeAddressSection');
+function toggleDeliveryMethod() {
+  const method = document.querySelector('input[name="deliveryMethod"]:checked').value;
+  cvsSection.style.display = method === 'CVS' ? 'block' : 'none';
+  homeAddressSection.style.display = method === 'HOME' ? 'block' : 'none';
+}
+document.querySelectorAll('input[name="deliveryMethod"]').forEach(el => {
+  el.addEventListener('change', toggleDeliveryMethod);
+});
+toggleDeliveryMethod();
+document.getElementById('openMap').addEventListener('click', () => {
+  const subtype = document.getElementById('logisticsSubType').value;
+  const now = Date.now();
+  const form = document.createElement('form');
+  form.method = 'POST';
+  form.action = 'https://logistics-stage.ecpay.com.tw/Express/map';
+  form.target = '_blank';
+  const fields = {
+    MerchantID: '2000132',
+    MerchantTradeNo: 'MAP' + now,
+    LogisticsType: 'CVS',
+    LogisticsSubType: subtype,
+    IsCollection: 'N',
+    ServerReplyURL: location.origin + '/api/logistics/cvs-store-reply',
+    ClientReplyURL: location.href
+  };
+  Object.entries(fields).forEach(([k, v]) => {
+    const input = document.createElement('input');
+    input.type = 'hidden';
+    input.name = k;
+    input.value = v;
+    form.appendChild(input);
   });
-
-  const cvsSection = document.getElementById('cvsSection');
-  const homeAddressSection = document.getElementById('homeAddressSection');
-
-  function toggleDeliveryMethod() {
-    const method = document.querySelector('input[name="deliveryMethod"]:checked').value;
-    cvsSection.style.display = method === 'CVS' ? 'block' : 'none';
-    homeAddressSection.style.display = method === 'HOME' ? 'block' : 'none';
+  document.body.appendChild(form);
+  form.submit();
+  document.body.removeChild(form);
+});
+window.addEventListener('load', () => {
+  const params = new URLSearchParams(location.search);
+  const storeID = params.get('CVSStoreID');
+  const storeName = params.get('CVSStoreName');
+  const address = params.get('CVSAddress');
+  const subtype = params.get('subtype') || 'FAMI';
+  if (storeID && storeName) {
+    document.getElementById('storeID').value = storeID;
+    document.getElementById('storeInfo').textContent = `🏪 ${storeName}（${address}）`;
   }
-
-  document.querySelectorAll('input[name="deliveryMethod"]').forEach(el => {
-    el.addEventListener('change', toggleDeliveryMethod);
-  });
-
+  document.getElementById('logisticsSubType').value = subtype;
+  document.getElementById('hiddenSubType').value = subtype;
   toggleDeliveryMethod();
-
-  document.getElementById('openMap').addEventListener('click', () => {
-    const subtype = document.getElementById('logisticsSubType').value;
-    const now = Date.now();
-    const form = document.createElement('form');
-    form.method = 'POST';
-    form.action = 'https://logistics-stage.ecpay.com.tw/Express/map';
-    form.target = '_blank';
-
-    const fields = {
-      MerchantID: '2000132',
-      MerchantTradeNo: 'MAP' + now,
-      LogisticsType: 'CVS',
-      LogisticsSubType: subtype,
-      IsCollection: 'N',
-      ServerReplyURL: location.origin + '/api/logistics/cvs-store-reply',
-      ClientReplyURL: location.href
-    };
-
-    Object.entries(fields).forEach(([k, v]) => {
-      const input = document.createElement('input');
-      input.type = 'hidden';
-      input.name = k;
-      input.value = v;
-      form.appendChild(input);
+});
+document.getElementById('checkout-form').addEventListener('submit', async e => {
+  e.preventDefault();
+  const form = e.target;
+  const method = document.querySelector('input[name="deliveryMethod"]:checked').value;
+  const payload = {
+    name: form.name.value.trim(),
+    phone: form.phone.value.trim(),
+    email: form.email.value.trim(),
+    address: method === 'HOME' ? form.address.value.trim() : '',
+    note: form.note.value.trim(),
+    storeID: method === 'CVS' ? form.storeID.value.trim() : '',
+    logisticsSubType: method === 'CVS' ? form.logisticsSubType.value.trim() : '',
+    items: cart,
+    total: Math.round(cart.reduce((sum, i) => sum + (i.price * (i.quantity || 1)), 0)).toString()
+  };
+  const msgDiv = document.getElementById('message');
+  msgDiv.className = 'loading';
+  msgDiv.textContent = '📡 傳送中...請稍候';
+  try {
+    const res = await fetch('/api/checkout', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
     });
-
-    document.body.appendChild(form);
-    form.submit();
-    document.body.removeChild(form);
-  });
-
-  window.addEventListener('load', () => {
-    const params = new URLSearchParams(location.search);
-    const storeID = params.get('CVSStoreID');
-    const storeName = params.get('CVSStoreName');
-    const address = params.get('CVSAddress');
-    const subtype = params.get('subtype') || 'FAMI';
-
-    if (storeID && storeName) {
-      document.getElementById('storeID').value = storeID;
-      document.getElementById('storeInfo').textContent = `🏪 ${storeName}（${address}）`;
-    }
-
-    document.getElementById('logisticsSubType').value = subtype;
-    document.getElementById('hiddenSubType').value = subtype;
-    toggleDeliveryMethod();
-  });
-
-  document.getElementById('checkout-form').addEventListener('submit', async e => {
-    e.preventDefault();
-    const form = e.target;
-    const method = document.querySelector('input[name="deliveryMethod"]:checked').value;
-
-   const payload = {
-  name: form.name.value.trim(),
-  phone: form.phone.value.trim(),
-  email: form.email.value.trim(),
-  address: method === 'HOME' ? form.address.value.trim() : '',
-  note: form.note.value.trim(),
-  storeID: method === 'CVS' ? form.storeID.value.trim() : '',
-  logisticsSubType: method === 'CVS' ? form.logisticsSubType.value.trim() : '',
-  items: cart,
-  total: Math.round(cart.reduce((sum, i) => sum + (i.price * (i.quantity || 1)), 0)).toString()
-};
-
-    const msgDiv = document.getElementById('message');
-    msgDiv.className = 'loading';
-    msgDiv.textContent = '📡 傳送中...請稍候';
-
-    try {
-      const res = await fetch('/api/checkout', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-      });
-
-      const html = await res.text();
-      if (!res.ok) throw new Error(html);
-
-      const match = html.match(/訂單編號：(\w+)/);
-      if (match && match[1]) {
-        localStorage.setItem('lastOrder', match[1]);
-      }
-      if (payload.email) localStorage.setItem('checkout_email', payload.email);
-      localStorage.removeItem('cart');
-
-      const win = window.open('', '_blank');
-      win.document.open();
-      win.document.write(html);
-      win.document.close();
-
+    const html = await res.text();
+    if (!res.ok) throw new Error(html);
+    const wrapper = document.createElement('div');
+    wrapper.innerHTML = html;
+    document.body.appendChild(wrapper);
+    const paymentForm = wrapper.querySelector('form');
+    if (paymentForm) {
+      paymentForm.submit();
       msgDiv.className = 'success';
-      msgDiv.textContent = '✅ 訂單已送出，請查看彈出金流視窗完成付款';
-
-    } catch (err) {
-      msgDiv.className = 'error';
-      msgDiv.textContent = '❌ 訂單送出失敗：' + err.message;
+      msgDiv.textContent = '✅ 訂單已送出，將前往付款頁面';
+    } else {
+      throw new Error('付款表單建立失敗');
     }
-  });
+    localStorage.setItem('checkout_email', payload.email);
+    localStorage.removeItem('cart');
+  } catch (err) {
+    msgDiv.className = 'error';
+    msgDiv.textContent = '❌ 訂單送出失敗：' + err.message;
+  }
+});
 </script>
 </body>
 </html>
