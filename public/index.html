@@ -67,6 +67,8 @@
         <img src="/shampoo-1.jpg" class="rounded mb-4" alt="商品圖片">
         <h3 class="text-sm font-semibold mb-2">枸杞玫瑰滋養洗髮餅</h3>
         <p class="text-xs text-gray-600">適合乾性與敏感頭皮</p>
+        <button onclick="addToCart('ShampooGojiRose', 380)" class="w-full py-2 bg-[#924b46] text-white rounded hover:bg-[#6b2e2e] text-sm">加入購物車
+        </button>
       </div>
       <!-- 可依此格式繼續複製其他產品 -->
     </div>
@@ -125,7 +127,8 @@
 <script>
   const displayNames = {
     ShampooBarOriginal: '原味洗髮餅',
-    ShampooBarSet: '洗髮餅組合優惠'
+    ShampooBarSet: '洗髮餅組合優惠',
+    ShampooGojiRose: '枸杞玫瑰滋養洗髮餅'
   };
   let currentUser = null;
   fetch('/me')
