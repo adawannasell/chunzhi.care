@@ -11,6 +11,28 @@
     .success { color: #7a3e2d; margin-top: 20px; }
     .error { color: #c0392b; margin-top: 20px; }
     .loading { color: #6e5843; }
+
+.line-btn {
+  background-color: #e6f5ec;
+  color: #0d5d3e;
+  border: 1px solid #b6ddc9; /* 綠色邊框 */
+  font-weight: 500;
+  letter-spacing: 0.5px;
+}
+.line-btn:hover {
+  background-color: #c9ebd8;
+}
+
+.fb-btn {
+  background-color: #e4e6f9;
+  color: #2a427b;
+  border: 1px solid #b3bddf; /* 藍色邊框 */
+  font-weight: 500;
+  letter-spacing: 0.5px;
+}
+.fb-btn:hover {
+  background-color: #d0d4f0;
+}
   </style>
 </head>
 <body class="bg-[#f6f1e9] text-[#3a2d20] px-4 py-12">
@@ -62,8 +84,8 @@
   <div class="max-w-xl mx-auto text-center mt-16">
     <h2 class="text-base font-semibold mb-4">如有任何問題</h2>
     <div class="space-y-4">
-      <a href="https://lin.ee/FS1G2gAC" target="_blank" class="block w-full rounded-xl bg-[#fbe8dc] text-[#9c3f2d] font-medium py-3 hover:bg-[#f3dbcc] transition">洽詢 LINE 客服</a>
-      <a href="https://m.me/61555204626935" target="_blank" class="block w-full rounded-xl bg-[#e4e6f9] text-[#3e4ba2] font-medium py-3 hover:bg-[#d7d9f3] transition">洽詢 Facebook 客服</a>
+    <a href="/auth/line" class="block w-full mb-3 py-2 rounded-full transition line-btn">洽詢 LINE 客服</a>
+    <a href="/auth/facebook" class="block w-full py-2 rounded-full transition fb-btn">洽詢 Facebook 客服</a>
     </div>
   </div>
 
