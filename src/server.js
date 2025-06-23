@@ -277,71 +277,72 @@ app.get('/admin', async (req, res) => {
     const result = await pool.query('SELECT * FROM orders ORDER BY created_at DESC');
     const orders = result.rows;
 
-    const html = `
-      <html><head><meta charset="UTF-8" /><title>訂單後台</title>
-      <style>
-        body { font-family: sans-serif; padding: 40px; background: #f6f6f6; }
-        table { border-collapse: collapse; width: 100%; background: white; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-        th, td { border: 1px solid #ccc; padding: 8px; text-align: left; vertical-align: top; }
-        input[type="search"] { padding: 10px; width: 300px; margin-bottom: 20px; font-size: 1rem; }
-        button { background: #6b8e23; color: white; border: none; padding: 5px 10px; cursor: pointer; border-radius: 4px; }
-      </style>
-      <script>
-        function filterOrders() {
-          const keyword = document.getElementById('search').value.toLowerCase();
-          document.querySelectorAll('tbody tr').forEach(row => {
-            const text = row.innerText.toLowerCase();
-            row.style.display = text.includes(keyword) ? '' : 'none';
-          });
-        }
-        async function updateStatus(id, current) {
-          const newStatus = current === '未出貨' ? '已出貨' : '未出貨';
-          const res = await fetch('/admin/update', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ id, status: newStatus })
-          });
-          if (res.ok) location.reload(); else alert('更新失敗');
-        }
-      </script></head>
-      <body>
-        <h1>📦 訂單後台（${orders.length} 筆）</h1>
-        <input type="search" id="search" oninput="filterOrders()" placeholder="搜尋姓名、電話、Email...">
-        <table>
-          <thead>
-            <tr>
-              <th>姓名</th><th>電話</th><th>Email</th><th>地址</th><th>備註</th>
-              <th>狀態</th><th>商品</th><th>物流資訊</th><th>時間</th>
-            </tr>
-          </thead>
-          <tbody>
-            ${orders.map(o => `
-              <tr>
-                <td>${o.name}</td>
-                <td>${o.phone}</td>
-                <td>${o.email}</td>
-                <td>${o.address}</td>
-                <td>${o.note || ''}</td>
-                <td><button onclick="updateStatus(${o.id}, '${o.status}')">${o.status}</button></td>
-                <td><pre>${JSON.stringify(o.cart_items, null, 2)}</pre></td>
-                <td>
-                  <div>
-                    訂單編號：${o.order_number || '—'}<br>
-                    物流單號：${o.logistics_id || '—'}<br>
-                    代碼：${o.payment_no || '—'}<br>
-                    ${o.logistics_subtype || '—'}<br>
-                    <a href="/api/logistics/print/${o.logistics_id}/${o.payment_no}/${o.logistics_subtype}" target="_blank">🖨列印</a><br>
-                    <a href="/api/logistics/status/${o.logistics_id}" target="_blank">📦查詢</a>
-                  </div>
-                </td>
-                <td>${DateTime.fromISO(o.created_at.toISOString()).setZone('Asia/Taipei').toFormat('yyyy/MM/dd HH:mm')}</td>
-              </tr>
-            `).join('')}
-          </tbody>
-        </table>
-      </body>
-      </html>
-    `;
+   const html = `
+  <html><head><meta charset="UTF-8" /><title>訂單後台</title>
+  <style>
+    body { font-family: sans-serif; padding: 40px; background: #f6f6f6; }
+    table { border-collapse: collapse; width: 100%; background: white; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+    th, td { border: 1px solid #ccc; padding: 8px; text-align: left; vertical-align: top; }
+    input[type="search"] { padding: 10px; width: 300px; margin-bottom: 20px; font-size: 1rem; }
+    button { background: #6b8e23; color: white; border: none; padding: 5px 10px; cursor: pointer; border-radius: 4px; }
+  </style>
+  <script>
+    function filterOrders() {
+      const keyword = document.getElementById('search').value.toLowerCase();
+      document.querySelectorAll('tbody tr').forEach(row => {
+        const text = row.innerText.toLowerCase();
+        row.style.display = text.includes(keyword) ? '' : 'none';
+      });
+    }
+    async function updateStatus(id, current) {
+      const newStatus = current === '未出貨' ? '已出貨' : '未出貨';
+      const res = await fetch('/admin/update', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id, status: newStatus })
+      });
+      if (res.ok) location.reload(); else alert('更新失敗');
+    }
+  </script></head>
+  <body>
+    <h1>📦 訂單後台（${orders.length} 筆）</h1>
+    <input type="search" id="search" oninput="filterOrders()" placeholder="搜尋姓名、電話、Email...">
+    <table>
+      <thead>
+        <tr>
+          <th>姓名</th><th>電話</th><th>Email</th><th>地址</th><th>備註</th>
+          <th>狀態</th><th>商品</th><th>物流資訊</th><th>時間</th><th>付款</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${orders.map(o => `
+          <tr>
+            <td>${o.name}</td>
+            <td>${o.phone}</td>
+            <td>${o.email}</td>
+            <td>${o.address}</td>
+            <td>${o.note || ''}</td>
+            <td><button onclick="updateStatus(${o.id}, '${o.status}')">${o.status}</button></td>
+            <td><pre>${JSON.stringify(o.cart_items, null, 2)}</pre></td>
+            <td>
+              <div>
+                訂單編號：${o.order_number || '—'}<br>
+                物流單號：${o.logistics_id || '—'}<br>
+                代碼：${o.payment_no || '—'}<br>
+                ${o.logistics_subtype || '—'}<br>
+                <a href="/api/logistics/print/${o.logistics_id}/${o.payment_no}/${o.logistics_subtype}" target="_blank">🖨列印</a><br>
+                <a href="/api/logistics/status/${o.logistics_id}" target="_blank">📦查詢</a>
+              </div>
+            </td>
+            <td>${DateTime.fromISO(o.created_at.toISOString()).setZone('Asia/Taipei').toFormat('yyyy/MM/dd HH:mm')}</td>
+            <td>${o.is_paid ? '✅ 已付款' : '❌ 未付款'}</td>
+          </tr>
+        `).join('')}
+      </tbody>
+    </table>
+  </body>
+  </html>
+`;
 
     res.send(html);
   } catch (err) {
@@ -424,6 +425,32 @@ app.post('/api/logistics/save-info', async (req, res) => {
   } catch (err) {
     console.error('❌ 更新物流資訊失敗:', err);
     res.status(500).send('🚨 系統錯誤，請稍後再試');
+  }
+});
+
+app.post('/ecpay/return', async (req, res) => {
+  try {
+    const { MerchantTradeNo, RtnCode } = req.body;
+
+    if (RtnCode !== '1') {
+      return res.send('❌ 未成功付款');
+    }
+
+    // 取得訂單編號（從 MerchantTradeNo 中去掉前綴 "NO"）
+    const orderNumber = MerchantTradeNo.replace(/^NO/, '');
+
+    // 更新資料庫 is_paid 為 true
+    await pool.query(`
+      UPDATE orders
+      SET is_paid = true
+      WHERE order_number = $1
+    `, [orderNumber]);
+
+    console.log('✅ 已更新付款狀態為已付款：', orderNumber);
+    res.send('1|OK'); // ✅ 綠界要求成功訊息格式
+  } catch (err) {
+    console.error('❌ 綠界回傳處理失敗:', err);
+    res.status(500).send('0|ERROR');
   }
 });
 
