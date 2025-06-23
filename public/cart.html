@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>購物車 | 春枝 Chun-Zhi</title>
+  <title>購物車 | 鏡熙坊</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC&display=swap" rel="stylesheet">
   <style>
@@ -12,27 +12,28 @@
     }
   </style>
 </head>
-<body class="bg-[#fdf4e7] text-[#1a1a1a] min-h-screen px-4 py-10">
+<body class="bg-[#f6f1e9] text-[#3a2d20] min-h-screen px-4 py-10">
 
-  <div class="max-w-4xl mx-auto bg-white rounded-xl shadow p-6">
-    <h1 class="text-2xl font-bold mb-6 text-center">購物車</h1>
+  <div class="max-w-4xl mx-auto bg-white rounded-2xl shadow-xl p-6">
+    <h1 class="text-2xl font-bold mb-6 text-center tracking-wide">購物車</h1>
+
     <div id="cart-container" class="space-y-4">
-      <p class="text-center text-sm text-gray-500">載入中...</p>
+      <p class="text-center text-sm text-[#6e5843]">載入中...</p>
     </div>
 
-    <div class="mt-6 border-t pt-4 text-right">
-      <h2 id="total" class="text-lg font-semibold">總金額：NT$0</h2>
+    <div class="mt-6 border-t border-[#e8d8c3] pt-4 text-right">
+      <h2 id="total" class="text-lg font-semibold text-[#7a3e2d]">總金額：NT$0</h2>
       <div class="flex justify-end space-x-4 mt-3">
-        <button id="clear-cart" class="text-sm px-4 py-2 bg-gray-200 rounded hover:bg-gray-300 hidden">清空購物車</button>
+        <button id="clear-cart" class="text-sm px-4 py-2 bg-[#e7dccc] hover:bg-[#dacfbf] text-[#3a2d20] rounded hidden">清空購物車</button>
         <a id="checkout-btn" href="/checkout.html" class="hidden">
-          <button class="text-sm px-5 py-2 bg-green-700 text-white rounded hover:bg-green-800">前往結帳</button>
+          <button class="text-sm px-5 py-2 bg-[#9c3f2d] hover:bg-[#7a2f21] text-white rounded">前往結帳</button>
         </a>
       </div>
     </div>
   </div>
 
-  <footer class="text-xs text-gray-500 mt-12 text-center">
-    <p>© 2025 春枝 CHUN-ZHI</p>
+  <footer class="text-xs text-[#6e5843] mt-12 text-center">
+    <p>© 2025 鏡熙坊</p>
     <p>support@chunzhi.com｜@chunzhi_care</p>
   </footer>
 
@@ -54,7 +55,7 @@
       const cart = JSON.parse(localStorage.getItem('cart')) || [];
 
       if (cart.length === 0) {
-        cartContainer.innerHTML = '<p class="text-center text-sm text-gray-500">購物車是空的</p>';
+        cartContainer.innerHTML = '<p class="text-center text-sm text-[#6e5843]">購物車是空的</p>';
         totalElem.textContent = '總金額：NT$0';
         checkoutBtn.classList.add('hidden');
         clearCartBtn.classList.add('hidden');
@@ -69,21 +70,21 @@
         total += subtotal;
 
         const card = document.createElement('div');
-        card.className = 'flex border rounded-lg p-4 gap-4 items-center';
+        card.className = 'flex border border-[#e8d8c3] rounded-xl p-4 gap-4 items-center bg-[#fdfaf5]';
 
         card.innerHTML = `
           <img src="${item.image || '/shampoo-1.jpg'}" class="w-20 h-20 rounded object-cover" alt="${item.name}">
           <div class="flex-1">
             <p class="font-medium text-sm">${item.name}</p>
-            <p class="text-xs text-gray-500">NT$${item.price} / 單件</p>
+            <p class="text-xs text-[#6e5843]">NT$${item.price} / 單件</p>
             <div class="flex items-center mt-2 space-x-2">
-              <button onclick="changeQty(${index}, -1)" class="px-2 py-1 bg-gray-200 rounded hover:bg-gray-300">減少</button>
+              <button onclick="changeQty(${index}, -1)" class="px-2 py-1 bg-[#e7dccc] hover:bg-[#dacfbf] text-[#3a2d20] rounded">減少</button>
               <span>${qty}</span>
-              <button onclick="changeQty(${index}, 1)" class="px-2 py-1 bg-gray-200 rounded hover:bg-gray-300">增加</button>
+              <button onclick="changeQty(${index}, 1)" class="px-2 py-1 bg-[#e7dccc] hover:bg-[#dacfbf] text-[#3a2d20] rounded">增加</button>
             </div>
           </div>
           <div class="text-sm text-right">
-            <p>NT$${subtotal}</p>
+            <p class="text-[#7a3e2d]">NT$${subtotal}</p>
             <button onclick="removeItem(${index})" class="text-xs text-red-500 mt-2 hover:underline">刪除</button>
           </div>
         `;
