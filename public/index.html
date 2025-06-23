@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>春枝 Chun-Zhi | Handmade Shampoo Bar</title>
+  <title>鏡熙坊 | 漢方洗髮餅專門選品</title>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC&display=swap" rel="stylesheet" />
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/alpinejs" defer></script>
@@ -13,101 +13,94 @@
     }
   </style>
 </head>
-<body class="bg-[#fdfaf5] text-[#1a1a1a]">
+<body class="bg-[#f6f4ec] text-[#3a2d20]">
   <!-- 導覽列 -->
-  <nav class="bg-white shadow sticky top-0 z-50">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="flex justify-between h-16 items-center">
-        <div class="flex space-x-8 text-sm font-medium">
-          <a href="#" class="text-gray-700 hover:text-green-700">首頁</a>
-          <a href="#about" class="text-gray-700 hover:text-green-700">品牌理念</a>
-          <a href="#products" class="text-gray-700 hover:text-green-700">產品介紹</a>
-          <a href="#review" class="text-gray-700 hover:text-green-700">顧客好評</a>
-          <a href="#contact" class="text-gray-700 hover:text-green-700">聯絡我們</a>
-        </div>
-        <div class="flex items-center space-x-4">
-          <a id="member-area" href="/login.html" class="text-gray-700 hover:text-green-700 text-sm">登入 / 註冊</a>
-          <a href="/cart.html" class="relative text-gray-700 hover:text-green-700">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13l-1.3 5.3a1 1 0 001 .7h12.6M7 13l1.3-5.3M17 17a2 2 0 100 4 2 2 0 000-4zm-10 0a2 2 0 100 4 2 2 0 000-4z" />
-            </svg>
-          </a>
-        </div>
+  <nav class="bg-[#fdfaf5] shadow sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center h-16">
+      <div class="flex space-x-6 text-sm font-medium">
+        <a href="#" class="hover:text-[#924b46]">首頁</a>
+        <a href="#about" class="hover:text-[#924b46]">品牌理念</a>
+        <a href="#products" class="hover:text-[#924b46]">商品選品</a>
+        <a href="#review" class="hover:text-[#924b46]">顧客回饋</a>
+        <a href="#subscribe" class="hover:text-[#924b46]">關注我們</a>
+      </div>
+      <div>
+        <a id="member-area" href="/login.html" class="text-sm hover:text-[#924b46]">登入 / 註冊</a>
       </div>
     </div>
   </nav>
 
-  <!-- Banner -->
-  <section class="text-center py-28 bg-[url('/back.png')] bg-cover bg-center">
-    <img src="/logo.png" alt="春枝 Logo" class="mx-auto mb-6 w-32 h-32">
-    <h1 class="text-4xl font-bold tracking-wide">CHUN-ZHI</h1>
-    <p class="text-lg mt-2">Embrace the Essence of Nature</p>
-  </section>
-
-  <!-- 精簡型文字連結功能列 -->
-  <section class="bg-[#f2f7f5] py-6 text-center border-t border-b">
-    <div class="max-w-6xl mx-auto px-4 text-sm flex flex-wrap justify-center gap-x-8 gap-y-2 text-gray-700">
-      <a href="/products/shampoo-intro" class="hover:underline hover:text-green-700">什麼是洗髮餅？</a>
-      <a href="/products/hair-types" class="hover:underline hover:text-green-700">依頭皮選配方</a>
-      <a href="/products/eco-benefits" class="hover:underline hover:text-green-700">環保優勢與包裝</a>
-      <a href="/products/how-to-use" class="hover:underline hover:text-green-700">使用教學</a>
-      <a href="/products/faq" class="hover:underline hover:text-green-700">常見問題</a>
+  <!-- Hero 區塊 -->
+  <section class="text-center py-24 bg-[url('/bg-texture.jpg')] bg-cover bg-center">
+    <img src="/logo-circle.png" alt="鏡熙坊 Logo" class="mx-auto mb-6 w-28 h-28">
+    <h1 class="text-3xl tracking-wide mb-2">鏡熙坊 · 醒來的溫柔</h1>
+    <p class="text-sm mb-6">以漢方草本，照見頭皮與肌膚的清淨根源</p>
+    <div class="flex justify-center space-x-4">
+      <a href="/products" class="bg-[#924b46] text-white px-6 py-2 rounded-full text-sm">立即選購</a>
+      <a href="#about" class="border border-[#924b46] text-[#924b46] px-6 py-2 rounded-full text-sm">關於鏡熙坊</a>
     </div>
   </section>
 
-  <!-- 一頁式商品展示區 -->
-  <section id="products" class="py-16 px-4 flex flex-col gap-10 max-w-3xl mx-auto">
-    <img src="/shampoo-1.jpg" alt="商品圖片1" class="w-full rounded-xl shadow">
-    <img src="/pp2.jpeg" alt="商品圖片2" class="w-full rounded-xl shadow">
-    <img src="/shampoo-1.jpg" alt="商品圖片3" class="w-full rounded-xl shadow">
-  </section>
-
-  <!-- 品牌介紹 -->
-  <section id="about" class="py-16 bg-[#f6f4ec] text-center px-6">
-    <h3 class="text-xl font-bold mb-4">品牌介紹</h3>
-    <p class="max-w-xl mx-auto text-sm leading-loose">
-      春枝 CHUN-ZHI 相信植物的力量與手作的溫度，採用天然萃取與在地素材製成每一顆洗髮餅，給你來自土地的柔和呵護。
-    </p>
-  </section>
-
-  <!-- 顧客好評 -->
-  <section id="review" class="py-16 px-6 text-center">
-    <h3 class="text-xl font-bold mb-4">顧客好評</h3>
-    <blockquote class="italic max-w-md mx-auto">
-      “用了春枝的洗髮餅之後，頭皮真的不癢了，而且洗完非常清爽，超喜歡～”<br />
-      <span class="text-sm font-light mt-2 block">—— 王小明</span>
-    </blockquote>
-  </section>
-
-  <!-- 熱銷組合 -->
-  <section class="bg-white py-16 px-6">
-    <div class="text-center mb-10">
-      <h2 class="text-2xl font-bold">熱銷組合</h2>
-    </div>
-    <div class="max-w-6xl mx-auto grid gap-8 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
-      <div class="bg-[#fdfaf5] p-4 rounded-xl shadow">
-        <img src="/shampoo-1.jpg" alt="商品1" class="w-full rounded mb-4">
-        <h3 class="text-lg font-semibold">[2件組] 原味洗髮餅</h3>
-        <p class="text-sm text-gray-500 mt-1">原價 NT$ 398</p>
-        <p class="text-green-700 font-bold text-lg">NT$ 299</p>
-        <button onclick="addToCart('ShampooBarOriginal', 299)" class="mt-4 w-full py-2 bg-green-700 text-white rounded hover:bg-green-800">加入購物車</button>
-      </div>
-      <div class="bg-[#fdfaf5] p-4 rounded-xl shadow">
-        <img src="/pp2.jpeg" alt="商品2" class="w-full rounded mb-4">
-        <h3 class="text-lg font-semibold">[4件組] 洗髮餅組合優惠</h3>
-        <p class="text-sm text-gray-500 mt-1">原價 NT$ 796</p>
-        <p class="text-green-700 font-bold text-lg">NT$ 560</p>
-        <button onclick="addToCart('ShampooBarSet', 560)" class="mt-4 w-full py-2 bg-green-700 text-white rounded hover:bg-green-800">加入購物車</button>
+  <!-- 品牌理念區 -->
+  <section id="about" class="py-16 bg-[#fbf9f4] px-6">
+    <div class="max-w-5xl mx-auto flex flex-col md:flex-row items-center gap-8">
+      <img src="/herb-illustration.jpg" alt="草本插畫" class="w-full md:w-1/2 rounded-xl">
+      <div class="text-sm leading-relaxed space-y-4 md:w-1/2">
+        <p>我們相信，每一塊洗髮餅，都是與身體對話的起點。</p>
+        <p>融合草本知識、東方美學與現代配方，讓清潔成為一場覺察。</p>
+        <ul class="text-xs mt-4 space-y-1">
+          <li>．漢方嚴選</li>
+          <li>．小批製作</li>
+          <li>．不傷地球</li>
+          <li>．成分公開</li>
+        </ul>
       </div>
     </div>
   </section>
 
-  <!-- Footer -->
-  <footer id="contact" class="bg-[#e6e1d5] py-10 text-center text-sm text-gray-700">
-    <p>© 2025 春枝 CHUN-ZHI 手作洗髮餅</p>
-    <p>聯絡信箱：support@chunzhi.com</p>
-    <p>Instagram：@chunzhi_care</p>
+  <!-- 產品展示區 -->
+  <section id="products" class="py-16 px-6">
+    <h2 class="text-center text-xl font-semibold mb-10">商品選品</h2>
+    <div class="max-w-5xl mx-auto grid gap-8 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+      <!-- 每一項商品 -->
+      <div class="bg-white rounded-xl shadow p-4">
+        <img src="/shampoo-1.jpg" class="rounded mb-4" alt="商品圖片">
+        <h3 class="text-sm font-semibold mb-2">枸杞玫瑰滋養洗髮餅</h3>
+        <p class="text-xs text-gray-600">適合乾性與敏感頭皮</p>
+      </div>
+      <!-- 可依此格式繼續複製其他產品 -->
+    </div>
+  </section>
+
+  <!-- 顧客推薦區 -->
+  <section id="review" class="py-16 px-6 bg-[#fdfaf5] text-center">
+    <h2 class="text-xl font-semibold mb-10">顧客回饋</h2>
+    <div class="max-w-xl mx-auto space-y-8">
+      <blockquote class="italic">“第一次用洗髮餅，居然不乾澀，真的洗感很純淨。”<br><span class="text-sm mt-1 block">– 小庭</span></blockquote>
+      <blockquote class="italic">“很喜歡這種不花俏的氣味，安心又舒服。”<br><span class="text-sm mt-1 block">– Eva</span></blockquote>
+    </div>
+  </section>
+
+  <!-- 訂閱與社群連結 -->
+  <section id="subscribe" class="py-16 px-6 text-center">
+    <h2 class="text-xl font-semibold mb-4">訂閱新品消息</h2>
+    <p class="text-sm mb-6">留下 Email，搶先收到新品與優惠通知</p>
+    <form class="max-w-sm mx-auto flex flex-col sm:flex-row gap-4">
+      <input type="email" placeholder="請輸入 Email" class="w-full px-4 py-2 border rounded" required>
+      <button type="submit" class="bg-[#924b46] text-white px-6 py-2 rounded">訂閱</button>
+    </form>
+    <div class="mt-6 space-x-4">
+      <a href="https://instagram.com" target="_blank">Instagram</a>
+      <a href="https://facebook.com" target="_blank">Facebook</a>
+      <a href="https://threads.net" target="_blank">Threads</a>
+    </div>
+  </section>
+
+  <!-- 頁尾 -->
+  <footer class="bg-[#e6e1d5] py-10 text-center text-xs text-gray-700">
+    <p>鏡熙坊 | 愛自己，從洗淨開始</p>
+    <p class="mt-1">聯絡信箱：support@jingxi.com</p>
+    <p class="mt-1">© 2025 JingXi Fang 鏡熙坊. All rights reserved.</p>
   </footer>
 
   <!-- 懸浮按鈕：聯絡客服（展開）、立即結帳、回頂部 -->
