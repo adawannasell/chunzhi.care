@@ -77,22 +77,10 @@
       </div>
     </section>
 
-<section id="about" class="py-20 px-6 bg-[#e9c896] text-[#4b2b1b]">
-  <div class="max-w-6xl mx-auto flex flex-col md:flex-row items-center gap-12">
-    <div class="relative">
-      <img src="logo.png" alt="草本插畫" class="w-80 h-80 rounded-full object-cover shadow-xl border-[6px] border-[#f6e2c3]">
-      <div class="absolute inset-0 rounded-full border border-[#d8ae7e] animate-pulse opacity-30"></div>
-    </div>
+   <section id="intro" class="py-16 px-6">
+    <h2 class="text-center text-xl font-semibold mb-10">商品介紹</h2>
+    <div class="max-w-5xl mx-auto grid gap-8 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
 
-    <div class="md:w-1/2 text-[15px] md:text-base leading-loose tracking-wide space-y-5">
-      <div class="border-t border-[#d6a161] w-12 mb-4"></div>
-      <p class="font-semibold text-lg">我是愛妲，鏡熙坊的選品人。</p>
-      <p>過去，我的頭皮長期受脂漏性皮膚炎困擾，每次洗頭都得反覆使用藥性強烈的洗髮精，才能勉強壓住癢與出油。那段時間，洗頭對我來說是一種壓力，而非療癒。</p>
-      <p>為了尋找更溫和、有效又不失儀式感的洗護方式，我開始接觸洗髮餅。一路嘗試了各種品牌，有的成分複雜、有的香味過重、有的清潔力不夠——卻始終找不到真正適合我的那一款。</p>
-      <p>於是，我決定與專業的洗髮餅研發團隊合作，從自身需求出發，針對東方髮質與濕熱氣候，一起打造出能真正讓頭皮舒緩、髮絲清爽的產品。</p>
-      <p>鏡熙坊因此誕生。我們的每一款洗髮餅，都是經過我親自試用、反覆調整過後的選擇。它們不只是產品，而是一份來自經驗與理解的回應——給每一個對成分敏感、對生活講究的你。</p>
-      <p class="italic">願你在鏡熙坊，也能找到那一顆，真正對你溫柔以待的洗髮餅。</p>
-    </div>
   </div>
 </section>
 
@@ -120,6 +108,25 @@
       <blockquote class="italic">“很喜歡這種不花俏的氣味，安心又舒服。”<br><span class="text-sm mt-1 block">– Eva</span></blockquote>
     </div>
   </section>
+
+  <section id="about" class="py-20 px-6 bg-[#e9c896] text-[#4b2b1b]">
+  <div class="max-w-6xl mx-auto flex flex-col md:flex-row items-center gap-12">
+    <div class="relative">
+      <img src="logo.png" alt="草本插畫" class="w-80 h-80 rounded-full object-cover shadow-xl border-[6px] border-[#f6e2c3]">
+      <div class="absolute inset-0 rounded-full border border-[#d8ae7e] animate-pulse opacity-30"></div>
+    </div>
+
+    <div class="md:w-1/2 text-[15px] md:text-base leading-loose tracking-wide space-y-5">
+      <div class="border-t border-[#d6a161] w-12 mb-4"></div>
+      <p class="font-semibold text-lg">我是愛妲，鏡熙坊的選品人。</p>
+      <p>過去，我的頭皮長期受脂漏性皮膚炎困擾，每次洗頭都得反覆使用藥性強烈的洗髮精，才能勉強壓住癢與出油。那段時間，洗頭對我來說是一種壓力，而非療癒。</p>
+      <p>為了尋找更溫和、有效又不失儀式感的洗護方式，我開始接觸洗髮餅。一路嘗試了各種品牌，有的成分複雜、有的香味過重、有的清潔力不夠——卻始終找不到真正適合我的那一款。</p>
+      <p>於是，我決定與專業的洗髮餅研發團隊合作，從自身需求出發，針對東方髮質與濕熱氣候，一起打造出能真正讓頭皮舒緩、髮絲清爽的產品。</p>
+      <p>鏡熙坊因此誕生。我們的每一款洗髮餅，都是經過我親自試用、反覆調整過後的選擇。它們不只是產品，而是一份來自經驗與理解的回應——給每一個對成分敏感、對生活講究的你。</p>
+      <p class="italic">願你在鏡熙坊，也能找到那一顆，真正對你溫柔以待的洗髮餅。</p>
+    </div>
+  </div>
+</section>
 
   <!-- 訂閱與社群連結 -->
   <section id="subscribe" class="py-16 px-6 text-center">
@@ -220,6 +227,11 @@
     }
     return true;
   }
+
+window.history.scrollRestoration = 'manual';
+  window.addEventListener('load', () => {
+    window.scrollTo(0, 0);
+  });
 </script>
 </body>
 </html>
