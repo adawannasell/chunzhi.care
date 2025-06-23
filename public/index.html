@@ -75,18 +75,217 @@
           </div>
         </div>
       </div>
-    </section>
+    </section>  
 
-   <section id="intro" class="py-16 px-6">
-    <h2 class="text-center text-xl font-semibold mb-10">商品介紹</h2>
-    <div class="max-w-5xl mx-auto grid gap-8 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+    <!-- 淺色間隔過渡區塊 -->
+<div class="bg-[#f4e9dd] h-16 w-full rounded-t-[60px] -mb-8"></div>
 
+<!-- 字體 -->
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@500;700&display=swap" rel="stylesheet" />
+<style>
+  .serif-title {
+    font-family: 'Noto Serif TC', serif;
+  }
+</style>
+
+<section class="bg-[#7a3e34] py-24 px-6 text-[#7a3e34]">
+  <div class="max-w-7xl mx-auto">
+
+    <!-- 大標 -->
+    <h2 class="serif-title text-white text-5xl md:text-7xl font-bold text-center mb-16 tracking-wide">
+      為什麼選擇洗髮餅
+    </h2>
+
+    <!-- 主要內容 -->
+    <div class="grid md:grid-cols-2 gap-12 items-stretch">
+
+      <!-- 插圖：設定同高 -->
+      <div class="flex items-center justify-center">
+        <img src="./intro1.png" alt="洗頭插圖" class="h-full max-h-[480px] w-auto object-contain rounded-md shadow-md" />
+      </div>
+
+      <!-- 白色文字方框 -->
+      <div class="bg-white rounded-2xl shadow-xl p-10 flex flex-col justify-center">
+        <ul class="space-y-10 text-[#7a3e34] leading-relaxed">
+          <li>
+            <p class="text-2xl font-bold leading-snug"># 洗感清爽不乾澀</p>
+            <p class="text-lg mt-1">嚴選胺基酸界面活性劑，洗後清爽無負擔。</p>
+          </li>
+          <li>
+            <p class="text-2xl font-bold leading-snug"># 成分溫和不刺激</p>
+            <p class="text-lg mt-1">優質洗髮餅為接近頭皮的弱酸性，真正不刺激。</p>
+          </li>
+          <li>
+            <p class="text-2xl font-bold leading-snug"># 一顆抵多瓶</p>
+            <p class="text-lg mt-1">高濃縮無水配方，持久省錢又實用。</p>
+          </li>
+          <li>
+            <p class="text-2xl font-bold leading-snug"># 環保少塑新選擇</p>
+            <p class="text-lg mt-1">無塑膠瓶包裝，減少廢棄物愛地球。</p>
+          </li>
+        </ul>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<section id="natural-comparison" class="bg-[url('./intro2.png')] bg-cover bg-center bg-no-repeat text-[#3a2d20] py-28 px-6 font-sans tracking-normal leading-relaxed">
+  <div class="max-w-6xl mx-auto space-y-24">
+
+    <!-- 對比標題 -->
+    <div class="text-center space-y-4">
+      <h2 class="text-5xl md:text-6xl font-serif font-bold text-[#3a2d20] tracking-widest">洗髮精 vs 洗髮餅</h2>
+      <p class="text-xl md:text-2xl text-[#7a5744]">成分 × 使用感 × 環保性，誰才是真正的自然洗感？</p>
+    </div>
+
+    <!-- 成分比較 -->
+    <div class="space-y-8">
+      <h3 class="text-2xl md:text-3xl font-serif font-semibold border-l-4 border-[#a0694f] pl-4">成分層面比較</h3>
+      <div class="overflow-x-auto">
+        <table class="w-full border border-[#d2bfae] text-base text-left bg-white">
+          <thead class="bg-[#ede1d5] text-[#3a2d20] font-semibold">
+            <tr>
+              <th class="py-4 px-5 border">項目</th>
+              <th class="py-4 px-5 border">洗髮餅</th>
+              <th class="py-4 px-5 border">洗髮精</th>
+            </tr>
+          </thead>
+          <tbody class="text-[#4b3e30] font-normal">
+            <tr class="hover:bg-[#fdf8f4]">
+              <td class="py-4 px-5 border">常見基底</td>
+              <td class="py-4 px-5 border">椰油胺基酸、植物油、皂基</td>
+              <td class="py-4 px-5 border">水、SLS/SLES、矽靈、防腐劑</td>
+            </tr>
+            <tr class="hover:bg-[#fdf8f4]">
+              <td class="py-4 px-5 border">是否含水</td>
+              <td class="py-4 px-5 border">無水固態，不易滋生細菌</td>
+              <td class="py-4 px-5 border">含水基底，需添加防腐劑</td>
+            </tr>
+            <tr class="hover:bg-[#fdf8f4]">
+              <td class="py-4 px-5 border">柔順來源</td>
+              <td class="py-4 px-5 border">天然油脂、無矽靈</td>
+              <td class="py-4 px-5 border">矽靈、增稠劑、滑順劑</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="text-base text-[#7a6651] italic mt-2">※ 洗髮餅因其乾燥形態，更適合極簡與自然取向的配方。</p>
+    </div>
+
+    <!-- 環保性比較 -->
+    <div class="space-y-8">
+      <h3 class="text-2xl md:text-3xl font-serif font-semibold border-l-4 border-[#a0694f] pl-4">環保性比較</h3>
+      <div class="grid md:grid-cols-3 gap-6 text-base">
+        <div class="bg-[#ede1d5] p-6 rounded-xl shadow-sm space-y-2">
+          <h4 class="font-semibold text-[#3a2d20]">包裝方式</h4>
+          <p><strong>洗髮餅：</strong>裸裝／紙盒，低塑包裝</p>
+          <p><strong>洗髮精：</strong>以塑膠瓶為主</p>
+        </div>
+        <div class="bg-[#ede1d5] p-6 rounded-xl shadow-sm space-y-2">
+          <h4 class="font-semibold text-[#3a2d20]">濃縮程度</h4>
+          <p><strong>洗髮餅：</strong>高濃縮、使用次數多</p>
+          <p><strong>洗髮精：</strong>90% 是水</p>
+        </div>
+        <div class="bg-[#ede1d5] p-6 rounded-xl shadow-sm space-y-2">
+          <h4 class="font-semibold text-[#3a2d20]">出行友善度</h4>
+          <p><strong>洗髮餅：</strong>固體設計，飛機上也可安心攜帶</p>
+          <p><strong>洗髮精：</strong>液體受限、易灑漏</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- 使用感受 -->
+    <div class="space-y-6">
+      <h3 class="text-2xl md:text-3xl font-serif font-semibold border-l-4 border-[#a0694f] pl-4">使用感受差異</h3>
+      <div class="text-base leading-loose text-[#3f3328] bg-[#f9f3ee] p-6 rounded-xl space-y-3">
+        <p><strong>洗髮精：</strong>泡沫多、滑感強，但多為矽靈與柔順劑造成，長期恐堵塞毛孔。</p>
+        <p><strong>洗髮餅：</strong>清爽無負擔、初期略澀，但無化學殘留，是頭皮回歸自然的第一步。</p>
+        <p>多數使用者在 1–2 週內，會明顯感受到出油減少與蓬鬆感提升。</p>
+      </div>
+    </div>
+
+    <!-- 結語 -->
+    <div class="bg-[#d8c3ae] text-[#3a2d20] p-10 rounded-2xl space-y-5 shadow-inner font-sans text-base">
+      <h3 class="text-2xl font-semibold font-serif tracking-wide">結論：自然，不只是成分，更是選擇</h3>
+      <p>
+        如果你在意的不只是表面潔淨，更想讓頭皮與生活節奏同步，洗髮餅會是一個值得信賴的選擇：
+      </p>
+      <ul class="list-disc pl-6 space-y-1">
+        <li>不含矽靈、SLS / SLES、人工色素</li>
+        <li>使用草本植物油脂、胺基酸界面劑</li>
+        <li>無塑包裝、無水配方、旅行無負擔</li>
+      </ul>
+      <p class="text-[#5a3f2c] font-medium mt-3">洗的是頭髮，更是對自己與地球的溫柔承諾。</p>
+    </div>
+
+  </div>
+</section>    
+
+<section class="bg-[#fdfaf5] text-[#3a2d20] py-16 px-6 font-sans">
+  <div class="max-w-5xl mx-auto space-y-10">
+    <!-- 標題 -->
+    <div class="text-center space-y-2">
+      <h2 class="text-3xl md:text-4xl font-bold leading-snug">喜歡手工皂的你，更要來認識洗髮餅</h2>
+      <p class="text-[#6e5845] text-base md:text-lg">手工皂對皮膚友善，但頭皮有不同需求</p>
+      <p class="text-sm md:text-base text-[#6e5845]">讓你堅持的天然，真正照顧到頭皮的需求</p>
+    </div>
+
+    <!-- 產品圖與比較表 -->
+    <div class="flex flex-col md:flex-row items-center gap-8">
+
+      <div class="overflow-x-auto w-full">
+        <table class="w-full text-sm md:text-base border border-[#cfc2b2]">
+          <thead class="bg-[#f6f1ea] text-[#3a2d20] font-semibold">
+            <tr>
+              <th class="p-3 border border-[#cfc2b2]">選手</th>
+              <th class="p-3 border border-[#cfc2b2]">手工皂（髮皂）</th>
+              <th class="p-3 border border-[#cfc2b2]">洗髮餅</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="p-3 border border-[#cfc2b2]">pH 值</td>
+              <td class="p-3 border border-[#cfc2b2]">偏鹼性（8-9）</td>
+              <td class="p-3 border border-[#cfc2b2]">偏酸性（約 5.5）<br><span class="text-sm text-[#d94a27]">（更貼近頭皮）✅</span></td>
+            </tr>
+            <tr class="bg-[#fbf7f2]">
+              <td class="p-3 border border-[#cfc2b2]">洗後感</td>
+              <td class="p-3 border border-[#cfc2b2]">毛躁打結</td>
+              <td class="p-3 border border-[#cfc2b2]">清爽不澀 ✅</td>
+            </tr>
+            <tr>
+              <td class="p-3 border border-[#cfc2b2]">清潔成分</td>
+              <td class="p-3 border border-[#cfc2b2]">鹼＋油皂化</td>
+              <td class="p-3 border border-[#cfc2b2]">起泡劑＋植萃營養 ✅</td>
+            </tr>
+            <tr class="bg-[#fbf7f2]">
+              <td class="p-3 border border-[#cfc2b2]">適用對象</td>
+              <td class="p-3 border border-[#cfc2b2]">偏油、短髮</td>
+              <td class="p-3 border border-[#cfc2b2]">各類髮質、頭皮都適用 ✅</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- 補充說明 -->
+    <div class="text-sm text-[#4e3d2b] space-y-1">
+      <p>✅ 專為頭皮設計</p>
+      <p>✅ 弱酸性無須酸洗</p>
+    </div>
+  </div>
+</section>
+
+<section id="intro3" class="py-36 px-6 bg-[url('./intro3.png')] bg-cover bg-center min-h-[600px]">
+  <div class="max-w-6xl mx-auto h-full">
+    <!-- 空內容，保留區塊高度與圖片完整性 -->
   </div>
 </section>
 
   <!-- 產品展示區 -->
   <section id="products" class="py-16 px-6">
-    <h2 class="text-center text-xl font-semibold mb-10">商品選品</h2>
+    <h2 class="text-center text-xl font-semibold mb-10">商品選購</h2>
     <div class="max-w-5xl mx-auto grid gap-8 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
       <!-- 每一項商品 -->
       <div class="bg-white rounded-xl shadow p-4">
