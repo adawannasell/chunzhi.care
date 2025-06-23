@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>會員中心 | 春枝 Chun-Zhi</title>
+  <title>會員中心 | 鏡熙坊</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC&display=swap" rel="stylesheet" />
   <style>
@@ -12,35 +12,35 @@
     }
   </style>
 </head>
-<body class="bg-[#fdf4e7] text-[#1a1a1a] min-h-screen flex flex-col items-center px-4 py-10">
+<body class="bg-[#f6f1e9] text-[#3a2d20] min-h-screen flex flex-col items-center px-4 py-10">
 
-  <div class="w-full max-w-5xl bg-white rounded-xl shadow p-8 flex flex-col md:flex-row gap-8">
+  <div class="w-full max-w-5xl bg-white rounded-2xl shadow-xl p-8 flex flex-col md:flex-row gap-8">
     
     <!-- 側邊選單 -->
-    <aside class="w-full md:w-1/4 space-y-4 text-sm">
-      <a href="/me.html" class="block hover:text-green-700">會員中心</a>
-      <a href="/orders.html" class="block hover:text-green-700">我的訂單</a>
-      <a href="/logout" class="block hover:text-green-700">登出</a>
+    <aside class="w-full md:w-1/4 space-y-4 text-sm font-medium">
+      <a href="/me.html" class="block hover:text-[#9c3f2d]">會員中心</a>
+      <a href="/orders.html" class="block hover:text-[#9c3f2d]">我的訂單</a>
+      <a href="/logout" class="block hover:text-[#9c3f2d]">登出</a>
     </aside>
 
     <!-- 會員資料 -->
     <main class="w-full md:w-3/4 space-y-6 text-sm">
-      <h1 class="text-xl font-bold mb-2">會員中心</h1>
+      <h1 class="text-xl font-bold mb-2 tracking-wide">會員中心</h1>
       <div class="space-y-4">
         <div>
           <p><span class="font-semibold">姓名：</span><span id="name">載入中...</span></p>
-          <button id="edit-name" class="mt-1 text-green-700 hover:underline text-xs">更新會員名稱</button>
+          <button id="edit-name" class="mt-1 text-[#9c3f2d] hover:underline text-xs">更新會員名稱</button>
         </div>
         <div>
           <p><span class="font-semibold">Email：</span><span id="email">載入中...</span></p>
         </div>
         <div>
           <p><span class="font-semibold">收件地址：</span><span id="address">尚未設定</span></p>
-          <button id="edit-address" class="mt-1 text-green-700 hover:underline text-xs">更新收件地址</button>
+          <button id="edit-address" class="mt-1 text-[#9c3f2d] hover:underline text-xs">更新收件地址</button>
         </div>
       </div>
 
-      <div class="pt-4 border-t">
+      <div class="pt-4 border-t border-[#e8d8c3]">
         <h2 class="font-bold mb-2">登入綁定</h2>
         <p>
           LINE 帳號：<span id="line-status">載入中...</span>
@@ -52,8 +52,8 @@
     </main>
   </div>
 
-  <footer class="text-xs text-gray-500 mt-8 text-center">
-    <p>© 2025 春枝 CHUN-ZHI</p>
+  <footer class="text-xs text-[#6e5843] mt-8 text-center">
+    <p>© 2025 鏡熙坊</p>
     <p>support@chunzhi.com｜@chunzhi_care</p>
   </footer>
 
@@ -70,13 +70,13 @@
         // 登入來源顯示
         if (data.source === 'line') {
           document.getElementById('line-status').textContent = '已綁定';
-          document.getElementById('fb-status').innerHTML = '尚未綁定 <a href="/auth/facebook" class="ml-2 text-green-700 hover:underline">立即綁定</a>';
+          document.getElementById('fb-status').innerHTML = '尚未綁定 <a href="/auth/facebook" class="ml-2 text-[#9c3f2d] hover:underline">立即綁定</a>';
         } else if (data.source === 'facebook') {
           document.getElementById('fb-status').textContent = '已綁定';
-          document.getElementById('line-status').innerHTML = '尚未綁定 <a href="/auth/line" class="ml-2 text-green-700 hover:underline">立即綁定</a>';
+          document.getElementById('line-status').innerHTML = '尚未綁定 <a href="/auth/line" class="ml-2 text-[#9c3f2d] hover:underline">立即綁定</a>';
         } else {
-          document.getElementById('fb-status').innerHTML = '尚未綁定 <a href="/auth/facebook" class="ml-2 text-green-700 hover:underline">立即綁定</a>';
-          document.getElementById('line-status').innerHTML = '尚未綁定 <a href="/auth/line" class="ml-2 text-green-700 hover:underline">立即綁定</a>';
+          document.getElementById('fb-status').innerHTML = '尚未綁定 <a href="/auth/facebook" class="ml-2 text-[#9c3f2d] hover:underline">立即綁定</a>';
+          document.getElementById('line-status').innerHTML = '尚未綁定 <a href="/auth/line" class="ml-2 text-[#9c3f2d] hover:underline">立即綁定</a>';
         }
       })
       .catch(() => window.location.href = '/login.html');

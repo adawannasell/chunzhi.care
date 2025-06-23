@@ -3,84 +3,83 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>我的訂單 | 春枝 Chun-Zhi</title>
+  <title>我的訂單 | 鏡熙坊</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC&display=swap" rel="stylesheet" />
   <style>
     body {
       font-family: 'Noto Serif TC', serif;
     }
   </style>
 </head>
-<body class="bg-[#fdf4e7] text-[#1a1a1a] min-h-screen px-4 py-10">
-  <div class="max-w-4xl mx-auto bg-white shadow rounded-xl p-8">
-    <h1 class="text-2xl font-bold mb-6">我的訂單</h1>
-    <div id="orders" class="space-y-6">
-      <p>載入中...</p>
+<body class="bg-[#f6f1e9] text-[#3a2d20] min-h-screen px-4 py-10">
+  <div class="max-w-4xl mx-auto bg-white shadow-xl rounded-2xl p-8">
+    <h1 class="text-2xl font-bold mb-6 tracking-wide">我的訂單</h1>
+    <div id="orders" class="space-y-6 text-sm">
+      <p class="text-center text-[#8c7b66]">載入中...</p>
     </div>
   </div>
 
-  <footer class="text-xs text-gray-500 mt-8 text-center">
-    <p>© 2025 春枝 CHUN-ZHI</p>
+  <footer class="text-xs text-[#6e5843] mt-10 text-center">
+    <p>© 2025 鏡熙坊</p>
     <p>support@chunzhi.com｜@chunzhi_care</p>
   </footer>
 
- <script>
-  fetch('/me')
-    .then(res => res.json())
-    .then(user => {
-      if (!user.name) {
+  <script>
+    fetch('/me')
+      .then(res => res.json())
+      .then(user => {
+        if (!user.name) {
+          window.location.href = '/login.html';
+          return;
+        }
+
+        fetch('/api/orders')
+          .then(res => res.json())
+          .then(data => {
+            const container = document.getElementById('orders');
+            if (!data.length) {
+              container.innerHTML = '<p class="text-center text-[#8c7b66]">目前沒有訂單紀錄。</p>';
+              return;
+            }
+
+            container.innerHTML = data.map(order => {
+              const logisticsHtml = order.logistics_id
+                ? `<button onclick="checkLogistics('${order.logistics_id}')" class="mt-3 px-4 py-1.5 bg-[#9c3f2d] hover:bg-[#812d1e] text-white text-xs rounded-full transition">查詢物流</button>`
+                : '<p class="text-xs text-gray-400 mt-2">尚無物流資訊</p>';
+
+              return `
+                <div class="border border-[#e7d8c3] rounded-xl p-5 space-y-1">
+                  <p><span class="font-semibold">訂購日期：</span>${new Date(order.created_at).toLocaleString()}</p>
+                  <p><span class="font-semibold">訂購人：</span>${order.name}</p>
+                  <p><span class="font-semibold">收件地址：</span>${order.address}</p>
+                  <p><span class="font-semibold">備註：</span>${order.note || '無'}</p>
+                  <p><span class="font-semibold">狀態：</span>${order.status}</p>
+                  <p class="mt-2 font-semibold">商品內容：</p>
+                  <ul class="list-disc list-inside text-sm text-[#4e3d2e]">
+                    ${order.cart_items.map(item => `<li>${item.name} ×${item.qty}</li>`).join('')}
+                  </ul>
+                  ${logisticsHtml}
+                </div>
+              `;
+            }).join('');
+          })
+          .catch(err => {
+            console.error('❌ 載入失敗:', err);
+            document.getElementById('orders').innerHTML = '<p class="text-red-600 text-center">無法載入訂單資料，請稍後再試。</p>';
+          });
+      })
+      .catch(() => {
         window.location.href = '/login.html';
+      });
+
+    function checkLogistics(logisticsId) {
+      if (!logisticsId) {
+        alert('❗ 缺少物流單號');
         return;
       }
-
-      fetch('/api/orders')
-        .then(res => res.json())
-        .then(data => {
-          const container = document.getElementById('orders');
-          if (!data.length) {
-            container.innerHTML = '<p>目前沒有訂單紀錄。</p>';
-            return;
-          }
-
-          container.innerHTML = data.map(order => {
-            const logisticsHtml = order.logistics_id
-              ? `<button onclick="checkLogistics('${order.logistics_id}')" class="mt-2 px-3 py-1 bg-gray-700 text-white rounded text-xs hover:bg-gray-800">📦 查詢物流</button>`
-              : '<p class="text-sm text-gray-400 mt-2">尚無物流資訊</p>';
-
-            return `
-              <div class="border border-gray-200 rounded-lg p-4">
-                <p class="text-sm"><strong>訂購日期：</strong> ${new Date(order.created_at).toLocaleString()}</p>
-                <p class="text-sm"><strong>訂購人：</strong> ${order.name}</p>
-                <p class="text-sm"><strong>收件地址：</strong> ${order.address}</p>
-                <p class="text-sm"><strong>備註：</strong> ${order.note || '無'}</p>
-                <p class="text-sm"><strong>狀態：</strong> ${order.status}</p>
-                <p class="text-sm mt-2"><strong>商品內容：</strong></p>
-                <ul class="list-disc list-inside">
-                  ${order.cart_items.map(item => `<li>${item.name} x${item.qty}</li>`).join('')}
-                </ul>
-                ${logisticsHtml}
-              </div>
-            `;
-          }).join('');
-        })
-        .catch(err => {
-          console.error('❌ 載入失敗:', err);
-          document.getElementById('orders').innerHTML = '<p class="text-red-600">無法載入訂單資料，請稍後再試。</p>';
-        });
-    })
-    .catch(() => {
-      window.location.href = '/login.html';
-    });
-
-  function checkLogistics(logisticsId) {
-    if (!logisticsId) {
-      alert('❗ 缺少物流單號');
-      return;
+      window.open(`/api/logistics/status/${logisticsId}`, '_blank');
     }
-    window.open(`/api/logistics/status/${logisticsId}`, '_blank');
-  }
-</script>
-
+  </script>
 </body>
 </html>

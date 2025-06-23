@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>會員登入 | 春枝 Chun-Zhi</title>
+  <title>會員登入 | 鏡熙坊</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC&display=swap" rel="stylesheet">
   <style>
@@ -11,41 +11,43 @@
       font-family: 'Noto Serif TC', serif;
     }
     .fb-color {
-      background-color: #dbeafe; /* 淡藍 */
+      background-color: #e9effa;
     }
     .fb-color:hover {
-      background-color: #bfdbfe; /* 淺一階 */
+      background-color: #d0e0f7;
     }
     .line-color {
-      background-color: #dcfce7; /* 淡綠 */
+      background-color: #e6f5ec;
     }
     .line-color:hover {
-      background-color: #bbf7d0;
+      background-color: #c9ebd8;
     }
   </style>
 </head>
-<body class="bg-[#fdf4e7] min-h-screen flex flex-col items-center justify-center px-4">
-  <div class="w-full max-w-sm bg-white rounded-xl shadow p-8 text-center">
-    <h1 class="text-2xl font-semibold mb-6">會員登入</h1>
+<body class="bg-[#f6f1e9] text-[#3a2d20] min-h-screen flex flex-col items-center justify-center px-4">
+
+  <div class="w-full max-w-sm bg-white rounded-2xl shadow-xl p-8 text-center">
+    <h1 class="text-2xl font-bold mb-6 tracking-wide">會員登入</h1>
 
     <a href="/auth/facebook"
-       class="block w-full mb-4 py-2 text-gray-700 border border-gray-300 rounded transition fb-color">
+       class="block w-full mb-4 py-2 border border-[#ccc] rounded-full transition fb-color text-sm font-semibold text-[#2d2d2d]">
       使用 Facebook 登入
     </a>
 
     <a href="/auth/line"
-       class="block w-full py-2 text-gray-700 border border-gray-300 rounded transition line-color">
+       class="block w-full py-2 border border-[#ccc] rounded-full transition line-color text-sm font-semibold text-[#2d2d2d]">
       使用 LINE 登入
     </a>
 
-    <p class="mt-6 text-sm text-gray-600">
-      尚未註冊？<a href="/register.html" class="text-green-700 hover:underline">會員註冊</a>
+    <p class="mt-6 text-xs text-[#8b7961]">
+      尚未註冊？<a href="/register.html" class="text-[#9c3f2d] hover:underline">會員註冊</a>
     </p>
   </div>
 
-  <footer class="text-xs text-gray-500 mt-8 text-center">
-    <p>© 2025 春枝 CHUN-ZHI</p>
+  <footer class="text-xs text-[#6e5843] mt-8 text-center">
+    <p>© 2025 鏡熙坊</p>
     <p>support@chunzhi.com｜@chunzhi_care</p>
   </footer>
+
 </body>
 </html>
