@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>鏡熙坊 | 漢方洗髮餅專門選品</title>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC&display=swap" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/alpinejs" defer></script>
+  <style>
+    body {
+      font-family: 'Noto Serif TC', serif;
+    }
+    .fade-in {
+      opacity: 0;
+      transform: translateY(20px);
+      animation: fadeInUp 1s ease-out forwards;
+    }
+    @keyframes fadeInUp {
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+  </style>
+</head>
+<section id="compare2" class="bg-[url('./intro3.png')] bg-cover bg-center bg-fixed text-[#3a2d20] py-16 px-4 font-[Noto_Serif_TC]">
+  <div class="max-w-6xl mx-auto space-y-10">
+
+    <!-- 標題區 -->
+    <div class="text-center space-y-2">
+      <h2 class="text-5xl font-bold">喜歡手工皂的你</h2>
+      <h2 class="text-5xl font-bold">更要來認識洗髮餅</h2>
+      <p class="text-lg text-[#5b4632]">讓你堅持的天然，真正照顧到頭皮的需求</p>
+    </div>
+
+    <!-- 比較卡片區塊 -->
+    <div class="flex flex-col md:flex-row justify-center items-stretch gap-x-1 gap-y-4">
+      
+      <!-- 手工皂卡 -->
+      <div class="flex flex-col bg-white/80 backdrop-blur-md border border-[#dcccbc] rounded-xl p-5 space-y-2 shadow w-[280px]">
+        <h3 class="text-2xl font-semibold text-[#7a5b3c]">手工皂（髮皂）</h3>
+        <ul class="space-y-1 text-lg text-[#4e3d2b]">
+          <li><strong>pH 值：</strong>偏鹼性（8~9）</li>
+          <li><strong>洗後感：</strong>毛躁打結</li>
+          <li><strong>清潔成分：</strong>鹼 + 油皂化</li>
+          <li><strong>適用對象：</strong>偏油、短髮</li>
+        </ul>
+      </div>
+
+      <!-- 洗髮餅卡 -->
+      <div class="flex flex-col bg-white/90 backdrop-blur-md border border-[#c3b6a3] rounded-xl p-5 space-y-2 shadow-lg w-[280px]">
+        <h3 class="text-2xl font-semibold text-[#944f33]">🌿 洗髮餅</h3>
+        <ul class="space-y-1 text-lg text-[#3a2d20]">
+          <li><strong>pH 值：</strong>偏酸性（約 5.5）</li>
+          <li><span class="text-[#d94a27]">（更貼近頭皮）</span></li>
+          <li><strong>洗後感：</strong>清爽不澀</li>
+          <li><strong>清潔成分：</strong>起泡劑 + 植萃營養</li>
+          <li><strong>適用對象：</strong>各類髮質、頭皮</li>
+        </ul>
+        <div class="text-base text-[#4e3d2b] space-y-1 pt-2 mt-auto">
+          <p>✅ 專為頭皮設計</p>
+          <p>✅ 弱酸性無須酸洗</p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
