@@ -253,33 +253,47 @@
   </div>
 </section>
 
-<section id="intro4" class="py-52 px-6 bg-[url('./intro4.png')] bg-cover bg-top min-h-[1300px]">
-  <div class="max-w-6xl mx-auto h-full">
-    <!-- 空內容 -->
+<section id="intro4" class="py-16 px-6 bg-[#fdfaf5]">
+  <div class="max-w-6xl mx-auto">
+    <img src="./intro4.png" alt="背景圖" class="mx-auto w-full max-w-6xl h-auto object-contain" />
   </div>
 </section>
 
-<section id="intro5" class="py-36 px-6 bg-[url('./intro5.png')] bg-cover bg-center min-h-[600px]">
-  <div class="max-w-6xl mx-auto h-full">
-    <!-- 空內容，保留區塊高度與圖片完整性 -->
-  </div>
-</section>
+<section id="products" class="bg-[url('./intro5.png')] bg-cover bg-center bg-fixed min-h-[1000px] pt-24 pb-48 px-6 text-[#3a2d20] font-sans tracking-normal leading-relaxed">
+  <div class="max-w-6xl mx-auto space-y-16">
+    
+    <!-- 標題區 -->
+    <div class="text-center space-y-4">
+      <h2 class="text-5xl font-serif font-bold tracking-widest text-white drop-shadow">商品選購</h2>
+    </div>
 
-  <!-- 產品展示區 -->
-  <section id="products" class="py-16 px-6">
-    <h2 class="text-center text-xl font-semibold mb-10">商品選購</h2>
-    <div class="max-w-5xl mx-auto grid gap-8 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
-      <!-- 每一項商品 -->
-      <div class="bg-white rounded-xl shadow p-4">
-        <img src="/shampoo-1.jpg" class="rounded mb-4" alt="商品圖片">
-        <h3 class="text-sm font-semibold mb-2">枸杞玫瑰滋養洗髮餅</h3>
-        <p class="text-xs text-gray-600">適合乾性與敏感頭皮</p>
-        <button onclick="addToCart('ShampooGojiRose', 380)" class="w-full py-2 bg-[#8e3f2e] text-white rounded hover:bg-[#6b2e22] text-sm">加入購物車
+    <!-- 商品卡片群 -->
+    <div class="grid gap-8 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+      
+      <!-- 單一商品卡 -->
+      <div class="bg-white/80 rounded-xl p-6 shadow-xl backdrop-blur-sm space-y-3">
+        <img src="/shampoo-1.jpg" class="rounded mb-2" alt="商品圖片">
+        <h3 class="text-lg font-semibold">枸杞玫瑰滋養洗髮餅</h3>
+        <p class="text-sm text-gray-700">適合乾性與敏感頭皮</p>
+        <button onclick="addToCart('ShampooGojiRose', 380)" class="w-full py-2 bg-[#8e3f2e] text-white rounded hover:bg-[#6b2e22] text-sm">
+          加入購物車
         </button>
       </div>
-      <!-- 可依此格式繼續複製其他產品 -->
+
+      <!-- 單一商品卡 -->
+      <div class="bg-white/80 rounded-xl p-6 shadow-xl backdrop-blur-sm space-y-3">
+        <img src="/shampoo-1.jpg" class="rounded mb-2" alt="商品圖片">
+        <h3 class="text-lg font-semibold">枸杞玫瑰滋養洗髮餅</h3>
+        <p class="text-sm text-gray-700">適合乾性與敏感頭皮</p>
+        <button onclick="addToCart('ShampooGojiRose', 380)" class="w-full py-2 bg-[#8e3f2e] text-white rounded hover:bg-[#6b2e22] text-sm">
+          加入購物車
+        </button>
+      </div>
+      <!-- 更多商品卡可以複製這個格式 -->
     </div>
-  </section>
+  </div>
+</section>
+
 
   <!-- 顧客推薦區 -->
   <section id="review" class="py-16 px-6 bg-[#fdf4e7] text-center">
