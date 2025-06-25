@@ -405,6 +405,7 @@ app.get('/admin', async (req, res) => {
   </script></head>
   <body>
     <h1>📦 訂單後台（${orders.length} 筆）</h1>
+    <p><a href="/admin/logs?p=${password}" style="display:inline-block; margin: 12px 0; background: #4a5568; color: white; padding: 8px 16px; border-radius: 6px; text-decoration: none;">🔍 查看操作紀錄</a></p>
     <input type="search" id="search" oninput="filterOrders()" placeholder="搜尋姓名、電話、Email...">
     <table>
       <thead>
