@@ -1,4 +1,5 @@
 // ✅ 優先載入 .env
+const { logAction } = require('./utils/logger');
 const path = require('path');
 require('dotenv').config({ path: path.resolve(__dirname, '../.env') });
 
@@ -353,11 +354,34 @@ app.get('/admin', async (req, res) => {
 
 app.post('/admin/update', async (req, res) => {
   const { id, status } = req.body;
+
   try {
     await pool.query('UPDATE orders SET status = $1 WHERE id = $2', [status, id]);
+
+    // 🔥 寫入 logs
+    await logAction({
+      userId: req.user?.id || null,
+      action: 'order_status_update',
+      target: `order#${id}`,
+      status: 'success',
+      message: `狀態更新為 ${status}`,
+      req
+    });
+
     res.send('✅ 狀態已更新');
   } catch (err) {
     console.error('❌ 狀態更新失敗:', err);
+
+    // 🔥 寫入 logs（錯誤紀錄）
+    await logAction({
+      userId: req.user?.id || null,
+      action: 'order_status_update',
+      target: `order#${id}`,
+      status: 'fail',
+      message: err.message,
+      req
+    });
+
     res.status(500).send('🚨 狀態更新失敗');
   }
 });
@@ -395,6 +419,56 @@ app.get('/logout', (req, res, next) => {
     if (err) return next(err);
     res.redirect('/');
   });
+});
+
+app.get('/admin/logs', async (req, res) => {
+  const password = req.query.p;
+  if (password !== process.env.ADMIN_PASSWORD) {
+    return res.send(`<form method="get"><p>請輸入密碼才能查看後台</p><input type="password" name="p" /><button type="submit">登入</button></form>`);
+  }
+
+  try {
+    const result = await pool.query('SELECT * FROM logs ORDER BY created_at DESC LIMIT 100');
+    const logs = result.rows;
+
+    const html = `
+    <html><head><meta charset="UTF-8" /><title>操作紀錄</title>
+    <style>
+      body { font-family: sans-serif; padding: 40px; background: #f9f9f9; }
+      table { border-collapse: collapse; width: 100%; background: white; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+      th, td { border: 1px solid #ccc; padding: 8px; text-align: left; font-size: 14px; }
+      a { color: #444; text-decoration: none; }
+    </style>
+    </head><body>
+      <h1>📋 操作紀錄（最近 100 筆）</h1>
+      <p><a href="/admin?p=${password}">← 返回訂單後台</a></p>
+      <table>
+        <thead>
+          <tr>
+            <th>時間</th><th>使用者ID</th><th>動作</th><th>目標</th><th>狀態</th><th>備註</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${logs.map(l => `
+            <tr>
+              <td>${DateTime.fromISO(l.created_at.toISOString()).setZone('Asia/Taipei').toFormat('yyyy/MM/dd HH:mm')}</td>
+              <td>${l.user_id || '—'}</td>
+              <td>${l.action}</td>
+              <td>${l.target || '—'}</td>
+              <td>${l.status || '—'}</td>
+              <td>${l.message || ''}</td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>
+    </body></html>
+    `;
+
+    res.send(html);
+  } catch (err) {
+    console.error('❌ 查詢 logs 失敗:', err);
+    res.status(500).send('🚨 查詢操作紀錄失敗');
+  }
 });
 
 app.use((err, req, res, next) => {
