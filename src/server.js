@@ -575,11 +575,12 @@ app.get('/admin/logs', async (req, res) => {
           ${logs.map(l => `
             <tr>
               <td>${DateTime.fromISO(l.created_at.toISOString()).setZone('Asia/Taipei').toFormat('yyyy/MM/dd HH:mm')}</td>
-              <td>${l.user_id || '—'}</td>
+              <td>${l.ip_address || '—'}</td>
               <td>${l.action}</td>
               <td>${l.target || '—'}</td>
               <td>${l.status || '—'}</td>
               <td>${l.message || ''}</td>
+              
             </tr>
           `).join('')}
         </tbody>
