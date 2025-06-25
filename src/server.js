@@ -114,7 +114,7 @@ passport.use(new FacebookStrategy({
   target: 'facebook',
   status: 'success',
   message: `${profile.displayName} 使用 Facebook 登入`,
-  req
+  req: null
 });
 
     done(null, { provider_id: profile.id });
@@ -164,7 +164,7 @@ passport.use(new LineStrategy({
   target: 'line',
   status: 'success',
   message: `${profile.displayName} 使用 LINE 登入`,
-  req
+  req: null
 });
 
     done(null, { provider_id: profile.id });
