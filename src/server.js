@@ -108,6 +108,15 @@ passport.use(new FacebookStrategy({
       req: null
     });
 
+    await logAction({
+  userId: profile.id,
+  action: 'login',
+  target: 'facebook',
+  status: 'success',
+  message: `${profile.displayName} 使用 Facebook 登入`,
+  req
+});
+
     done(null, { provider_id: profile.id });
   } catch (err) {
     await logAction({
@@ -148,6 +157,15 @@ passport.use(new LineStrategy({
       message: 'LINE 登入成功',
       req: null
     });
+
+    await logAction({
+  userId: profile.id,
+  action: 'login',
+  target: 'line',
+  status: 'success',
+  message: `${profile.displayName} 使用 LINE 登入`,
+  req
+});
 
     done(null, { provider_id: profile.id });
   } catch (err) {
@@ -197,9 +215,21 @@ app.post('/order', async (req, res) => {
 
   try {
     await pool.query(`
-      INSERT INTO orders (order_number, user_id, name, phone, email, address, note, cart_items, logistics_id, payment_no, logistics_subtype)
+      INSERT INTO orders (
+        order_number, user_id, name, phone, email, address, note, cart_items,
+        logistics_id, payment_no, logistics_subtype
+      )
       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, null, null, null)
-    `, [orderNumber, user_id, name, phone, email, address, note || '', JSON.stringify(items)]);
+    `, [
+      orderNumber,
+      user_id,
+      name,
+      phone,
+      email,
+      address,
+      note || '',
+      JSON.stringify(items)
+    ]);
 
     const summary = items.map(i => `${i.name} x${i.qty}`).join('<br>');
     const resend = new Resend(process.env.RESEND_API_KEY);
@@ -213,14 +243,33 @@ app.post('/order', async (req, res) => {
         <p>我們已收到您的訂單（編號：${orderNumber}），以下是您訂購的商品：</p>
         <p>${summary}</p>
         <p>我們將盡快為您安排出貨，感謝您的支持！</p>
-        <br><p>— 愛妲生活</p>
+        <br><p>— 鏡熙坊</p>
       `
+    });
+
+    await logAction({
+      userId: user_id,
+      action: 'place_order',
+      target: orderNumber,
+      status: 'success',
+      message: `成功建立訂單（非綠界） ${orderNumber}`,
+      req
     });
 
     res.redirect('/thankyou.html');
   } catch (err) {
-    console.error('❌ 訂單或寄信處理失敗:', err);
-    res.status(500).send('🚨 系統錯誤，請稍後再試');
+    console.error('❌ Checkout 錯誤:', err);
+
+    await logAction({
+      userId: user_id,
+      action: 'place_order',
+      target: orderNumber,
+      status: 'fail',
+      message: err.message,
+      req
+    });
+
+    res.status(500).send('🚨 結帳流程錯誤，請稍後再試');
   }
 });
 
@@ -295,6 +344,14 @@ app.post('/api/checkout', async (req, res) => {
     console.log('✅ 綠界金流金額為：', total.toString());
 
     const html = ecpayClient.payment_client.aio_check_out_all(base_param);
+    await logAction({
+  userId: user_id,
+  action: 'checkout',
+  target: orderNumber,
+  status: 'success',
+  message: `成功結帳並建立訂單 ${orderNumber}`,
+  req
+});
     res.send(html);
 
   } catch (err) {
@@ -450,9 +507,20 @@ app.get('/auth/line/callback',
   (req, res) => res.redirect('/')
 );
 
-app.get('/logout', (req, res, next) => {
-  req.logout(err => {
+app.get('/logout', async (req, res, next) => {
+  req.logout(async err => {
     if (err) return next(err);
+
+    // ✅ 登出成功後記錄 log
+    await logAction({
+      userId: req.user?.id || null,
+      action: 'logout',
+      target: 'session',
+      status: 'success',
+      message: '使用者已成功登出',
+      req
+    });
+
     res.redirect('/');
   });
 });
@@ -531,36 +599,19 @@ app.post('/api/logistics/save-info', async (req, res) => {
       LIMIT 1
     `, [logisticsId, paymentNo, logisticsSubType, email]);
 
+    await logAction({
+      userId: null,
+      action: 'save_logistics_info',
+      target: logisticsId,
+      status: 'success',
+      message: `成功寫入物流資訊 ${logisticsId}`,
+      req
+    });
+
     res.send('✅ 物流資訊已更新');
   } catch (err) {
     console.error('❌ 更新物流資訊失敗:', err);
     res.status(500).send('🚨 系統錯誤，請稍後再試');
-  }
-});
-
-app.post('/ecpay/return', async (req, res) => {
-  try {
-    const { MerchantTradeNo, RtnCode } = req.body;
-
-    if (RtnCode !== '1') {
-      return res.send('❌ 未成功付款');
-    }
-
-    // 取得訂單編號（從 MerchantTradeNo 中去掉前綴 "NO"）
-    const orderNumber = MerchantTradeNo.replace(/^NO/, '');
-
-    // 更新資料庫 is_paid 為 true
-    await pool.query(`
-      UPDATE orders
-      SET is_paid = true
-      WHERE order_number = $1
-    `, [orderNumber]);
-
-    console.log('✅ 已更新付款狀態為已付款：', orderNumber);
-    res.send('1|OK'); // ✅ 綠界要求成功訊息格式
-  } catch (err) {
-    console.error('❌ 綠界回傳處理失敗:', err);
-    res.status(500).send('0|ERROR');
   }
 });
 
