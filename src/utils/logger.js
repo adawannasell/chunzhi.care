@@ -10,7 +10,7 @@ async function logAction({ userId, action, target, status, message, req }) {
     const safeMessage = typeof message === 'string' ? message.slice(0, 1000) : null;
 
     await pool.query(
-      `INSERT INTO logs (user_id, action, target, status, message, ip_address, user_agent)
+      `INSERT INTO logs (user_id, action, target, status, message, ip, user_agent)
        VALUES ($1, $2, $3, $4, $5, $6, $7)`,
       [
         safeUserId,
