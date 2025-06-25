@@ -87,7 +87,7 @@ passport.use(new FacebookStrategy({
   callbackURL: process.env.FACEBOOK_CALLBACK_URL,
   profileFields: ['id', 'displayName', 'photos', 'email'],
   passReqToCallback: true
-}, async (accessToken, refreshToken, profile, done) => {
+}, async (req, accessToken, refreshToken, profile, done) => {
   try {
     await pool.query(`
       INSERT INTO users (provider, provider_id, display_name, email, photo_url, source)
@@ -138,7 +138,7 @@ passport.use(new LineStrategy({
   callbackURL: process.env.LINE_CALLBACK_URL,
   scope: ['profile', 'openid', 'email'],
   passReqToCallback: true
-}, async (accessToken, refreshToken, params, profile, done) => {
+}, async (req, accessToken, refreshToken, params, profile, done) => {
   try {
     await pool.query(`
       INSERT INTO users (provider, provider_id, display_name, email, photo_url, source)
