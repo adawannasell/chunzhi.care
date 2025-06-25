@@ -564,11 +564,11 @@ app.get('/admin/logs', async (req, res) => {
     </style>
     </head><body>
       <h1>📋 操作紀錄（最近 100 筆）</h1>
-      <p><a href="/admin?p=${password}">← 返回訂單後台</a></p>
+      <p><a href="/admin?p=${password}">← 返回訂單後台</a></p> 
       <table>
         <thead>
           <tr>
-            <th>時間</th><th>使用者ID</th><th>動作</th><th>目標</th><th>狀態</th><th>備註</th>
+            <th>時間</th><th>使用者IP</th><th>動作</th><th>目標</th><th>狀態</th><th>備註</th>
           </tr>
         </thead>
         <tbody>
