@@ -80,6 +80,9 @@ passport.deserializeUser(async (id, done) => {
     done(err);
   }
 });
+function getClientIP(req) {
+  return req?.headers?.['x-forwarded-for']?.split(',')[0]?.trim() || req?.ip || null;
+}
 
 passport.use(new FacebookStrategy({
   clientID: process.env.FACEBOOK_CLIENT_ID,
@@ -250,7 +253,7 @@ app.post('/order', async (req, res) => {
     });
 
     await logAction({
-      userId: user_id,
+      
       action: 'place_order',
       target: orderNumber,
       status: 'success',
@@ -263,7 +266,7 @@ app.post('/order', async (req, res) => {
     console.error('❌ Checkout 錯誤:', err);
 
     await logAction({
-      userId: user_id,
+      
       action: 'place_order',
       target: orderNumber,
       status: 'fail',
@@ -347,7 +350,7 @@ app.post('/api/checkout', async (req, res) => {
 
     const html = ecpayClient.payment_client.aio_check_out_all(base_param);
     await logAction({
-  userId: user_id,
+  
   action: 'checkout',
   target: orderNumber,
   status: 'success',
@@ -455,7 +458,7 @@ app.post('/admin/update', async (req, res) => {
 
     // 🔥 寫入 logs
     await logAction({
-      userId: req.user?.id || null,
+      
       action: 'order_status_update',
       target: `order#${id}`,
       status: 'success',
@@ -469,7 +472,7 @@ app.post('/admin/update', async (req, res) => {
 
     // 🔥 寫入 logs（錯誤紀錄）
     await logAction({
-      userId: req.user?.id || null,
+      
       action: 'order_status_update',
       target: `order#${id}`,
       status: 'fail',
@@ -515,7 +518,7 @@ app.get('/logout', async (req, res, next) => {
 
     // ✅ 登出成功後記錄 log
     await logAction({
-      userId: req.user?.id || null,
+      
       action: 'logout',
       target: 'session',
       status: 'success',
@@ -602,7 +605,7 @@ app.post('/api/logistics/save-info', async (req, res) => {
     `, [logisticsId, paymentNo, logisticsSubType, email]);
 
     await logAction({
-      userId: null,
+      
       action: 'save_logistics_info',
       target: logisticsId,
       status: 'success',
