@@ -1,21 +1,8 @@
 // ✅ 優先載入 .env
 const path = require('path');
 require('dotenv').config({ path: path.resolve(__dirname, '../.env') });
-const { logAction: baseLogAction } = require('./utils/logger'); // 取別名，避免衝突
+const { logAction } = require('./utils/logger');
 
-function getClientIP(req) {
-  return req?.headers?.['x-forwarded-for']?.split(',')[0]?.trim() || req?.ip || null;
-}
-
-// 包裝自動帶 IP、user_agent、user_id
-function logAction({ req, ...rest }) {
-  return baseLogAction({
-    ...rest,
-    ip_address: getClientIP(req),
-    user_agent: req.headers['user-agent'] || null,
-    user_id: req.user?.id || null
-  });
-}
 const express = require('express');
 const bodyParser = require('body-parser');
 const session = require('express-session');
@@ -53,6 +40,7 @@ const store = new RedisStore({
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+app.set('trust proxy', true);
 
 // ✅ Middleware
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -93,9 +81,7 @@ passport.deserializeUser(async (id, done) => {
     done(err);
   }
 });
-function getClientIP(req) {
-  return req?.headers?.['x-forwarded-for']?.split(',')[0]?.trim() || req?.ip || null;
-}
+
 
 
 passport.use(new FacebookStrategy({
