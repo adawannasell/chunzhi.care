@@ -85,7 +85,8 @@ passport.use(new FacebookStrategy({
   clientID: process.env.FACEBOOK_CLIENT_ID,
   clientSecret: process.env.FACEBOOK_CLIENT_SECRET,
   callbackURL: process.env.FACEBOOK_CALLBACK_URL,
-  profileFields: ['id', 'displayName', 'photos', 'email']
+  profileFields: ['id', 'displayName', 'photos', 'email'],
+  passReqToCallback: true
 }, async (accessToken, refreshToken, profile, done) => {
   try {
     await pool.query(`
@@ -105,7 +106,7 @@ passport.use(new FacebookStrategy({
       target: 'facebook',
       status: 'success',
       message: 'Facebook 登入成功',
-      req: null
+      req
     });
 
     await logAction({
@@ -114,7 +115,7 @@ passport.use(new FacebookStrategy({
   target: 'facebook',
   status: 'success',
   message: `${profile.displayName} 使用 Facebook 登入`,
-  req: null
+  req
 });
 
     done(null, { provider_id: profile.id });
@@ -125,7 +126,7 @@ passport.use(new FacebookStrategy({
       target: 'facebook',
       status: 'fail',
       message: err.message,
-      req: null
+      req
     });
     done(err);
   }
@@ -135,7 +136,8 @@ passport.use(new LineStrategy({
   channelID: process.env.LINE_CHANNEL_ID,
   channelSecret: process.env.LINE_CHANNEL_SECRET,
   callbackURL: process.env.LINE_CALLBACK_URL,
-  scope: ['profile', 'openid', 'email']
+  scope: ['profile', 'openid', 'email'],
+  passReqToCallback: true
 }, async (accessToken, refreshToken, params, profile, done) => {
   try {
     await pool.query(`
@@ -155,7 +157,7 @@ passport.use(new LineStrategy({
       target: 'line',
       status: 'success',
       message: 'LINE 登入成功',
-      req: null
+      req
     });
 
     await logAction({
@@ -164,7 +166,7 @@ passport.use(new LineStrategy({
   target: 'line',
   status: 'success',
   message: `${profile.displayName} 使用 LINE 登入`,
-  req: null
+  req
 });
 
     done(null, { provider_id: profile.id });
@@ -175,7 +177,7 @@ passport.use(new LineStrategy({
       target: 'line',
       status: 'fail',
       message: err.message,
-      req: null
+      req
     });
     done(err);
   }
