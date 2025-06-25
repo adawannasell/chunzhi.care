@@ -2,11 +2,13 @@ const { pool } = require('../database');
 
 async function logAction({ userId, action, target, status, message, req }) {
   try {
+    const safeUserId = Number.isInteger(userId) ? userId : null;
+
     await pool.query(
       `INSERT INTO logs (user_id, action, target, status, message, ip_address, user_agent)
        VALUES ($1, $2, $3, $4, $5, $6, $7)`,
       [
-        userId || null,
+        safeUserId,
         action,
         target || null,
         status || null,
