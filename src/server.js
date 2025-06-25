@@ -52,7 +52,7 @@ app.use(session({
   resave: false,
   saveUninitialized: false,
   cookie: {
-    secure: false, // ⚠️ 本地測試必須設 false，部署上線再改成 NODE_ENV === 'production'
+    secure: false,
     httpOnly: true,
     maxAge: 1000 * 60 * 60 * 24
   }
@@ -98,8 +98,26 @@ passport.use(new FacebookStrategy({
       profile.photos?.[0]?.value || null,
       'facebook'
     ]);
+
+    await logAction({
+      userId: profile.id,
+      action: 'login_success',
+      target: 'facebook',
+      status: 'success',
+      message: 'Facebook 登入成功',
+      req: null
+    });
+
     done(null, { provider_id: profile.id });
   } catch (err) {
+    await logAction({
+      userId: profile.id,
+      action: 'login_fail',
+      target: 'facebook',
+      status: 'fail',
+      message: err.message,
+      req: null
+    });
     done(err);
   }
 }));
@@ -121,8 +139,26 @@ passport.use(new LineStrategy({
       profile.pictureUrl || null,
       'line'
     ]);
+
+    await logAction({
+      userId: profile.id,
+      action: 'login_success',
+      target: 'line',
+      status: 'success',
+      message: 'LINE 登入成功',
+      req: null
+    });
+
     done(null, { provider_id: profile.id });
   } catch (err) {
+    await logAction({
+      userId: profile.id,
+      action: 'login_fail',
+      target: 'line',
+      status: 'fail',
+      message: err.message,
+      req: null
+    });
     done(err);
   }
 }));
