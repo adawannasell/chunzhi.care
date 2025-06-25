@@ -101,7 +101,7 @@ passport.use(new FacebookStrategy({
     ]);
 
     await logAction({
-      userId: profile.id,
+      
       action: 'login_success',
       target: 'facebook',
       status: 'success',
@@ -110,7 +110,7 @@ passport.use(new FacebookStrategy({
     });
 
     await logAction({
-  userId: profile.id,
+  
   action: 'login',
   target: 'facebook',
   status: 'success',
@@ -121,7 +121,7 @@ passport.use(new FacebookStrategy({
     done(null, { provider_id: profile.id });
   } catch (err) {
     await logAction({
-      userId: profile.id,
+      
       action: 'login_fail',
       target: 'facebook',
       status: 'fail',
@@ -152,7 +152,7 @@ passport.use(new LineStrategy({
     ]);
 
     await logAction({
-      userId: profile.id,
+      
       action: 'login_success',
       target: 'line',
       status: 'success',
@@ -161,7 +161,7 @@ passport.use(new LineStrategy({
     });
 
     await logAction({
-  userId: profile.id,
+  
   action: 'login',
   target: 'line',
   status: 'success',
@@ -172,7 +172,7 @@ passport.use(new LineStrategy({
     done(null, { provider_id: profile.id });
   } catch (err) {
     await logAction({
-      userId: profile.id,
+      
       action: 'login_fail',
       target: 'line',
       status: 'fail',
