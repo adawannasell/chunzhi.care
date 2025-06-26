@@ -26,13 +26,13 @@
   </footer>
 
   <script>
-    fetch('/me')
-      .then(res => res.json())
-      .then(user => {
-        if (!user.name) {
-          window.location.href = '/login.html';
-          return;
-        }
+    fetch('/api/user/profile')
+  .then(res => res.json())
+  .then(user => {
+    if (!user.name) {
+      window.location.href = '/login.html';
+      return;
+    }
 
         fetch('/api/orders')
           .then(res => res.json())

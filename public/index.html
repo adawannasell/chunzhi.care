@@ -466,7 +466,7 @@ window.history.scrollRestoration = 'manual';
     .then(user => {
       if (user.name) {
         const memberArea = document.getElementById('member-area');
-        memberArea.textContent = user.name;
+        memberArea.textContent = `歡迎，${user.name}`;
         memberArea.href = '/me.html';
       }
     })
