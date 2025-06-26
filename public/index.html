@@ -456,5 +456,23 @@ window.history.scrollRestoration = 'manual';
     window.scrollTo(0, 0);
   });
 </script>
+
+<script>
+  fetch('/api/user/profile')
+    .then(res => {
+      if (!res.ok) throw new Error('未登入');
+      return res.json();
+    })
+    .then(user => {
+      if (user.name) {
+        const memberArea = document.getElementById('member-area');
+        memberArea.textContent = user.name;
+        memberArea.href = '/me.html';
+      }
+    })
+    .catch(() => {
+      // 未登入，保留原本「登入 / 註冊」
+    });
+</script>
 </body>
 </html>
