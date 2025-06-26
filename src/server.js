@@ -123,7 +123,8 @@ passport.use(new FacebookStrategy({
   req
 });
 
-    done(null, { provider_id: profile.id });
+    const result = await pool.query('SELECT * FROM users WHERE provider_id = $1', [profile.id]);
+done(null, result.rows[0]);
   } catch (err) {
     await logAction({
       
@@ -174,7 +175,8 @@ passport.use(new LineStrategy({
   req
 });
 
-    done(null, { provider_id: profile.id });
+    const result = await pool.query('SELECT * FROM users WHERE provider_id = $1', [profile.id]);
+done(null, result.rows[0]);
   } catch (err) {
     await logAction({
       
