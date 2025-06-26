@@ -39,16 +39,6 @@
           <button id="edit-address" class="mt-1 text-[#9c3f2d] hover:underline text-xs">更新收件地址</button>
         </div>
       </div>
-
-      <div class="pt-4 border-t border-[#e8d8c3]">
-        <h2 class="font-bold mb-2">登入綁定</h2>
-        <p>
-          LINE 帳號：<span id="line-status">載入中...</span>
-        </p>
-        <p>
-          Facebook 帳號：<span id="fb-status">載入中...</span>
-        </p>
-      </div>
     </main>
   </div>
 
@@ -58,31 +48,18 @@
   </footer>
 
   <script>
-  // 1. 抓會員資料（改用 /api/user/profile）
+  // 抓會員資料（改用 /api/user/profile）
   fetch('/api/user/profile')
     .then(res => res.json())
     .then(data => {
       if (!data.name) return window.location.href = '/login.html';
-
       document.getElementById('name').textContent = data.name || '未提供';
       document.getElementById('email').textContent = data.email || '未提供';
       document.getElementById('address').textContent = data.address || '尚未設定';
-
-      // 登入來源顯示
-      if (data.source === 'line') {
-        document.getElementById('line-status').textContent = '已綁定';
-        document.getElementById('fb-status').innerHTML = '尚未綁定 <a href="/auth/facebook" class="ml-2 text-[#9c3f2d] hover:underline">立即綁定</a>';
-      } else if (data.source === 'facebook') {
-        document.getElementById('fb-status').textContent = '已綁定';
-        document.getElementById('line-status').innerHTML = '尚未綁定 <a href="/auth/line" class="ml-2 text-[#9c3f2d] hover:underline">立即綁定</a>';
-      } else {
-        document.getElementById('fb-status').innerHTML = '尚未綁定 <a href="/auth/facebook" class="ml-2 text-[#9c3f2d] hover:underline">立即綁定</a>';
-        document.getElementById('line-status').innerHTML = '尚未綁定 <a href="/auth/line" class="ml-2 text-[#9c3f2d] hover:underline">立即綁定</a>';
-      }
     })
     .catch(() => window.location.href = '/login.html');
 
-  // 2. 更新會員名稱（改用 /api/user/update-profile）
+  // 更新會員名稱（改用 /api/user/update-profile）
   document.getElementById('edit-name').onclick = () => {
     const newName = prompt('請輸入新的會員名稱：');
     if (newName) {
@@ -102,7 +79,7 @@
     }
   };
 
-  // 3. 更新收件地址（改用 /api/user/update-address）
+  // 更新收件地址（改用 /api/user/update-address）
   document.getElementById('edit-address').onclick = () => {
     const newAddr = prompt('請輸入新的收件地址：');
     if (newAddr) {
@@ -121,6 +98,6 @@
       });
     }
   };
-</script>
+  </script>
 </body>
 </html>
