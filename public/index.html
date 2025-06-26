@@ -394,85 +394,70 @@
     <button x-show="showTop" x-transition @click="window.scrollTo({ top: 0, behavior: 'smooth' })" class="px-4 py-2 bg-[#f6f4ec] text-[#1a1a1a] rounded-full shadow hover:bg-[#e6e1d5] text-sm">↑ 回頂部</button>
   </div>
 
-<script>
-  const displayNames = {
-    ShampooBarOriginal: '原味洗髮餅',
-    ShampooBarSet: '洗髮餅組合優惠',
-    ShampooGojiRose: '枸杞玫瑰滋養洗髮餅'
-  };
-  let currentUser = null;
-  fetch('/me')
-    .then(res => res.json())
-    .then(user => {
-      const el = document.getElementById('member-area');
-      if (user.name) {
+  <!-- 放在 </body> 之前，刪掉其他所有重複的 <script> -->
+  <script>
+    const displayNames = {
+      ShampooBarOriginal: '原味洗髮餅',
+      ShampooBarSet: '洗髮餅組合優惠',
+      ShampooGojiRose: '枸杞玫瑰滋養洗髮餅'
+    };
+    let currentUser = null;
+
+    // 1️⃣ 檢查登入狀態（只呼叫一次）
+    fetch('/api/user/profile', { credentials: 'include' })
+      .then(res => {
+        if (!res.ok) throw new Error('未登入');
+        return res.json();
+      })
+      .then(user => {
+        currentUser = user;
+        const el = document.getElementById('member-area');
         el.textContent = `歡迎，${user.name}`;
         el.href = '/me.html';
-        currentUser = user;
-      } else {
+      })
+      .catch(() => {
+        const el = document.getElementById('member-area');
         el.textContent = '登入 / 註冊';
         el.href = '/login.html';
+      });
+
+    // 2️⃣ 加入購物車
+    function addToCart(id, price) {
+      if (!currentUser) {
+        alert("請先登入才能加入購物車！");
+        location.href = '/login.html';
+        return;
       }
-    })
-    .catch(() => {
-      const el = document.getElementById('member-area');
-      el.textContent = '登入 / 註冊';
-      el.href = '/login.html';
-    });
-
-  function addToCart(id, price) {
-    if (!currentUser) {
-      alert("請先登入才能加入購物車！");
-      window.location.href = '/login.html';
-      return;
-    }
-    const cart = JSON.parse(localStorage.getItem('cart')) || [];
-    const existing = cart.find(item => item.id === id);
-    if (existing) {
-      existing.quantity += 1;
-    } else {
-      cart.push({ id, name: displayNames[id], price, quantity: 1 });
-    }
-    localStorage.setItem('cart', JSON.stringify(cart));
-    alert(`${displayNames[id]} 已加入購物車！`);
-  }
-
-  function goToCheckout(e) {
-    if (!currentUser) {
-      alert("請先登入才能進入結帳頁！");
-      window.location.href = "/login.html";
-      return false;
-    }
-    const cart = JSON.parse(localStorage.getItem('cart')) || [];
-    if (cart.length === 0) {
-      alert("購物車是空的喔，請先加入商品！");
-      return false;
-    }
-    return true;
-  }
-
-window.history.scrollRestoration = 'manual';
-  window.addEventListener('load', () => {
-    window.scrollTo(0, 0);
-  });
-</script>
-
-<script>
-  fetch('/api/user/profile')
-    .then(res => {
-      if (!res.ok) throw new Error('未登入');
-      return res.json();
-    })
-    .then(user => {
-      if (user.name) {
-        const memberArea = document.getElementById('member-area');
-        memberArea.textContent = `歡迎，${user.name}`;
-        memberArea.href = '/me.html';
+      const cart = JSON.parse(localStorage.getItem('cart') || '[]');
+      const item = cart.find(i => i.id === id);
+      if (item) {
+        item.quantity += 1;
+      } else {
+        cart.push({ id, name: displayNames[id], price, quantity: 1 });
       }
-    })
-    .catch(() => {
-      // 未登入，保留原本「登入 / 註冊」
-    });
-</script>
+      localStorage.setItem('cart', JSON.stringify(cart));
+      alert(`${displayNames[id]} 已加入購物車！`);
+    }
+
+    // 3️⃣ 前往結帳
+    function goToCheckout(e) {
+      if (!currentUser) {
+        alert("請先登入才能進入結帳頁！");
+        location.href = '/login.html';
+        return false;
+      }
+      const cart = JSON.parse(localStorage.getItem('cart') || '[]');
+      if (cart.length === 0) {
+        alert("購物車是空的喔，請先加入商品！");
+        return false;
+      }
+      return true;
+    }
+
+    // 4️⃣ 保持每次刷新都在頂端
+    window.history.scrollRestoration = 'manual';
+    window.addEventListener('load', () => window.scrollTo(0, 0));
+  </script>
+
 </body>
 </html>
