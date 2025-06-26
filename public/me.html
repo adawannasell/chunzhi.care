@@ -58,50 +58,69 @@
   </footer>
 
   <script>
-    fetch('/me')
-      .then(res => res.json())
-      .then(data => {
-        if (!data.name) return window.location.href = '/login.html';
+  // 1. 抓會員資料（改用 /api/user/profile）
+  fetch('/api/user/profile')
+    .then(res => res.json())
+    .then(data => {
+      if (!data.name) return window.location.href = '/login.html';
 
-        document.getElementById('name').textContent = data.name || '未提供';
-        document.getElementById('email').textContent = data.email || '未提供';
-        document.getElementById('address').textContent = data.address || '尚未設定';
+      document.getElementById('name').textContent = data.name || '未提供';
+      document.getElementById('email').textContent = data.email || '未提供';
+      document.getElementById('address').textContent = data.address || '尚未設定';
 
-        // 登入來源顯示
-        if (data.source === 'line') {
-          document.getElementById('line-status').textContent = '已綁定';
-          document.getElementById('fb-status').innerHTML = '尚未綁定 <a href="/auth/facebook" class="ml-2 text-[#9c3f2d] hover:underline">立即綁定</a>';
-        } else if (data.source === 'facebook') {
-          document.getElementById('fb-status').textContent = '已綁定';
-          document.getElementById('line-status').innerHTML = '尚未綁定 <a href="/auth/line" class="ml-2 text-[#9c3f2d] hover:underline">立即綁定</a>';
+      // 登入來源顯示
+      if (data.source === 'line') {
+        document.getElementById('line-status').textContent = '已綁定';
+        document.getElementById('fb-status').innerHTML = '尚未綁定 <a href="/auth/facebook" class="ml-2 text-[#9c3f2d] hover:underline">立即綁定</a>';
+      } else if (data.source === 'facebook') {
+        document.getElementById('fb-status').textContent = '已綁定';
+        document.getElementById('line-status').innerHTML = '尚未綁定 <a href="/auth/line" class="ml-2 text-[#9c3f2d] hover:underline">立即綁定</a>';
+      } else {
+        document.getElementById('fb-status').innerHTML = '尚未綁定 <a href="/auth/facebook" class="ml-2 text-[#9c3f2d] hover:underline">立即綁定</a>';
+        document.getElementById('line-status').innerHTML = '尚未綁定 <a href="/auth/line" class="ml-2 text-[#9c3f2d] hover:underline">立即綁定</a>';
+      }
+    })
+    .catch(() => window.location.href = '/login.html');
+
+  // 2. 更新會員名稱（改用 /api/user/update-profile）
+  document.getElementById('edit-name').onclick = () => {
+    const newName = prompt('請輸入新的會員名稱：');
+    if (newName) {
+      fetch('/api/user/update-profile', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: newName })
+      }).then(res => {
+        if (res.ok) {
+          location.reload();
         } else {
-          document.getElementById('fb-status').innerHTML = '尚未綁定 <a href="/auth/facebook" class="ml-2 text-[#9c3f2d] hover:underline">立即綁定</a>';
-          document.getElementById('line-status').innerHTML = '尚未綁定 <a href="/auth/line" class="ml-2 text-[#9c3f2d] hover:underline">立即綁定</a>';
+          alert('更新失敗，請稍後再試');
         }
-      })
-      .catch(() => window.location.href = '/login.html');
+      }).catch(() => {
+        alert('伺服器無回應，請稍後再試');
+      });
+    }
+  };
 
-    document.getElementById('edit-name').onclick = () => {
-      const newName = prompt('請輸入新的會員名稱：');
-      if (newName) {
-        fetch('/update-profile', {
-          method: 'POST',
-          headers: {'Content-Type': 'application/json'},
-          body: JSON.stringify({ name: newName })
-        }).then(() => location.reload());
-      }
-    };
-
-    document.getElementById('edit-address').onclick = () => {
-      const newAddr = prompt('請輸入新的收件地址：');
-      if (newAddr) {
-        fetch('/update-address', {
-          method: 'POST',
-          headers: {'Content-Type': 'application/json'},
-          body: JSON.stringify({ address: newAddr })
-        }).then(() => location.reload());
-      }
-    };
-  </script>
+  // 3. 更新收件地址（改用 /api/user/update-address）
+  document.getElementById('edit-address').onclick = () => {
+    const newAddr = prompt('請輸入新的收件地址：');
+    if (newAddr) {
+      fetch('/api/user/update-address', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ address: newAddr })
+      }).then(res => {
+        if (res.ok) {
+          location.reload();
+        } else {
+          alert('更新失敗，請稍後再試');
+        }
+      }).catch(() => {
+        alert('伺服器無回應，請稍後再試');
+      });
+    }
+  };
+</script>
 </body>
 </html>

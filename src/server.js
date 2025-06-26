@@ -2,6 +2,7 @@
 const path = require('path');
 require('dotenv').config({ path: path.resolve(__dirname, '../.env') });
 const { logAction } = require('./utils/logger');
+const userRoutes = require('./routes/user');
 
 const express = require('express');
 const bodyParser = require('body-parser');
@@ -63,6 +64,7 @@ app.use(passport.session());
 
 app.use('/api/orders', orderRoutes); // ✅ 掛上訂單查詢路由
 app.use('/api/email', emailRoutes);
+app.use('/api/user', userRoutes);
 app.use('/api', recommendRoute);
 app.use('/api/ecpay', ecpayRoute);
 app.use('/health', (req, res) => res.send('ok'));
@@ -489,17 +491,6 @@ app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-app.get('/me', (req, res) => {
-  if (!req.isAuthenticated()) return res.json({});
-  const { display_name, photo_url, email, address, provider } = req.user;
-  res.json({
-    name: display_name,
-    avatar: photo_url,
-    email,
-    address,
-    source: provider
-  });
-});
 
 app.get('/auth/facebook', passport.authenticate('facebook'));
 app.get('/auth/facebook/callback',
