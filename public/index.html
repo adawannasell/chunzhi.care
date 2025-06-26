@@ -405,21 +405,25 @@
 
     // 1️⃣ 檢查登入狀態（只呼叫一次）
     fetch('/api/user/profile', { credentials: 'include' })
-      .then(res => {
-        if (!res.ok) throw new Error('未登入');
-        return res.json();
-      })
-      .then(user => {
-        currentUser = user;
-        const el = document.getElementById('member-area');
-        el.textContent = `歡迎，${user.name}`;
-        el.href = '/me.html';
-      })
-      .catch(() => {
-        const el = document.getElementById('member-area');
-        el.textContent = '登入 / 註冊';
-        el.href = '/login.html';
-      });
+  .then(res => {
+    if (!res.ok) throw new Error('未登入');
+    return res.json();
+  })
+  .then(user => {
+    const el = document.getElementById('member-area');
+    if (user.name && typeof user.name === 'string') {
+      currentUser = user;
+      el.textContent = `歡迎，${user.name}`;
+      el.href = '/me.html';
+    } else {
+      throw new Error('名稱無效');
+    }
+  })
+  .catch(() => {
+    const el = document.getElementById('member-area');
+    el.textContent = '登入 / 註冊';
+    el.href = '/login.html';
+  });
 
     // 2️⃣ 加入購物車
     function addToCart(id, price) {
